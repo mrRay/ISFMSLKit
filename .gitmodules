@@ -1,0 +1,3 @@
+[submodule "VVMetalKit"]
+	path = VVMetalKit
+	url = https://github.com/mrRay/VVMetalKit.git
