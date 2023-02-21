@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A17D733299C047C00EBA55E /* VVMetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A17D72D299C046100EBA55E /* VVMetalKit.framework */; };
+		1A17D734299C048200EBA55E /* VVMetalKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1A17D72D299C046100EBA55E /* VVMetalKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1A1F5B97299958FE009170DA /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A1F5B96299958FE009170DA /* AppDelegate.mm */; };
 		1A1F5B99299958FF009170DA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A1F5B98299958FF009170DA /* Assets.xcassets */; };
 		1A1F5B9C299958FF009170DA /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A1F5B9A299958FF009170DA /* MainMenu.xib */; };
@@ -17,7 +19,34 @@
 		1AEE5888299A6D4500E9BF30 /* libSPIRVCrossLib.dylib in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1AEE5886299A6D3C00E9BF30 /* libSPIRVCrossLib.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		1AEE588A299A701900E9BF30 /* libISFGLSLGenerator.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AEE5889299A701900E9BF30 /* libISFGLSLGenerator.dylib */; };
 		1AEE588B299A702000E9BF30 /* libISFGLSLGenerator.dylib in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1AEE5889299A701900E9BF30 /* libISFGLSLGenerator.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		1AFBD95F29A4049500118E37 /* ISFMTLScene.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AFBD95E29A4049500118E37 /* ISFMTLScene.mm */; };
+		1AFBD96329A5050B00118E37 /* TestMTLScene.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFBD96229A5050B00118E37 /* TestMTLScene.m */; };
+		1AFBD96529A5088300118E37 /* TestScene.metal in Sources */ = {isa = PBXBuildFile; fileRef = 1AFBD96429A5088300118E37 /* TestScene.metal */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1A17D72C299C046100EBA55E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A17D727299C046100EBA55E /* VVMetalKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 1A0FBE8D260E1C2E00FF39BB;
+			remoteInfo = VVMetalKit;
+		};
+		1A17D72E299C046100EBA55E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A17D727299C046100EBA55E /* VVMetalKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 1AC82CF827FF2901009A9989;
+			remoteInfo = VVMetalKitTouch;
+		};
+		1A17D730299C047600EBA55E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A17D727299C046100EBA55E /* VVMetalKit.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 1A0FBE8C260E1C2E00FF39BB;
+			remoteInfo = VVMetalKit;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		1AEE5884299A6C1700E9BF30 /* Embed Frameworks */ = {
@@ -26,6 +55,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				1A17D734299C048200EBA55E /* VVMetalKit.framework in Embed Frameworks */,
 				1AEE5885299A6C2500E9BF30 /* libGLSLangValidatorLib.dylib in Embed Frameworks */,
 				1AEE5888299A6D4500E9BF30 /* libSPIRVCrossLib.dylib in Embed Frameworks */,
 				1AEE588B299A702000E9BF30 /* libISFGLSLGenerator.dylib in Embed Frameworks */,
@@ -36,6 +66,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1A17D727299C046100EBA55E /* VVMetalKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = VVMetalKit.xcodeproj; path = extern/VVMetalKit/VVMetalKit.xcodeproj; sourceTree = SOURCE_ROOT; };
 		1A1F5B92299958FE009170DA /* testISFtoMSL.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = testISFtoMSL.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A1F5B95299958FE009170DA /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		1A1F5B96299958FE009170DA /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
@@ -46,6 +77,11 @@
 		1AEE5882299A6C1000E9BF30 /* libGLSLangValidatorLib.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLSLangValidatorLib.dylib; path = extern/GLSLangValidatorLib/bin/libGLSLangValidatorLib.dylib; sourceTree = SOURCE_ROOT; };
 		1AEE5886299A6D3C00E9BF30 /* libSPIRVCrossLib.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSPIRVCrossLib.dylib; path = extern/SPIRVCrossLib/bin/libSPIRVCrossLib.dylib; sourceTree = SOURCE_ROOT; };
 		1AEE5889299A701900E9BF30 /* libISFGLSLGenerator.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libISFGLSLGenerator.dylib; path = extern/ISFGLSLGeneratorLib/bin/libISFGLSLGenerator.dylib; sourceTree = SOURCE_ROOT; };
+		1AFBD95D29A4049500118E37 /* ISFMTLScene.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISFMTLScene.h; sourceTree = "<group>"; };
+		1AFBD95E29A4049500118E37 /* ISFMTLScene.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ISFMTLScene.mm; sourceTree = "<group>"; };
+		1AFBD96129A5050B00118E37 /* TestMTLScene.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestMTLScene.h; sourceTree = "<group>"; };
+		1AFBD96229A5050B00118E37 /* TestMTLScene.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestMTLScene.m; sourceTree = "<group>"; };
+		1AFBD96429A5088300118E37 /* TestScene.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = TestScene.metal; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,6 +89,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A17D733299C047C00EBA55E /* VVMetalKit.framework in Frameworks */,
 				1AEE5887299A6D3C00E9BF30 /* libSPIRVCrossLib.dylib in Frameworks */,
 				1AEE588A299A701900E9BF30 /* libISFGLSLGenerator.dylib in Frameworks */,
 				1AEE5883299A6C1000E9BF30 /* libGLSLangValidatorLib.dylib in Frameworks */,
@@ -62,11 +99,29 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1A17D728299C046100EBA55E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1A17D72D299C046100EBA55E /* VVMetalKit.framework */,
+				1A17D72F299C046100EBA55E /* VVMetalKitTouch.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1A17D732299C047C00EBA55E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		1A1F5B89299958FE009170DA = {
 			isa = PBXGroup;
 			children = (
 				1A1F5B94299958FE009170DA /* testISFtoMSL */,
+				1A17D727299C046100EBA55E /* VVMetalKit.xcodeproj */,
 				1A1F5B93299958FE009170DA /* Products */,
+				1A17D732299C047C00EBA55E /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -83,6 +138,11 @@
 			children = (
 				1A1F5B95299958FE009170DA /* AppDelegate.h */,
 				1A1F5B96299958FE009170DA /* AppDelegate.mm */,
+				1AFBD95D29A4049500118E37 /* ISFMTLScene.h */,
+				1AFBD95E29A4049500118E37 /* ISFMTLScene.mm */,
+				1AFBD96129A5050B00118E37 /* TestMTLScene.h */,
+				1AFBD96229A5050B00118E37 /* TestMTLScene.m */,
+				1AFBD96429A5088300118E37 /* TestScene.metal */,
 				1AEE5882299A6C1000E9BF30 /* libGLSLangValidatorLib.dylib */,
 				1AEE5886299A6D3C00E9BF30 /* libSPIRVCrossLib.dylib */,
 				1AEE5889299A701900E9BF30 /* libISFGLSLGenerator.dylib */,
@@ -109,6 +169,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				1A17D731299C047600EBA55E /* PBXTargetDependency */,
 			);
 			name = testISFtoMSL;
 			productName = testISFtoMSL;
@@ -140,12 +201,35 @@
 			mainGroup = 1A1F5B89299958FE009170DA;
 			productRefGroup = 1A1F5B93299958FE009170DA /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 1A17D728299C046100EBA55E /* Products */;
+					ProjectRef = 1A17D727299C046100EBA55E /* VVMetalKit.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				1A1F5B91299958FE009170DA /* testISFtoMSL */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		1A17D72D299C046100EBA55E /* VVMetalKit.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = VVMetalKit.framework;
+			remoteRef = 1A17D72C299C046100EBA55E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		1A17D72F299C046100EBA55E /* VVMetalKitTouch.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = VVMetalKitTouch.framework;
+			remoteRef = 1A17D72E299C046100EBA55E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		1A1F5B90299958FE009170DA /* Resources */ = {
@@ -164,12 +248,23 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1AFBD96329A5050B00118E37 /* TestMTLScene.m in Sources */,
+				1AFBD96529A5088300118E37 /* TestScene.metal in Sources */,
+				1AFBD95F29A4049500118E37 /* ISFMTLScene.mm in Sources */,
 				1A1F5B9E299958FF009170DA /* main.m in Sources */,
 				1A1F5B97299958FE009170DA /* AppDelegate.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1A17D731299C047600EBA55E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = VVMetalKit;
+			targetProxy = 1A17D730299C047600EBA55E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		1A1F5B9A299958FF009170DA /* MainMenu.xib */ = {

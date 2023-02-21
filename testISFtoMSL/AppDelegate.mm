@@ -6,44 +6,66 @@
 //
 
 #import "AppDelegate.h"
-#include "GLSLangValidatorLib.hpp"
-#include "SPIRVCrossLib.hpp"
-
-#include <string>
-#include <vector>
-#include <iostream>
-
-#include "VVISF.hpp"
-
-using namespace std;
-using namespace VVISF;
+#import <VVMetalKit/VVMetalKit.h>
+#import "ISFMTLScene.h"
+#import "TestMTLScene.h"
 
 
-int ISFxMSL(const std::string & inPath, const std::string & outMSLVS, const std::string & outMSLFS);
 
 
 @interface AppDelegate ()
 @property (strong) IBOutlet NSWindow *window;
+@property (weak) IBOutlet MTLImgBufferView * previewView;
+@property (strong) TestMTLScene * testScene;
 @end
+
+
 
 
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-	//GLSLangValidatorLibFunc();
-	//SPIRVCrossLibFunc();
+	RenderProperties		*rp = [RenderProperties global];
+	if (rp == nil)	{
+		NSLog(@"ERR: render properties nil, bailing, %s",__func__);
+		return;
+	}
+	//	make the pool!
+	[MTLPool createGlobalPoolWithDevice:rp.device];
 	
-	//string			tmpString("/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-Functionality.fs");
-	//ISFDocRef		tmpDoc = CreateISFDocRef(tmpString);
-	//string			*fragSrc = new std::string();
-	//string			*vertSrc = new std::string();
-	//tmpDoc->generateShaderSource(fragSrc, vertSrc, GLVersion_4, false);
-	//delete fragSrc;
-	//fragSrc = nullptr;
-	//delete vertSrc;
-	//vertSrc = nullptr;
+	//	configure the preview view to use the same device we'll be using for rendering
+	[self.previewView setDevice:rp.device];
 	
-	std::shared_ptr<vector<string>>		files = CreateArrayOfDefaultISFs();
+	self.testScene = [[TestMTLScene alloc] initWithDevice:rp.device];
+	
+	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-Functionality.fs"];
+	//ISFMTLScene			*scene = [[ISFMTLScene alloc] initWithDevice:rp.device isfURL:url];
+	
+	
+	
+	[NSTimer
+		scheduledTimerWithTimeInterval:1./60.
+		repeats:YES
+		block:^(NSTimer *t)	{
+			[self draw];
+		}];
+	
+	/*
+	//std::shared_ptr<vector<string>>		files = CreateArrayOfDefaultISFs();
+	std::shared_ptr<vector<string>>		files = CreateArrayOfISFsForPath("/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials");
+	
+	std::sort(
+		files->begin(),
+		files->end(),
+		[](const string & a, const string & b) -> bool	{
+			return lexicographical_compare(
+				a.begin(), a.end(),
+				b.begin(), b.end(),
+				[](const char & c1, const char & c2)	{
+					return tolower(c1) < tolower(c2);
+				}
+				);
+		});
 	
 	for (const auto & file : *files)	{
 		cout << "\tfound file " << std::filesystem::path(file).stem() << endl;
@@ -56,58 +78,64 @@ int ISFxMSL(const std::string & inPath, const std::string & outMSLVS, const std:
 		}
 		break;
 	}
+	*/
 }
-
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
 }
-
 - (BOOL)applicationSupportsSecureRestorableState:(NSApplication *)app {
 	return YES;
 }
 
+
+- (void) draw	{
+	NSLog(@"%s",__func__);
+	
+	MTLImgBuffer		*newFrame = [[MTLPool global] bgra8TexSized:CGSizeMake(1920,1080)];;
+	
+
+#define CAPTURE 1
+#if CAPTURE
+	MTLCaptureManager		*cm = nil;
+	static int				counter = 0;
+	++counter;
+	if (counter > 10)
+		return;
+	if (counter == 10)
+		cm = [MTLCaptureManager sharedCaptureManager];
+	MTLCaptureDescriptor		*desc = [[MTLCaptureDescriptor alloc] init];
+	desc.captureObject = [RenderProperties global].renderQueue;
+
+	if (cm!=nil && ![cm startCaptureWithDescriptor:desc error:nil])
+		NSLog(@"ERR: couldn't start capturing metal data");
+#endif
+	
+	
+	id<MTLCommandBuffer>		cmdBuffer = [[RenderProperties global].renderQueue commandBuffer];
+	
+	[self.testScene renderToBuffer:newFrame inCommandBuffer:cmdBuffer];
+	
+	if (newFrame != nil)	{
+		self.previewView.imgBuffer = newFrame;
+		[self.previewView drawInCmdBuffer:cmdBuffer];
+	}
+	else if (self.previewView.imgBuffer != nil)	{
+		[self.previewView drawInCmdBuffer:cmdBuffer];
+	}
+	
+	
+	[cmdBuffer commit];
+	
+	
+#if CAPTURE
+	if (cm != nil)	{
+		[cm stopCapture];
+		[cmdBuffer waitUntilCompleted];
+	}
+#endif
+	
+	[[MTLPool global] housekeeping];
+}
+
+
 @end
 
-
-
-
-int ISFxMSL(const std::string & inPath, const std::string & outMSLVS, const std::string & outMSLFS)	{
-	ISFDocRef		tmpDoc = CreateISFDocRef(inPath);
-	std::string		fragSrc;
-	std::string		vertSrc;
-	tmpDoc->generateShaderSource(&fragSrc, &vertSrc, GLVersion_4, true);
-	//cout << "***************************************************************" << endl;
-	//cout << vertSrc << endl;
-	//cout << "***************************************************************" << endl;
-	//cout << fragSrc << endl;
-	//cout << "***************************************************************" << endl;
-	
-	vector<uint32_t>	outSPIRVVtxData;
-	vector<uint32_t>	outSPIRVFrgData;
-	if (!ConvertGLSLVertShaderToSPIRV(vertSrc, outSPIRVVtxData))	{
-		NSLog(@"ERR: unable to convert vert shader for file %s, bailing",std::filesystem::path(inPath).stem().c_str());
-		return 1;
-	}
-	
-	//outSPIRVData.clear();
-	if (!ConvertGLSLFragShaderToSPIRV(fragSrc, outSPIRVFrgData))	{
-		NSLog(@"ERR: unable to convert frag shader for file %s, bailing",std::filesystem::path(inPath).stem().c_str());
-		return 2;
-	}
-	
-	string		outMSLVtxString;
-	string		outMSLFrgString;
-	if (!ConvertSPIRVToMSL(outSPIRVVtxData, outMSLVtxString))	{
-		NSLog(@"ERR: unable to convert SPIRV for file %s, bailing",std::filesystem::path(inPath).stem().c_str());
-		return 3;
-	}
-	if (!ConvertSPIRVToMSL(outSPIRVFrgData, outMSLFrgString))	{
-		NSLog(@"ERR: unable to convert SPIRV for file %s, bailing",std::filesystem::path(inPath).stem().c_str());
-		return 4;
-	}
-	//cout << "***************************************************************" << endl;
-	//cout << outMSLVtxString << endl;
-	//cout << "***************************************************************" << endl;
-	//cout << outMSLFrgString << endl;
-	//cout << "***************************************************************" << endl;
-	return 0;
-}
