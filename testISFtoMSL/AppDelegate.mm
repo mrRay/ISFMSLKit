@@ -16,6 +16,7 @@
 @interface AppDelegate ()
 @property (strong) IBOutlet NSWindow *window;
 @property (weak) IBOutlet MTLImgBufferView * previewView;
+@property (strong) ISFMTLScene * isfScene;
 @property (strong) TestMTLScene * testScene;
 @end
 
@@ -36,12 +37,10 @@
 	//	configure the preview view to use the same device we'll be using for rendering
 	[self.previewView setDevice:rp.device];
 	
+	NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-Functionality.fs"];
+	self.isfScene = [[ISFMTLScene alloc] initWithDevice:rp.device isfURL:url];
+	
 	self.testScene = [[TestMTLScene alloc] initWithDevice:rp.device];
-	
-	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-Functionality.fs"];
-	//ISFMTLScene			*scene = [[ISFMTLScene alloc] initWithDevice:rp.device isfURL:url];
-	
-	
 	
 	[NSTimer
 		scheduledTimerWithTimeInterval:1./60.
@@ -66,18 +65,6 @@
 				}
 				);
 		});
-	
-	for (const auto & file : *files)	{
-		cout << "\tfound file " << std::filesystem::path(file).stem() << endl;
-		string		outMSLVtxString;
-		string		outMSLFrgString;
-		int			isfErr = ISFxMSL(file, outMSLVtxString, outMSLFrgString);
-		if (isfErr != 0)	{
-			NSLog(@"ERR: %d processing file %s",isfErr,std::filesystem::path(file).stem().c_str());
-			break;
-		}
-		break;
-	}
 	*/
 }
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
@@ -88,12 +75,12 @@
 
 
 - (void) draw	{
-	NSLog(@"%s",__func__);
+	//NSLog(@"%s",__func__);
 	
 	MTLImgBuffer		*newFrame = [[MTLPool global] bgra8TexSized:CGSizeMake(1920,1080)];;
 	
 
-#define CAPTURE 1
+#define CAPTURE 0
 #if CAPTURE
 	MTLCaptureManager		*cm = nil;
 	static int				counter = 0;
@@ -113,6 +100,7 @@
 	id<MTLCommandBuffer>		cmdBuffer = [[RenderProperties global].renderQueue commandBuffer];
 	
 	[self.testScene renderToBuffer:newFrame inCommandBuffer:cmdBuffer];
+	//[self.isfScene renderToBuffer:newFrame inCommandBuffer:cmdBuffer];
 	
 	if (newFrame != nil)	{
 		self.previewView.imgBuffer = newFrame;

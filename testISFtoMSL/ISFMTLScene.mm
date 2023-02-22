@@ -81,22 +81,34 @@ using namespace VVISF;
 		return self;
 	}
 	
+	//NSString		*filename = [inURL URLByDeletingPathExtension].lastPathComponent;
+	string			raw_filename = std::filesystem::path(inURLPathCStr).stem().string();
+	string			filename { "" };
+	for (auto tmpchar : raw_filename)	{
+		if (isalnum(tmpchar))
+			filename += tmpchar;
+		else
+			filename += "_";
+	}
+	string			fragFuncName = filename+"FragFunc";
+	string			vertFuncName = filename+"VertFunc";
+	
 	string		outMSLVtxString;
 	string		outMSLFrgString;
-	if (!ConvertSPIRVToMSL(outSPIRVVtxData, outMSLVtxString))	{
+	if (!ConvertVertSPIRVToMSL(outSPIRVVtxData, vertFuncName, outMSLVtxString))	{
 		NSLog(@"ERR: unable to convert SPIRV for file %s, bailing",std::filesystem::path(inURLPathCStr).stem().c_str());
 		self = nil;
 		return self;
 	}
-	if (!ConvertSPIRVToMSL(outSPIRVFrgData, outMSLFrgString))	{
+	if (!ConvertFragSPIRVToMSL(outSPIRVFrgData, fragFuncName, outMSLFrgString))	{
 		NSLog(@"ERR: unable to convert SPIRV for file %s, bailing",std::filesystem::path(inURLPathCStr).stem().c_str());
 		self = nil;
 		return self;
 	}
 	
-	NSLog(@"%s- bailing early",__func__);
-	self = nil;
-	return self;
+	//NSLog(@"%s- bailing early",__func__);
+	//self = nil;
+	//return self;
 	
 	cout << "***************************************************************" << endl;
 	cout << outMSLVtxString << endl;
@@ -121,13 +133,13 @@ using namespace VVISF;
 		return self;
 	}
 	
-	id<MTLFunction>		vtxFunc = [vtxLib newFunctionWithName:@"main0"];
+	id<MTLFunction>		vtxFunc = [vtxLib newFunctionWithName:[NSString stringWithUTF8String:vertFuncName.c_str()]];
 	if (vtxFunc == nil)	{
 		NSLog(@"ERR: unable to make func from vtx lib %s, bailing",std::filesystem::path(inURLPathCStr).stem().c_str());
 		self = nil;
 		return self;
 	}
-	id<MTLFunction>		frgFunc = [frgLib newFunctionWithName:@"main0"];
+	id<MTLFunction>		frgFunc = [frgLib newFunctionWithName:[NSString stringWithUTF8String:fragFuncName.c_str()]];
 	if (frgFunc == nil)	{
 		NSLog(@"ERR: unable to make func from frg lib %s, bailing",std::filesystem::path(inURLPathCStr).stem().c_str());
 		self = nil;
@@ -139,16 +151,16 @@ using namespace VVISF;
 	psDesc.fragmentFunction = frgFunc;
 	psDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
 	
-	psDesc.alphaToCoverageEnabled = YES;
-	psDesc.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
-	psDesc.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
-	//psDesc.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
-	psDesc.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorOne;
-	psDesc.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
-	//psDesc.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-	psDesc.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorZero;
-	psDesc.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-	psDesc.colorAttachments[0].blendingEnabled = YES;
+	//psDesc.alphaToCoverageEnabled = YES;
+	//psDesc.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+	//psDesc.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+	////psDesc.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+	//psDesc.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorOne;
+	//psDesc.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
+	////psDesc.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+	//psDesc.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorZero;
+	//psDesc.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+	//psDesc.colorAttachments[0].blendingEnabled = YES;
 	
 	MTLVertexDescriptor		*vtxDesc = [MTLVertexDescriptor vertexDescriptor];
 	MTLVertexAttributeDescriptor	*attrDesc = [[MTLVertexAttributeDescriptor alloc] init];
@@ -158,12 +170,9 @@ using namespace VVISF;
 	[vtxDesc.attributes setObject:attrDesc atIndexedSubscript:0];
 	psDesc.vertexDescriptor = vtxDesc;
 	
-	
-	
-	
 	self.renderPipelineStateObject = [self.device newRenderPipelineStateWithDescriptor:psDesc error:&nsErr];
 	if (self.renderPipelineStateObject == nil || nsErr != nil)	{
-		NSLog(@"ERR: unable to make PSD for file %s (%@)",std::filesystem::path(inURLPathCStr).stem().c_str(),nsErr);
+		NSLog(@"ERR: unable to make PSO for file %s (%@)",std::filesystem::path(inURLPathCStr).stem().c_str(),nsErr);
 		self = nil;
 		return self;
 	}

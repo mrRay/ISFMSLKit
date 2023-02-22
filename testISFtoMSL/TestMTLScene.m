@@ -52,7 +52,7 @@
 }
 
 - (void) renderCallback	{
-	NSLog(@"%s",__func__);
+	//NSLog(@"%s",__func__);
 	CGRect			viewRect = CGRectMake( 0, 0, renderSize.width, renderSize.height );
 	{
 		

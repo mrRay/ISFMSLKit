@@ -3,6 +3,7 @@
 
 void SPIRVCrossLibFunc();
 
-bool ConvertSPIRVToMSL(const std::vector<uint32_t> & inSPIRVData, std::string & outShaderString);
+bool ConvertVertSPIRVToMSL(const std::vector<uint32_t> & inSPIRVData, const std::string & inNewMainFuncName, std::string & outShaderString);
+bool ConvertFragSPIRVToMSL(const std::vector<uint32_t> & inSPIRVData, const std::string & inNewMainFuncName, std::string & outShaderString);
 
 #endif	/*	SPIRVCROSSLIB_H	*/
