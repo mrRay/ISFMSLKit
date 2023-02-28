@@ -62,11 +62,11 @@
 		//	simd_make_float4( CGRectGetMaxX(viewRect), CGRectGetMinY(viewRect), 0., 0. ),
 		//	simd_make_float4( CGRectGetMaxX(viewRect), CGRectGetMaxY(viewRect), 0., 0. ),
 		//};
-		const vector_float2		quadVerts[] = {
-			{ CGRectGetMinX(viewRect), CGRectGetMinY(viewRect) },
-			{ CGRectGetMinX(viewRect), CGRectGetMaxY(viewRect) },
-			{ CGRectGetMaxX(viewRect), CGRectGetMinY(viewRect) },
-			{ CGRectGetMaxX(viewRect), CGRectGetMaxY(viewRect) },
+		const vector_float4		quadVerts[] = {
+			{ CGRectGetMinX(viewRect), CGRectGetMinY(viewRect), 0., 1. },
+			{ CGRectGetMinX(viewRect), CGRectGetMaxY(viewRect), 0., 1. },
+			{ CGRectGetMaxX(viewRect), CGRectGetMinY(viewRect), 0., 1. },
+			{ CGRectGetMaxX(viewRect), CGRectGetMaxY(viewRect), 0., 1. },
 		};
 		
 		id<MTLBuffer>		vertBuffer = [self.device

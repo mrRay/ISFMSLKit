@@ -9,6 +9,14 @@
 #import <VVMetalKit/VVMetalKit.h>
 #import "ISFMTLScene.h"
 #import "TestMTLScene.h"
+#include <memory>
+#include <string>
+#include "VVISF.hpp"
+
+
+
+
+using namespace std;
 
 
 
@@ -38,6 +46,7 @@
 	[self.previewView setDevice:rp.device];
 	
 	NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-Functionality.fs"];
+	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-IMG_PIXEL.fs"];
 	self.isfScene = [[ISFMTLScene alloc] initWithDevice:rp.device isfURL:url];
 	
 	self.testScene = [[TestMTLScene alloc] initWithDevice:rp.device];
@@ -51,8 +60,7 @@
 	
 	/*
 	//std::shared_ptr<vector<string>>		files = CreateArrayOfDefaultISFs();
-	std::shared_ptr<vector<string>>		files = CreateArrayOfISFsForPath("/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials");
-	
+	std::shared_ptr<vector<string>>		files = VVISF::CreateArrayOfISFsForPath("/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials");
 	std::sort(
 		files->begin(),
 		files->end(),
@@ -65,6 +73,10 @@
 				}
 				);
 		});
+	for (auto path : *files)	{
+		NSURL			*url = [NSURL fileURLWithPath:[NSString stringWithUTF8String:path.c_str()]];
+		ISFMTLScene		*tmpScene = [[ISFMTLScene alloc] initWithDevice:rp.device isfURL:url];
+	}
 	*/
 }
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
@@ -99,8 +111,8 @@
 	
 	id<MTLCommandBuffer>		cmdBuffer = [[RenderProperties global].renderQueue commandBuffer];
 	
-	[self.testScene renderToBuffer:newFrame inCommandBuffer:cmdBuffer];
-	//[self.isfScene renderToBuffer:newFrame inCommandBuffer:cmdBuffer];
+	//[self.testScene renderToBuffer:newFrame inCommandBuffer:cmdBuffer];
+	[self.isfScene renderToBuffer:newFrame inCommandBuffer:cmdBuffer];
 	
 	if (newFrame != nil)	{
 		self.previewView.imgBuffer = newFrame;
