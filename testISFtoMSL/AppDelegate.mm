@@ -45,8 +45,25 @@ using namespace std;
 	//	configure the preview view to use the same device we'll be using for rendering
 	[self.previewView setDevice:rp.device];
 	
-	NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-Functionality.fs"];
+	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-Audio.fs"];
+	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-AudioFFT.fs"];
+	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-Bool.fs"];
+	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-Color.fs"];
+	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-Event.fs"];
+	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-Float.fs"];
+	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-Functionality.fs"];
+	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-IMG_NORM_PIXEL.fs"];
 	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-IMG_PIXEL.fs"];
+	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-IMG_THIS_NORM_PIXEL.fs"];
+	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-IMG_THIS_PIXEL.fs"];
+	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-ImportedImage.fs"];
+	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-Long.fs"];
+	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-MultiPassRendering.fs"];
+	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-PersistentBuffer.fs"];
+	NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-PersistentBufferDifferingSizes.fs"];
+	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-Point.fs"];
+	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-Sampler.fs"];
+	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-TempBufferDifferingSizes.fs"];
 	self.isfScene = [[ISFMTLScene alloc] initWithDevice:rp.device isfURL:url];
 	
 	self.testScene = [[TestMTLScene alloc] initWithDevice:rp.device];
@@ -59,8 +76,8 @@ using namespace std;
 		}];
 	
 	/*
-	//std::shared_ptr<vector<string>>		files = CreateArrayOfDefaultISFs();
-	std::shared_ptr<vector<string>>		files = VVISF::CreateArrayOfISFsForPath("/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials");
+	std::shared_ptr<vector<string>>		files = VVISF::CreateArrayOfDefaultISFs();
+	//std::shared_ptr<vector<string>>		files = VVISF::CreateArrayOfISFsForPath("/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials");
 	std::sort(
 		files->begin(),
 		files->end(),
@@ -121,7 +138,6 @@ using namespace std;
 	else if (self.previewView.imgBuffer != nil)	{
 		[self.previewView drawInCmdBuffer:cmdBuffer];
 	}
-	
 	
 	[cmdBuffer commit];
 	

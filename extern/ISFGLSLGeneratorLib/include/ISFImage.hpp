@@ -72,6 +72,51 @@ class ISFImage	{
 				return FmtString("<ISFImage %d x %d>",width,height);
 		}
 		
+		bool const sizeIsValid() const	{
+			static const uint32_t		maxVal = std::numeric_limits<uint32_t>::max();
+			if (width == maxVal || height==maxVal)
+				return false;
+			return true;
+		}
+		
+		ISFImage & operator=(const ISFImage & n)	{
+			if (this == &n)	{
+				return *this;
+			}
+			
+			width = n.width;
+			height = n.height;
+			depth = n.depth;
+			cubemap = n.cubemap;
+			
+			if (n.imagePath == nullptr)	{
+				if (imagePath != nullptr)	{
+					delete imagePath;
+					imagePath = nullptr;
+				}
+			}
+			else	{
+				if (imagePath == nullptr)
+					imagePath = new std::string;
+				*imagePath = *n.imagePath;
+			}
+			
+			if (n.cubePaths == nullptr)	{
+				if (cubePaths != nullptr)	{
+					delete cubePaths;
+					cubePaths = nullptr;
+				}
+			}
+			else	{
+				if (cubePaths == nullptr)
+					cubePaths = new std::vector<std::string>;
+				cubePaths->clear();
+				*cubePaths = *n.cubePaths;
+			}
+			
+			return *this;
+		}
+		
 		friend std::ostream & operator<<(std::ostream & os, const ISFImage & n)	{
 			os << n.getDescriptionString();
 			return os;

@@ -185,7 +185,7 @@ class ISFDoc	{
 		\param inGLVers The version of OpenGL that the generated source code must be compatible with.
 		\param inVarsAsUBO Defaults to false.  If true, variable declarations for non-image INPUTS will be assembled in a uniform block.  This option was added because a downstream utility requires it.
 		*/
-		bool generateShaderSource(std::string * outFragSrc, std::string * outVertSrc, const GLVersion & inGLVers, const bool & inVarsAsUBO=false);
+		bool generateShaderSource(std::string * outFragSrc, std::string * outVertSrc, const GLVersion & inGLVers, const bool & inVarsAsUBO=false, size_t * outUBOSize=nullptr);
 		//	this method must be called before rendering (passes/etc may have expressions that require the render dims to be evaluated)
 		void evalBufferDimensionsWithRenderSize(const int & inWidth, const int & inHeight);
 		
@@ -195,7 +195,7 @@ class ISFDoc	{
 		//	used so we can have two constructors without duplicating code
 		void _initWithRawFragShaderString(const std::string & inRawFile);
 		//	returns a true if successful.  populates a std::string with variable declarations for a frag shader
-		bool _assembleShaderSource_VarDeclarations(std::string * outVSString, std::string * outFSString, const GLVersion & inGLVers, const bool & inVarsAsUBO=false);
+		bool _assembleShaderSource_VarDeclarations(std::string * outVSString, std::string * outFSString, const GLVersion & inGLVers, const bool & inVarsAsUBO=false, size_t * outUBOSize=nullptr);
 		//	returns a true if successful.  populates a map with std::string/value pairs that will be used to evaluate variable names in strings
 		bool _assembleSubstitutionMap(std::map<std::string,double*> * outMap);
 };

@@ -16,46 +16,46 @@ precision highp int;	\n\
 	\n\
 ");
 static const std::string		ISFGLMacro2D_GL2 = std::string("\
-vec4 VVSAMPLER_2DBYPIXEL(sampler2D sampler, vec4 samplerImgRect, vec2 samplerImgSize, bool samplerFlip, vec2 loc)	{	\n\
-	return (samplerFlip)	\n\
-		? texture2D		(sampler,vec2(((loc.x/samplerImgSize.x*samplerImgRect.z)+samplerImgRect.x), (samplerImgRect.w-(loc.y/samplerImgSize.y*samplerImgRect.w)+samplerImgRect.y)))	\n\
-		: texture2D		(sampler,vec2(((loc.x/samplerImgSize.x*samplerImgRect.z)+samplerImgRect.x), ((loc.y/samplerImgSize.y*samplerImgRect.w)+samplerImgRect.y)));	\n\
+vec4 VVSAMPLER_2DBYPIXEL(sampler2D inSampler, vec4 inSamplerImgRect, vec2 inSamplerImgSize, bool inSamplerFlip, vec2 inLoc)	{	\n\
+	return (inSamplerFlip)	\n\
+		? texture2D		(inSampler,vec2(((inLoc.x/inSamplerImgSize.x*inSamplerImgRect.z)+inSamplerImgRect.x), (inSamplerImgRect.w-(inLoc.y/inSamplerImgSize.y*inSamplerImgRect.w)+inSamplerImgRect.y)))	\n\
+		: texture2D		(inSampler,vec2(((inLoc.x/inSamplerImgSize.x*inSamplerImgRect.z)+inSamplerImgRect.x), ((inLoc.y/inSamplerImgSize.y*inSamplerImgRect.w)+inSamplerImgRect.y)));	\n\
 }	\n\
-vec4 VVSAMPLER_2DBYNORM(sampler2D sampler, vec4 samplerImgRect, vec2 samplerImgSize, bool samplerFlip, vec2 normLoc)	{	\n\
-	vec4		returnMe = VVSAMPLER_2DBYPIXEL(		sampler,samplerImgRect,samplerImgSize,samplerFlip,vec2(normLoc.x*samplerImgSize.x, normLoc.y*samplerImgSize.y));	\n\
+vec4 VVSAMPLER_2DBYNORM(sampler2D inSampler, vec4 inSamplerImgRect, vec2 inSamplerImgSize, bool inSamplerFlip, vec2 normLoc)	{	\n\
+	vec4		returnMe = VVSAMPLER_2DBYPIXEL(		inSampler,inSamplerImgRect,inSamplerImgSize,inSamplerFlip,vec2(normLoc.x*inSamplerImgSize.x, normLoc.y*inSamplerImgSize.y));	\n\
 	return returnMe;	\n\
 }	\n\
 ");
 static const std::string		ISFGLMacro2DBias_GL2 = std::string("\
-vec4 VVSAMPLER_2DBYPIXEL(sampler2D sampler, vec4 samplerImgRect, vec2 samplerImgSize, bool samplerFlip, vec2 loc, float bias)	{	\n\
-	return (samplerFlip)	\n\
-		? texture2D		(sampler,vec2(((loc.x/samplerImgSize.x*samplerImgRect.z)+samplerImgRect.x), (samplerImgRect.w-(loc.y/samplerImgSize.y*samplerImgRect.w)+samplerImgRect.y)), bias)	\n\
-		: texture2D		(sampler,vec2(((loc.x/samplerImgSize.x*samplerImgRect.z)+samplerImgRect.x), ((loc.y/samplerImgSize.y*samplerImgRect.w)+samplerImgRect.y)), bias);	\n\
+vec4 VVSAMPLER_2DBYPIXEL(sampler2D inSampler, vec4 inSamplerImgRect, vec2 inSamplerImgSize, bool inSamplerFlip, vec2 inLoc, float bias)	{	\n\
+	return (inSamplerFlip)	\n\
+		? texture2D		(inSampler,vec2(((inLoc.x/inSamplerImgSize.x*inSamplerImgRect.z)+inSamplerImgRect.x), (inSamplerImgRect.w-(inLoc.y/inSamplerImgSize.y*inSamplerImgRect.w)+inSamplerImgRect.y)), bias)	\n\
+		: texture2D		(inSampler,vec2(((inLoc.x/inSamplerImgSize.x*inSamplerImgRect.z)+inSamplerImgRect.x), ((inLoc.y/inSamplerImgSize.y*inSamplerImgRect.w)+inSamplerImgRect.y)), bias);	\n\
 }	\n\
-vec4 VVSAMPLER_2DBYNORM(sampler2D sampler, vec4 samplerImgRect, vec2 samplerImgSize, bool samplerFlip, vec2 normLoc, float bias)	{	\n\
-	vec4		returnMe = VVSAMPLER_2DBYPIXEL(		sampler,samplerImgRect,samplerImgSize,samplerFlip,vec2(normLoc.x*samplerImgSize.x, normLoc.y*samplerImgSize.y), bias);	\n\
+vec4 VVSAMPLER_2DBYNORM(sampler2D inSampler, vec4 inSamplerImgRect, vec2 inSamplerImgSize, bool inSamplerFlip, vec2 normLoc, float bias)	{	\n\
+	vec4		returnMe = VVSAMPLER_2DBYPIXEL(		inSampler,inSamplerImgRect,inSamplerImgSize,inSamplerFlip,vec2(normLoc.x*inSamplerImgSize.x, normLoc.y*inSamplerImgSize.y), bias);	\n\
 	return returnMe;	\n\
 }	\n\
 ");
 static const std::string		ISFGLMacro2DRect_GL2 = std::string("	\n\
-vec4 VVSAMPLER_2DRECTBYPIXEL(sampler2DRect sampler, vec4 samplerImgRect, vec2 samplerImgSize, bool samplerFlip, vec2 loc)	{	\n\
-	return (samplerFlip)	\n\
-		? texture2DRect	(sampler,vec2(((loc.x/samplerImgSize.x*samplerImgRect.z)+samplerImgRect.x), (samplerImgRect.w-(loc.y/samplerImgSize.y*samplerImgRect.w)+samplerImgRect.y)))	\n\
-		: texture2DRect	(sampler,vec2(((loc.x/samplerImgSize.x*samplerImgRect.z)+samplerImgRect.x), ((loc.y/samplerImgSize.y*samplerImgRect.w)+samplerImgRect.y)));	\n\
+vec4 VVSAMPLER_2DRECTBYPIXEL(sampler2DRect inSampler, vec4 inSamplerImgRect, vec2 inSamplerImgSize, bool inSamplerFlip, vec2 inLoc)	{	\n\
+	return (inSamplerFlip)	\n\
+		? texture2DRect	(inSampler,vec2(((inLoc.x/inSamplerImgSize.x*inSamplerImgRect.z)+inSamplerImgRect.x), (inSamplerImgRect.w-(inLoc.y/inSamplerImgSize.y*inSamplerImgRect.w)+inSamplerImgRect.y)))	\n\
+		: texture2DRect	(inSampler,vec2(((inLoc.x/inSamplerImgSize.x*inSamplerImgRect.z)+inSamplerImgRect.x), ((inLoc.y/inSamplerImgSize.y*inSamplerImgRect.w)+inSamplerImgRect.y)));	\n\
 }	\n\
-vec4 VVSAMPLER_2DRECTBYNORM(sampler2DRect sampler, vec4 samplerImgRect, vec2 samplerImgSize, bool samplerFlip, vec2 normLoc)	{	\n\
-	vec4		returnMe = VVSAMPLER_2DRECTBYPIXEL(	sampler,samplerImgRect,samplerImgSize,samplerFlip,vec2(normLoc.x*samplerImgRect.z, normLoc.y*samplerImgRect.w));	\n\
+vec4 VVSAMPLER_2DRECTBYNORM(sampler2DRect inSampler, vec4 inSamplerImgRect, vec2 inSamplerImgSize, bool inSamplerFlip, vec2 normLoc)	{	\n\
+	vec4		returnMe = VVSAMPLER_2DRECTBYPIXEL(	inSampler,inSamplerImgRect,inSamplerImgSize,inSamplerFlip,vec2(normLoc.x*inSamplerImgRect.z, normLoc.y*inSamplerImgRect.w));	\n\
 	return returnMe;	\n\
 }	\n\
 ");
 static const std::string		ISFGLMacro2DRectBias_GL2 = std::string("	\n\
-vec4 VVSAMPLER_2DRECTBYPIXEL(sampler2DRect sampler, vec4 samplerImgRect, vec2 samplerImgSize, bool samplerFlip, vec2 loc, float bias)	{	\n\
-	return (samplerFlip)	\n\
-		? texture2DRect	(sampler,vec2(((loc.x/samplerImgSize.x*samplerImgRect.z)+samplerImgRect.x), (samplerImgRect.w-(loc.y/samplerImgSize.y*samplerImgRect.w)+samplerImgRect.y)))	\n\
-		: texture2DRect	(sampler,vec2(((loc.x/samplerImgSize.x*samplerImgRect.z)+samplerImgRect.x), ((loc.y/samplerImgSize.y*samplerImgRect.w)+samplerImgRect.y)));	\n\
+vec4 VVSAMPLER_2DRECTBYPIXEL(sampler2DRect inSampler, vec4 inSamplerImgRect, vec2 inSamplerImgSize, bool inSamplerFlip, vec2 inLoc, float bias)	{	\n\
+	return (inSamplerFlip)	\n\
+		? texture2DRect	(inSampler,vec2(((inLoc.x/inSamplerImgSize.x*inSamplerImgRect.z)+inSamplerImgRect.x), (inSamplerImgRect.w-(inLoc.y/inSamplerImgSize.y*inSamplerImgRect.w)+inSamplerImgRect.y)))	\n\
+		: texture2DRect	(inSampler,vec2(((inLoc.x/inSamplerImgSize.x*inSamplerImgRect.z)+inSamplerImgRect.x), ((inLoc.y/inSamplerImgSize.y*inSamplerImgRect.w)+inSamplerImgRect.y)));	\n\
 }	\n\
-vec4 VVSAMPLER_2DRECTBYNORM(sampler2DRect sampler, vec4 samplerImgRect, vec2 samplerImgSize, bool samplerFlip, vec2 normLoc, float bias)	{	\n\
-	vec4		returnMe = VVSAMPLER_2DRECTBYPIXEL(	sampler,samplerImgRect,samplerImgSize,samplerFlip,vec2(normLoc.x*samplerImgRect.z, normLoc.y*samplerImgRect.w), bias);	\n\
+vec4 VVSAMPLER_2DRECTBYNORM(sampler2DRect inSampler, vec4 inSamplerImgRect, vec2 inSamplerImgSize, bool inSamplerFlip, vec2 normLoc, float bias)	{	\n\
+	vec4		returnMe = VVSAMPLER_2DRECTBYPIXEL(	inSampler,inSamplerImgRect,inSamplerImgSize,inSamplerFlip,vec2(normLoc.x*inSamplerImgRect.z, normLoc.y*inSamplerImgRect.w), bias);	\n\
 	return returnMe;	\n\
 }	\n\
 ");
@@ -64,46 +64,46 @@ vec4 VVSAMPLER_2DRECTBYNORM(sampler2DRect sampler, vec4 samplerImgRect, vec2 sam
 
 
 static const std::string		ISFGLMacro2D_GL3 = std::string("\
-vec4 VVSAMPLER_2DBYPIXEL(sampler2D sampler, vec4 samplerImgRect, vec2 samplerImgSize, bool samplerFlip, vec2 loc)	{	\n\
-	return (samplerFlip)	\n\
-		? texture		(sampler,vec2(((loc.x/samplerImgSize.x*samplerImgRect.z)+samplerImgRect.x), (samplerImgRect.w-(loc.y/samplerImgSize.y*samplerImgRect.w)+samplerImgRect.y)))	\n\
-		: texture		(sampler,vec2(((loc.x/samplerImgSize.x*samplerImgRect.z)+samplerImgRect.x), ((loc.y/samplerImgSize.y*samplerImgRect.w)+samplerImgRect.y)));	\n\
+vec4 VVSAMPLER_2DBYPIXEL(sampler2D inSampler, vec4 inSamplerImgRect, vec2 inSamplerImgSize, bool inSamplerFlip, vec2 inLoc)	{	\n\
+	return (inSamplerFlip)	\n\
+		? texture		(inSampler,vec2(((inLoc.x/inSamplerImgSize.x*inSamplerImgRect.z)+inSamplerImgRect.x), (inSamplerImgRect.w-(inLoc.y/inSamplerImgSize.y*inSamplerImgRect.w)+inSamplerImgRect.y)))	\n\
+		: texture		(inSampler,vec2(((inLoc.x/inSamplerImgSize.x*inSamplerImgRect.z)+inSamplerImgRect.x), ((inLoc.y/inSamplerImgSize.y*inSamplerImgRect.w)+inSamplerImgRect.y)));	\n\
 }	\n\
-vec4 VVSAMPLER_2DBYNORM(sampler2D sampler, vec4 samplerImgRect, vec2 samplerImgSize, bool samplerFlip, vec2 normLoc)	{	\n\
-	vec4		returnMe = VVSAMPLER_2DBYPIXEL(		sampler,samplerImgRect,samplerImgSize,samplerFlip,vec2(normLoc.x*samplerImgSize.x, normLoc.y*samplerImgSize.y));	\n\
+vec4 VVSAMPLER_2DBYNORM(sampler2D inSampler, vec4 inSamplerImgRect, vec2 inSamplerImgSize, bool inSamplerFlip, vec2 normLoc)	{	\n\
+	vec4		returnMe = VVSAMPLER_2DBYPIXEL(		inSampler,inSamplerImgRect,inSamplerImgSize,inSamplerFlip,vec2(normLoc.x*inSamplerImgSize.x, normLoc.y*inSamplerImgSize.y));	\n\
 	return returnMe;	\n\
 }	\n\
 ");
 static const std::string		ISFGLMacro2DBias_GL3 = std::string("\
-vec4 VVSAMPLER_2DBYPIXEL(sampler2D sampler, vec4 samplerImgRect, vec2 samplerImgSize, bool samplerFlip, vec2 loc, float bias)	{	\n\
-	return (samplerFlip)	\n\
-		? texture		(sampler,vec2(((loc.x/samplerImgSize.x*samplerImgRect.z)+samplerImgRect.x), (samplerImgRect.w-(loc.y/samplerImgSize.y*samplerImgRect.w)+samplerImgRect.y)), bias)	\n\
-		: texture		(sampler,vec2(((loc.x/samplerImgSize.x*samplerImgRect.z)+samplerImgRect.x), ((loc.y/samplerImgSize.y*samplerImgRect.w)+samplerImgRect.y)), bias);	\n\
+vec4 VVSAMPLER_2DBYPIXEL(sampler2D inSampler, vec4 inSamplerImgRect, vec2 inSamplerImgSize, bool inSamplerFlip, vec2 inLoc, float bias)	{	\n\
+	return (inSamplerFlip)	\n\
+		? texture		(inSampler,vec2(((inLoc.x/inSamplerImgSize.x*inSamplerImgRect.z)+inSamplerImgRect.x), (inSamplerImgRect.w-(inLoc.y/inSamplerImgSize.y*inSamplerImgRect.w)+inSamplerImgRect.y)), bias)	\n\
+		: texture		(inSampler,vec2(((inLoc.x/inSamplerImgSize.x*inSamplerImgRect.z)+inSamplerImgRect.x), ((inLoc.y/inSamplerImgSize.y*inSamplerImgRect.w)+inSamplerImgRect.y)), bias);	\n\
 }	\n\
-vec4 VVSAMPLER_2DBYNORM(sampler2D sampler, vec4 samplerImgRect, vec2 samplerImgSize, bool samplerFlip, vec2 normLoc, float bias)	{	\n\
-	vec4		returnMe = VVSAMPLER_2DBYPIXEL(		sampler,samplerImgRect,samplerImgSize,samplerFlip,vec2(normLoc.x*samplerImgSize.x, normLoc.y*samplerImgSize.y), bias);	\n\
+vec4 VVSAMPLER_2DBYNORM(sampler2D inSampler, vec4 inSamplerImgRect, vec2 inSamplerImgSize, bool inSamplerFlip, vec2 normLoc, float bias)	{	\n\
+	vec4		returnMe = VVSAMPLER_2DBYPIXEL(		inSampler,inSamplerImgRect,inSamplerImgSize,inSamplerFlip,vec2(normLoc.x*inSamplerImgSize.x, normLoc.y*inSamplerImgSize.y), bias);	\n\
 	return returnMe;	\n\
 }	\n\
 ");
 static const std::string		ISFGLMacro2DRect_GL3 = std::string("	\n\
-vec4 VVSAMPLER_2DRECTBYPIXEL(sampler2DRect sampler, vec4 samplerImgRect, vec2 samplerImgSize, bool samplerFlip, vec2 loc)	{	\n\
-	return (samplerFlip)	\n\
-		? texture		(sampler,vec2(((loc.x/samplerImgSize.x*samplerImgRect.z)+samplerImgRect.x), (samplerImgRect.w-(loc.y/samplerImgSize.y*samplerImgRect.w)+samplerImgRect.y)))	\n\
-		: texture		(sampler,vec2(((loc.x/samplerImgSize.x*samplerImgRect.z)+samplerImgRect.x), ((loc.y/samplerImgSize.y*samplerImgRect.w)+samplerImgRect.y)));	\n\
+vec4 VVSAMPLER_2DRECTBYPIXEL(sampler2DRect inSampler, vec4 inSamplerImgRect, vec2 inSamplerImgSize, bool inSamplerFlip, vec2 inLoc)	{	\n\
+	return (inSamplerFlip)	\n\
+		? texture		(inSampler,vec2(((inLoc.x/inSamplerImgSize.x*inSamplerImgRect.z)+inSamplerImgRect.x), (inSamplerImgRect.w-(inLoc.y/inSamplerImgSize.y*inSamplerImgRect.w)+inSamplerImgRect.y)))	\n\
+		: texture		(inSampler,vec2(((inLoc.x/inSamplerImgSize.x*inSamplerImgRect.z)+inSamplerImgRect.x), ((inLoc.y/inSamplerImgSize.y*inSamplerImgRect.w)+inSamplerImgRect.y)));	\n\
 }	\n\
-vec4 VVSAMPLER_2DRECTBYNORM(sampler2DRect sampler, vec4 samplerImgRect, vec2 samplerImgSize, bool samplerFlip, vec2 normLoc)	{	\n\
-	vec4		returnMe = VVSAMPLER_2DRECTBYPIXEL(	sampler,samplerImgRect,samplerImgSize,samplerFlip,vec2(normLoc.x*samplerImgRect.z, normLoc.y*samplerImgRect.w));	\n\
+vec4 VVSAMPLER_2DRECTBYNORM(sampler2DRect inSampler, vec4 inSamplerImgRect, vec2 inSamplerImgSize, bool inSamplerFlip, vec2 normLoc)	{	\n\
+	vec4		returnMe = VVSAMPLER_2DRECTBYPIXEL(	inSampler,inSamplerImgRect,inSamplerImgSize,inSamplerFlip,vec2(normLoc.x*inSamplerImgRect.z, normLoc.y*inSamplerImgRect.w));	\n\
 	return returnMe;	\n\
 }	\n\
 ");
 static const std::string		ISFGLMacro2DRectBias_GL3 = std::string("	\n\
-vec4 VVSAMPLER_2DRECTBYPIXEL(sampler2DRect sampler, vec4 samplerImgRect, vec2 samplerImgSize, bool samplerFlip, vec2 loc, float bias)	{	\n\
-	return (samplerFlip)	\n\
-		? texture		(sampler,vec2(((loc.x/samplerImgSize.x*samplerImgRect.z)+samplerImgRect.x), (samplerImgRect.w-(loc.y/samplerImgSize.y*samplerImgRect.w)+samplerImgRect.y)))	\n\
-		: texture		(sampler,vec2(((loc.x/samplerImgSize.x*samplerImgRect.z)+samplerImgRect.x), ((loc.y/samplerImgSize.y*samplerImgRect.w)+samplerImgRect.y)));	\n\
+vec4 VVSAMPLER_2DRECTBYPIXEL(sampler2DRect inSampler, vec4 inSamplerImgRect, vec2 inSamplerImgSize, bool inSamplerFlip, vec2 inLoc, float bias)	{	\n\
+	return (inSamplerFlip)	\n\
+		? texture		(inSampler,vec2(((inLoc.x/inSamplerImgSize.x*inSamplerImgRect.z)+inSamplerImgRect.x), (inSamplerImgRect.w-(inLoc.y/inSamplerImgSize.y*inSamplerImgRect.w)+inSamplerImgRect.y)))	\n\
+		: texture		(inSampler,vec2(((inLoc.x/inSamplerImgSize.x*inSamplerImgRect.z)+inSamplerImgRect.x), ((inLoc.y/inSamplerImgSize.y*inSamplerImgRect.w)+inSamplerImgRect.y)));	\n\
 }	\n\
-vec4 VVSAMPLER_2DRECTBYNORM(sampler2DRect sampler, vec4 samplerImgRect, vec2 samplerImgSize, bool samplerFlip, vec2 normLoc, float bias)	{	\n\
-	vec4		returnMe = VVSAMPLER_2DRECTBYPIXEL(	sampler,samplerImgRect,samplerImgSize,samplerFlip,vec2(normLoc.x*samplerImgRect.z, normLoc.y*samplerImgRect.w), bias);	\n\
+vec4 VVSAMPLER_2DRECTBYNORM(sampler2DRect inSampler, vec4 inSamplerImgRect, vec2 inSamplerImgSize, bool inSamplerFlip, vec2 normLoc, float bias)	{	\n\
+	vec4		returnMe = VVSAMPLER_2DRECTBYPIXEL(	inSampler,inSamplerImgRect,inSamplerImgSize,inSamplerFlip,vec2(normLoc.x*inSamplerImgRect.z, normLoc.y*inSamplerImgRect.w), bias);	\n\
 	return returnMe;	\n\
 }	\n\
 ");

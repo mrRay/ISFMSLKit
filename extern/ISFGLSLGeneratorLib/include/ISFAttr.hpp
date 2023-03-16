@@ -40,6 +40,8 @@ class ISFAttr	{
 		int32_t				_uniformLocation[4] = { -1, -1, -1, -1 };	//	the location of this attribute in the compiled GLSL program. cached here because lookup times are costly when performed every frame.  there are 4 because images require four uniforms (one of the texture name, one for the size, one for the img rect, and one for the flippedness)
 		
 		double				_evalVariable = 1.0;	//	attribute values are available in expression evaluation- to support this, each attribute needs to maintain a double which it populates with its current value
+		
+		uint32_t			_offsetInBuffer = 0;	//	offset (in bytes) into the buffer passed to the shader at which this attribute's data is stored.  convenience variable- it is not populated by this lib!
 	public:
 		
 		/*
@@ -99,6 +101,12 @@ class ISFAttr	{
 		inline std::vector<std::string> & labelArray() { return _labelArray; }
 		//!	Gets the attribute's values as a std::vector of int values.  Only used if the attribute is a 'long'.
 		inline std::vector<int32_t> & valArray() { return _valArray; }
+		
+		//!	Gets the offset (in bytes) at which this attribute's value is stored in the buffer that is sent to the GPU.  the first attribute's offset is 0, further assets are appended
+		inline uint32_t & offsetInBuffer() { return _offsetInBuffer; }
+		//!	Sets the offset (in bytes) at which this attribute's value is stored in the buffer that is sent to the GPU.  Convenience method- it is not populated by this class!
+		inline void setOffsetInBuffer(const uint32_t & n) { _offsetInBuffer = n; }
+		
 		//!	Returns a true if this attribute is used to send the input image to the filter.
 		inline bool isFilterInputImage() { return _isFilterInputImage; }
 		inline void setIsFilterInputImage(const bool & n) { _isFilterInputImage=n; }

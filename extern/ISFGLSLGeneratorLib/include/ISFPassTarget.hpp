@@ -44,6 +44,8 @@ class ISFPassTarget	{
 
 		bool			_floatFlag = false;	//	NO by default, if YES makes float texutres
 		bool			_persistentFlag = false;	//	NO by default, if YES this is a persistent buffer (and it needs to be cleared to black on creation)
+		
+		uint32_t		_offsetInBuffer = 0;	//	offset (in bytes) into the buffer passed to the shader at which this pass target's ISFImgInfo struct is stored.  convenience variable- it is not populated by this lib!
 	
 	public:
 		//	"class method" that creates a buffer ref
@@ -76,6 +78,11 @@ class ISFPassTarget	{
 		bool persistentFlag() const { return _persistentFlag; }
 		//!	Deletes any GL resources that might presently be cached by this pass.
 		void clearBuffer();
+		
+		//!	Gets the offset (in bytes) at which this attribute's value is stored in the buffer that is sent to the GPU.  Convenience method- it is not populated by this class!
+		inline uint32_t & offsetInBuffer() { return _offsetInBuffer; }
+		//!	Sets the offset (in bytes) at which this attribute's value is stored in the buffer that is sent to the GPU.  Convenience method- it is not populated by this class!
+		inline void setOffsetInBuffer(const uint32_t & n) { _offsetInBuffer = n; }
 		
 		bool targetSizeNeedsEval() const { return (_targetHeightString!=nullptr || _targetHeightString!=nullptr); }
 		void evalTargetSize(const int & inWidth, const int & inHeight, std::map<std::string, double*> & inSymbols, const bool & inResize, const bool & inCreateNewBuffer);
