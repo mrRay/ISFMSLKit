@@ -29,7 +29,7 @@ namespace VVISF
 
 //	some forward declarations used in this header
 class ISFPassTarget;
-class ISFImage;
+class ISFImageInfo;
 //struct ISFVal;
 class ISFDoc;
 class ISFAttr;
@@ -38,10 +38,10 @@ class ISFAttr;
 
 
 /*!
-\brief ISFImageRef is a shared pointer around an ISFImage instance.
+\brief ISFImageInfoRef is a shared pointer around an ISFImageInfo instance.
 \relates VVISF::ISFVal
 */
-using ISFImageRef = std::shared_ptr<ISFImage>;
+using ISFImageInfoRef = std::shared_ptr<ISFImageInfo>;
 /*!
 \brief ISFPassTargetRef is a shared pointer around an ISFPassTarget instance.
 \relates VVISF::ISFPassTarget
@@ -79,8 +79,8 @@ std::string ISFFileTypeString(const ISFFileType & n);
 
 
 //	we pass a buffer of data to the vertex + frag shaders that contains info describing the rendering state and param values
-//	this struct (ISFRenderInfo) is the first piece of information in the buffer, it's sort of like a header
-struct ISFRenderInfo	{
+//	this struct (ISFShaderRenderInfo) is the first piece of information in the buffer, it's sort of like a header
+struct ISFShaderRenderInfo	{
 	int				PASSINDEX;
 	float			RENDERSIZE[2];
 	float			TIME;
@@ -89,11 +89,11 @@ struct ISFRenderInfo	{
 	uint32_t		FRAMEINDEX;
 };
 //	this struct describes a cube texture by describing its dimensions, and may be present in the buffer of data passed to vertex + frag shaders
-struct ISFCubeInfo	{
+struct ISFShaderCubeInfo	{
 	float			size[2];
 };
 //	this struct describes an image within a texture, and may be present in the buffer of data passed to vertex + frag shaders
-struct ISFImgInfo	{
+struct ISFShaderImgInfo	{
 	float			rect[4];	//	the image consists of the pixels in this region of the texture
 	float			size[2];	//	the size of the texture asset.  'rect' is necessarily a subset of (0, 0, size[0], size[1])
 	uint32_t		flip;	//	whether or not the image in 'rect' is flipped vertically
@@ -313,7 +313,7 @@ bool FileIsProbablyAnISF(const std::string & pathToFile);
 
 #include "VVISF_Constants.hpp"
 #include "VVISF_Err.hpp"
-#include "ISFImage.hpp"
+#include "ISFImageInfo.hpp"
 #include "ISFVal.hpp"
 
 

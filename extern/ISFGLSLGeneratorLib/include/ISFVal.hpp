@@ -65,11 +65,11 @@ struct ISFVal	{
 			double		floatVal;
 			double		pointVal[2];
 			double		colorVal[4];
-			//ISFImageRef	imageVal;
+			//ISFImageInfoRef	imageVal;
 		};
 		
 		ISFValUnion		_val;
-		ISFImageRef		_imageVal { nullptr };
+		ISFImageInfoRef		_imageVal { nullptr };
 	public:
 		
 		
@@ -78,6 +78,7 @@ struct ISFVal	{
 		*/
 		///@{
 		
+		ISFVal(const ISFVal & n) : _type(n._type), _val(n._val), _imageVal(n._imageVal) {}
 		//	Returns a null-type ISFVal
 		ISFVal();
 		//	Returns an ISFVal with the passed type, and the default/unpopulated value for that type.
@@ -94,7 +95,7 @@ struct ISFVal	{
 		//	Returns an ISFVal of the passed type populated with the four passed values.  Works well for colors.
 		ISFVal(const ISFValType & inType, const double & inR, const double & inG, const double & inB, const double & inA);
 		//	Returns an ISFVal of the passed type with the passed image value.  Works well for image-, audio-, and audioFFT-type values.
-		ISFVal(const ISFValType & inType, const ISFImageRef & inImage) : _type(inType), _imageVal(inImage) {}
+		ISFVal(const ISFValType & inType, const ISFImageInfoRef & inImage) : _type(inType), _imageVal(inImage) {}
 		
 		//virtual ~ISFVal()	{
 		//	if (ISFValTypeUsesImage(_type))	{
@@ -142,9 +143,9 @@ struct ISFVal	{
 		//!	Does nothing if the receiver's value type isn't color or the passed index is out of bounds, otherwise it sets the value of the color channel at the passed index.
 		inline void setColorValByChannel(const int & inIndex, const double & inVal) { if (_type!=ISFValType_Color || inIndex<0 || inIndex>3) return; _val.colorVal[inIndex]=inVal; }
 		//!	Returns null if the receiver's value type cannot be represented as an image, otherwise it returns the image buffer (almost certainly a GL texture) that is the receiver's value.
-		ISFImageRef getImageRef() const;
+		ISFImageInfoRef getImageRef() const;
 		//!	Does nothing if the receiver's value type cannot be represented as an image, otherwise it sets the receiver's image value with the passed buffer.  This buffer will be "retained" for the duration of the receiver's lifetime.
-		void setImageRef(const ISFImageRef & n);
+		void setImageRef(const ISFImageInfoRef & n);
 		//!	Returns a string describing the type of the receiver.
 		std::string getTypeString() const;
 		//!	Returns a string describing the value of the receiver.
@@ -239,7 +240,7 @@ ISFVal CreateISFValColor(const double & inR, const double & inG, const double & 
 \relatesalso VVISF::ISFVal
 \brief Creates and returns an image-type ISFVal with the passed buffer.
 */
-ISFVal CreateISFValImage(const ISFImageRef & inRef);
+ISFVal CreateISFValImage(const ISFImageInfoRef & inRef);
 
 
 

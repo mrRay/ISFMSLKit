@@ -14,11 +14,11 @@ namespace VVISF
 
 
 /*!
-\brief ISFImage is the class used to represent the state and value of an image input.  By default, it stores state (image width/height), but it does not store a value because it's attempting to be a general-purpose tool.  If you actually want to store value (beyond the dimensions of the image), please subclass ISFImage and pass your subclass to whatever accepts an ISFImageRef.
+\brief ISFImageInfo is the class used to represent the state and value of an image input.  The base class stores state (image width/height, whether or not the image is flipped vertically), but it does not store a value because the data needed to describe the value is going to vary from platform-to-platform and engine-to-engine.  If you actually want to store value (beyond the dimensions of the image), please subclass ISFImageInfo and pass a std::shared_ptr to your subclass to whatever accepts an ISFImageInfoRef.
 \ingroup VVISF_BASIC
 \relatesalso VVISF::ISFVal
 */
-class ISFImage	{
+class ISFImageInfo	{
 	public:
 		uint32_t			width { 0 };	//!<	The width of the image.  If it's equal to (std::numeric_limits<uint32_t>::max()) then the runtime can provide any value for this dimension.  If it's any other value then the runtime is expected to provide an image with dimensions equal to this value.
 		uint32_t			height { 0 };	//!<	The height of the image.  If it's equal to (std::numeric_limits<uint32_t>::max()) then the runtime can provide any value for this dimension.  If it's any other value then the runtime is expected to provide an image with dimensions equal to this value.
@@ -29,17 +29,17 @@ class ISFImage	{
 		std::vector<std::string>	*cubePaths { nullptr };
 		
 	public:
-		ISFImage(const uint32_t & inWidth, const uint32_t & inHeight) : width(inWidth), height(inHeight) {}
-		ISFImage(const uint32_t & inWidth, const uint32_t & inHeight, const std::string & inPath) : width(inWidth), height(inHeight)	{
+		ISFImageInfo(const uint32_t & inWidth, const uint32_t & inHeight) : width(inWidth), height(inHeight) {}
+		ISFImageInfo(const uint32_t & inWidth, const uint32_t & inHeight, const std::string & inPath) : width(inWidth), height(inHeight)	{
 			depth = 0;
 			imagePath = new std::string;
 			*imagePath = inPath;
 		}
-		ISFImage(const uint32_t & inImageDimension, const std::vector<std::string> & inPaths) : width(inImageDimension), height(inImageDimension), depth(inImageDimension), cubemap(true)	{
+		ISFImageInfo(const uint32_t & inImageDimension, const std::vector<std::string> & inPaths) : width(inImageDimension), height(inImageDimension), depth(inImageDimension), cubemap(true)	{
 			cubePaths = new std::vector<std::string>;
 			*cubePaths = inPaths;
 		}
-		ISFImage(const ISFImage & n)	{
+		ISFImageInfo(const ISFImageInfo & n)	{
 			width = n.width;
 			height = n.height;
 			depth = n.depth;
@@ -54,7 +54,7 @@ class ISFImage	{
 			}
 		}
 		
-		virtual ~ISFImage() {
+		virtual ~ISFImageInfo() {
 			if (imagePath != nullptr)	{
 				delete imagePath;
 				imagePath = nullptr;
@@ -67,9 +67,9 @@ class ISFImage	{
 		
 		std::string const getDescriptionString() const	{
 			if (cubemap)
-				return FmtString("<ISFImage C %d>",width);
+				return FmtString("<ISFImageInfo C %d>",width);
 			else
-				return FmtString("<ISFImage %d x %d>",width,height);
+				return FmtString("<ISFImageInfo %d x %d>",width,height);
 		}
 		
 		bool const sizeIsValid() const	{
@@ -79,7 +79,7 @@ class ISFImage	{
 			return true;
 		}
 		
-		ISFImage & operator=(const ISFImage & n)	{
+		ISFImageInfo & operator=(const ISFImageInfo & n)	{
 			if (this == &n)	{
 				return *this;
 			}
@@ -117,7 +117,25 @@ class ISFImage	{
 			return *this;
 		}
 		
-		friend std::ostream & operator<<(std::ostream & os, const ISFImage & n)	{
+		bool operator==(const ISFImageInfo & n) const	{
+			bool			basicsMatch = ((width == n.width)
+				&& (height == n.height)
+				&& (depth == n.depth)
+				&& (cubemap == n.cubemap));
+			if (!basicsMatch)
+				return false;
+			
+			bool			imagePathMatch = ( (imagePath==nullptr && n.imagePath==nullptr)
+				|| (imagePath!=nullptr && n.imagePath!=nullptr && *imagePath==*n.imagePath) );
+			
+			//	compare the contents of 'cubePaths' and n->cubePaths
+			bool			cubePathsMatch = ( (cubePaths==nullptr && n.cubePaths==nullptr)
+				|| (cubePaths!=nullptr && n.cubePaths!=nullptr && *cubePaths==*n.cubePaths) );
+			
+			return (imagePathMatch && cubePathsMatch);
+		}
+		
+		friend std::ostream & operator<<(std::ostream & os, const ISFImageInfo & n)	{
 			os << n.getDescriptionString();
 			return os;
 		}

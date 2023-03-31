@@ -22,12 +22,12 @@ class ISFDoc;
 //! Describes the target of a render pass for an ISF file, stores a number of properties and values specific to this render pass.
 /*!
 \ingroup VVISF_BASIC
-Stores an ISFImageRef, which is a shared ptr to an instance of ISFImage, a simple class that describes the dimensions of an image.  Also stores the expressions that determine the width/height (both the raw std::string as well as the evaluated expression, capable of being executed with substitutions for variables) and the evaluated value.
+Stores an ISFImageInfoRef, which is a shared ptr to an instance of ISFImageInfo, a simple class that describes the dimensions of an image.  Also stores the expressions that determine the width/height (both the raw std::string as well as the evaluated expression, capable of being executed with substitutions for variables) and the evaluated value.
 */
 class ISFPassTarget	{
 	private:
 		std::string		_name;
-		ISFImageRef		_image { nullptr };
+		ISFImageInfoRef		_image { nullptr };
 		ISFDoc			*_parentDoc;	//	weak ref to the parent doc (ISFDoc*) that created and owns me
 		
 		std::mutex		_targetLock;
@@ -45,7 +45,7 @@ class ISFPassTarget	{
 		bool			_floatFlag = false;	//	NO by default, if YES makes float texutres
 		bool			_persistentFlag = false;	//	NO by default, if YES this is a persistent buffer (and it needs to be cleared to black on creation)
 		
-		uint32_t		_offsetInBuffer = 0;	//	offset (in bytes) into the buffer passed to the shader at which this pass target's ISFImgInfo struct is stored.  convenience variable- it is not populated by this lib!
+		uint32_t		_offsetInBuffer = std::numeric_limits<uint32_t>::max();	//	offset (in bytes) into the buffer passed to the shader at which this pass target's ISFShaderImgInfo struct is stored.  a "max" value indicates that the offset is unknown and probably shouldn't be written!
 	
 	public:
 		//	"class method" that creates a buffer ref
@@ -64,10 +64,12 @@ class ISFPassTarget	{
 		void setTargetWidthString(const std::string & n);
 		//!	Gets the receiver's target width std::string.
 		const std::string targetWidthString();
+		
 		//!	Sets the receiver's target height std::string to the passed value.  This std::string will be evaluated using the exprtk lib, and the resulting value will be used to determine the height at which this pass renders.
 		void setTargetHeightString(const std::string & n);
 		//!	Gets the receiver's target height std::string.
 		const std::string targetHeightString();
+		
 		//!	Sets the float flag for this pass- if true, this pass needs to render to a high-bitdepth texture.
 		void setFloatFlag(const bool & n);
 		//!	Gets the float flag for this pass- if true, this pass needs to render to a high-bitdepth texture.
@@ -76,8 +78,6 @@ class ISFPassTarget	{
 		void setPersistentFlag(const bool & n);
 		//! Gets the persistent flag for this pass- if true, the pass's buffer will be used as an input when rendering the next frame.
 		bool persistentFlag() const { return _persistentFlag; }
-		//!	Deletes any GL resources that might presently be cached by this pass.
-		void clearBuffer();
 		
 		//!	Gets the offset (in bytes) at which this attribute's value is stored in the buffer that is sent to the GPU.  Convenience method- it is not populated by this class!
 		inline uint32_t & offsetInBuffer() { return _offsetInBuffer; }
@@ -85,21 +85,22 @@ class ISFPassTarget	{
 		inline void setOffsetInBuffer(const uint32_t & n) { _offsetInBuffer = n; }
 		
 		bool targetSizeNeedsEval() const { return (_targetHeightString!=nullptr || _targetHeightString!=nullptr); }
-		void evalTargetSize(const int & inWidth, const int & inHeight, std::map<std::string, double*> & inSymbols, const bool & inResize, const bool & inCreateNewBuffer);
+		void evalTargetSize(const int & inWidth, const int & inHeight, std::map<std::string, double*> & inSymbols);
 		
 		//!	Returns the receiver's name.
 		std::string & name() { return _name; }
-		//!	Returns the ISFImage currently cached with this pass, or null.
-		ISFImageRef & image() { return _image; }
-		//!	Sets the ISFImage currently cached with this pass.
-		void setImage(const ISFImageRef & n) { _image=n; }
+		
+		//!	Read-only outside of the class- this image info describes the dimension that any associated images representations or textures need to have to work as expected.
+		ISFImageInfo const targetImageInfo() { return ISFImageInfo( round(_targetWidth), round(_targetHeight) ); }
+		
+		//!	Returns the ISFImageInfo currently cached with this pass, or null. This is intended to store the actual image that this pass target will be rendering into.
+		ISFImageInfoRef & image() { return _image; }
+		//!	Sets the ISFImageInfo currently cached with this pass.
+		void setImage(const ISFImageInfoRef & n) { _image=n; }
 		
 		//void cacheUniformLocations(const int & inPgmToCheck) { for (int i=0; i<4; ++i) _cachedUnis[i]->cacheTheLoc(inPgmToCheck); }
 		//int32_t getUniformLocation(const int & inIndex) const { return (inIndex<0||inIndex>3) ? -1 : _cachedUnis[inIndex]->loc; }
 		//void clearUniformLocations() { for (int i=0; i<4; ++i) _cachedUnis[i]->purgeCache(); }
-	
-	private:
-		void setTargetSize(const int & inWidth, const int & inHeight, const bool & inResize=true, const bool & inCreateNewBuffer=true);
 	
 };
 

@@ -41,7 +41,7 @@ class ISFAttr	{
 		
 		double				_evalVariable = 1.0;	//	attribute values are available in expression evaluation- to support this, each attribute needs to maintain a double which it populates with its current value
 		
-		uint32_t			_offsetInBuffer = 0;	//	offset (in bytes) into the buffer passed to the shader at which this attribute's data is stored.  convenience variable- it is not populated by this lib!
+		uint32_t			_offsetInBuffer = std::numeric_limits<uint32_t>::max();	//	offset (in bytes) into the buffer passed to the shader at which this attribute's data is stored.  a "max" value indicates that the offset is unknown and probably shouldn't be written!
 	public:
 		
 		/*
@@ -86,9 +86,9 @@ class ISFAttr	{
 		//!	Returns a true if this attribute's value is expressed with an image buffer
 		inline bool shouldHaveImageBuffer() const { return ISFValTypeUsesImage(_type); }
 		//!	Returns the receiver's image buffer
-		inline ISFImageRef getCurrentImageRef() { if (!shouldHaveImageBuffer()) return nullptr; return _currentVal.getImageRef(); }
+		inline ISFImageInfoRef getCurrentImageRef() { if (!shouldHaveImageBuffer()) return nullptr; return _currentVal.getImageRef(); }
 		//!	Sets the receiver's current value with the passed image buffer
-		inline void setCurrentImageRef(const ISFImageRef & n) { /*cout<<__PRETTY_FUNCTION__<<"..."<<*this<<", "<<*n<<endl;*/if (shouldHaveImageBuffer()) _currentVal = CreateISFValImage(n); else std::cout << "\terr: tried to set current image ref in non-image attr (" << _name << ")\n"; /*cout<<"\tcurrentVal is now "<<_currentVal<<endl;*/ }
+		inline void setCurrentImageRef(const ISFImageInfoRef & n) { /*cout<<__PRETTY_FUNCTION__<<"..."<<*this<<", "<<*n<<endl;*/if (shouldHaveImageBuffer()) _currentVal = CreateISFValImage(n); else std::cout << "\terr: tried to set current image ref in non-image attr (" << _name << ")\n"; /*cout<<"\tcurrentVal is now "<<_currentVal<<endl;*/ }
 		//!	Gets the attribute's min val
 		inline ISFVal & minVal() { return _minVal; }
 		//!	Gets the attribute's max val
