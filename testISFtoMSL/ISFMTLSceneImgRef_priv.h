@@ -9,6 +9,7 @@
 
 #import "ISFMTLSceneImgRef.h"
 #import "VVISF.hpp"
+#import "ISFImage.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -16,14 +17,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 @interface ISFMTLSceneImgRef : NSObject <ISFMTLSceneImgRef>	{
-	VVISF::ISFImageRef		_localImage;
+	//	may also be 'ISFImageRef'!  really, any std::shared_ptr around a subclass of VVISF::ISFImageInfo should work?
+	ISFImageRef		_localImage;
 }
 
-+ (instancetype) createWithImgRef:(VVISF::ISFImageRef)n;
++ (instancetype) createWithImgRef:(ISFImageRef)n;
+- (instancetype) initWithImgRef:(ISFImageRef)n;
 
-- (instancetype) initWithImgRef:(VVISF::ISFImageRef)n;
-
-@property (readonly) VVISF::ISFImageRef isfImageRef;
+@property (readonly) ISFImageRef isfImageRef;
 
 @end
 

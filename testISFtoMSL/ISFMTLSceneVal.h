@@ -9,6 +9,8 @@
 
 #import "ISFMTLSceneImgRef.h"
 
+#import <VVMetalKit/VVMetalKit.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 
@@ -31,9 +33,10 @@ typedef NS_ENUM(NSInteger, ISFValType)	{
 
 
 
-@protocol ISFMTLSceneVal
+@protocol ISFMTLSceneVal <NSCopying>
 
 //+ (id<ISFMTLSceneVal>) createWithDouble:(double)n;
++ (id<ISFMTLSceneVal>) createWithImg:(MTLImgBuffer *)n;
 
 @property (readonly) ISFValType type;
 @property (readonly) double doubleValue;
@@ -44,6 +47,8 @@ typedef NS_ENUM(NSInteger, ISFValType)	{
 @property (readonly) double * colorValuePointer;
 - (double) colorValueByIndex:(int)n;
 - (id<ISFMTLSceneImgRef>) imgValue;
+
+//@property (strong,nullable) MTLImgBuffer * img;	//	retained by this obj-c backend/not part of the VVISF base lib
 
 @end
 

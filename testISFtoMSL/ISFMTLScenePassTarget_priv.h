@@ -1,5 +1,5 @@
 //
-//  ISFMTLScenePass_priv.h
+//  ISFMTLScenePassTarget_priv.h
 //  testISFtoMSL
 //
 //  Created by testadmin on 3/8/23.
@@ -8,7 +8,7 @@
 #ifndef ISFMTLScenePass_priv_h
 #define ISFMTLScenePass_priv_h
 
-#import "ISFMTLScenePass.h"
+#import "ISFMTLScenePassTarget.h"
 #include "VVISF.hpp"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 
-@interface ISFMTLScenePass : NSObject <ISFMTLScenePass>	{
+@interface ISFMTLScenePassTarget : NSObject <ISFMTLScenePassTarget>	{
 	VVISF::ISFPassTargetRef		_localPassTarget;
 }
 
@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype) initWithPassTarget:(VVISF::ISFPassTargetRef)n;
 
-@property (readonly) VVISF::ISFPassTargetRef passTargetRef;
+@property (readonly) VVISF::ISFPassTargetRef & passTargetRef;
 
 @end
 

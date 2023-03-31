@@ -10,7 +10,7 @@
 #import "ISFMTLSceneImgRef.h"
 #import "ISFMTLSceneVal.h"
 #import "ISFMTLSceneAttrib.h"
-#import "ISFMTLScenePass.h"
+#import "ISFMTLScenePassTarget.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -21,8 +21,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype) initWithDevice:(id<MTLDevice>)inDevice isfURL:(NSURL *)inURL;
 
-@property (readonly) NSArray<id<ISFMTLScenePass>> * passes;
+@property (readonly) NSArray<id<ISFMTLScenePassTarget>> * passes;
 @property (readonly) NSArray<id<ISFMTLSceneAttrib>> * inputs;
+
+- (id<ISFMTLSceneVal>) valueForInputNamed:(NSString *)n;
+- (void) setValue:(id<ISFMTLSceneVal>)inVal forInputNamed:(NSString *)inName;
 
 @end
 

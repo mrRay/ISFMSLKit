@@ -51,7 +51,7 @@ using namespace std;
 	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-Color.fs"];
 	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-Event.fs"];
 	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-Float.fs"];
-	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-Functionality.fs"];
+	NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-Functionality.fs"];
 	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-IMG_NORM_PIXEL.fs"];
 	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-IMG_PIXEL.fs"];
 	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-IMG_THIS_NORM_PIXEL.fs"];
@@ -60,7 +60,7 @@ using namespace std;
 	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-Long.fs"];
 	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-MultiPassRendering.fs"];
 	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-PersistentBuffer.fs"];
-	NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-PersistentBufferDifferingSizes.fs"];
+	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-PersistentBufferDifferingSizes.fs"];
 	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-Point.fs"];
 	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-Sampler.fs"];
 	//NSURL				*url = [NSURL fileURLWithPath:@"/Users/testadmin/Documents/VDMX5/VDMX5/supplemental resources/ISF tests+tutorials/Test-TempBufferDifferingSizes.fs"];
@@ -68,12 +68,14 @@ using namespace std;
 	
 	self.testScene = [[TestMTLScene alloc] initWithDevice:rp.device];
 	
-	[NSTimer
-		scheduledTimerWithTimeInterval:1./60.
-		repeats:YES
-		block:^(NSTimer *t)	{
-			[self draw];
-		}];
+	//[NSTimer
+	//	scheduledTimerWithTimeInterval:1./60.
+	//	repeats:YES
+	//	block:^(NSTimer *t)	{
+	//		[self draw];
+	//	}];
+	
+	[self draw];
 	
 	/*
 	std::shared_ptr<vector<string>>		files = VVISF::CreateArrayOfDefaultISFs();
@@ -106,9 +108,9 @@ using namespace std;
 - (void) draw	{
 	//NSLog(@"%s",__func__);
 	
-	MTLImgBuffer		*newFrame = [[MTLPool global] bgra8TexSized:CGSizeMake(1920,1080)];;
+	id<MTLCommandBuffer> cmdBuffer = nil;
+	MTLImgBuffer * newFrame = [[MTLPool global] bgra8TexSized:CGSizeMake(1920,1080)];;
 	
-
 #define CAPTURE 0
 #if CAPTURE
 	MTLCaptureManager		*cm = nil;
@@ -116,7 +118,7 @@ using namespace std;
 	++counter;
 	if (counter > 10)
 		return;
-	if (counter == 10)
+	if (counter == 1)
 		cm = [MTLCaptureManager sharedCaptureManager];
 	MTLCaptureDescriptor		*desc = [[MTLCaptureDescriptor alloc] init];
 	desc.captureObject = [RenderProperties global].renderQueue;
@@ -126,18 +128,10 @@ using namespace std;
 #endif
 	
 	
-	id<MTLCommandBuffer>		cmdBuffer = [[RenderProperties global].renderQueue commandBuffer];
+	cmdBuffer = [[RenderProperties global].renderQueue commandBuffer];
 	
 	//[self.testScene renderToBuffer:newFrame inCommandBuffer:cmdBuffer];
 	[self.isfScene renderToBuffer:newFrame inCommandBuffer:cmdBuffer];
-	
-	if (newFrame != nil)	{
-		self.previewView.imgBuffer = newFrame;
-		[self.previewView drawInCmdBuffer:cmdBuffer];
-	}
-	else if (self.previewView.imgBuffer != nil)	{
-		[self.previewView drawInCmdBuffer:cmdBuffer];
-	}
 	
 	[cmdBuffer commit];
 	
@@ -148,6 +142,18 @@ using namespace std;
 		[cmdBuffer waitUntilCompleted];
 	}
 #endif
+	
+	cmdBuffer = [[RenderProperties global].renderQueue commandBuffer];
+	
+	if (newFrame != nil)	{
+		self.previewView.imgBuffer = newFrame;
+		[self.previewView drawInCmdBuffer:cmdBuffer];
+	}
+	else if (self.previewView.imgBuffer != nil)	{
+		[self.previewView drawInCmdBuffer:cmdBuffer];
+	}
+	
+	[cmdBuffer commit];
 	
 	[[MTLPool global] housekeeping];
 }

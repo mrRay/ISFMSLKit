@@ -8,6 +8,7 @@
 #import "ISFMTLSceneVal_priv.h"
 #import "ISFMTLSceneVal.h"
 #import "ISFMTLSceneImgRef_priv.h"
+#import "ISFImage.h"
 
 
 
@@ -27,6 +28,20 @@
 //	VVISF::ISFVal		tmpVal = VVISF::CreateISFValFloat(n);
 //	return [[ISFMTLSceneVal alloc] initWithISFVal:tmpVal];
 //}
++ (id<ISFMTLSceneVal>) createWithImg:(MTLImgBuffer *)n	{
+	if (n == nil)
+		return nil;
+	
+	ISFImageRef			tmpImgRef = std::make_shared<ISFImage>(n);
+	VVISF::ISFVal		tmpVal = VVISF::CreateISFValImage(tmpImgRef);
+	
+	//VVISF::ISFImageInfoRef	tmpImageRef = std::make_shared<VVISF::ISFImageInfo>(n.width, n.height);
+	//VVISF::ISFVal		tmpVal = VVISF::CreateISFValImage(tmpImageRef);
+	
+	ISFMTLSceneVal		*returnMe = [[ISFMTLSceneVal alloc] initWithISFVal:tmpVal];
+	//returnMe.img = n;
+	return returnMe;
+}
 
 
 #pragma mark - init/dealloc
@@ -101,7 +116,36 @@
 	return _localVal.getColorValByChannel(n);
 }
 - (id<ISFMTLSceneImgRef>) imgValue	{
-	return [ISFMTLSceneImgRef createWithImgRef:_localVal.getImageRef()];
+	VVISF::ISFImageInfoRef		currentImageInfoRef = _localVal.getImageRef();
+	VVISF::ISFImageInfo			*currentImageInfoPtr = currentImageInfoRef.get();
+	if (currentImageInfoPtr == nullptr)
+		return nil;
+	
+	//	if the attribute only has an ISFImageInfo instance, instead of a full-blown ISFImage instance, bail & return nil
+	if (typeid(*currentImageInfoPtr) != typeid(ISFImage))
+		return nil;
+	
+	//	we need to recast the VVISF::ISFImageInfoRef to an ISFImageRef
+	ISFImageRef			currentImageRef = std::static_pointer_cast<ISFImage>(currentImageInfoRef);
+	return [ISFMTLSceneImgRef createWithImgRef:currentImageRef];
+	
+	
+	
+	
+	//return [ISFMTLSceneImgRef createWithImgRef:_localVal.getImageRef()];
+}
+
+
+//@synthesize img;
+
+
+#pragma mark - NSCopying
+
+
+- (id) copyWithZone:(NSZone *)zone {
+	ISFMTLSceneVal		*returnMe = [[ISFMTLSceneVal alloc] initWithISFVal:_localVal];
+	//returnMe.img = self.img;
+	return returnMe;
 }
 
 

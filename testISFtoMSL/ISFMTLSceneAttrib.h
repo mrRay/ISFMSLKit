@@ -10,12 +10,15 @@
 #import "ISFMTLSceneVal.h"
 #import "ISFMTLSceneImgRef.h"
 
+#import <VVMetalKit/VVMetalKit.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 
 
 
-@protocol ISFMTLSceneAttrib
+@protocol ISFMTLSceneAttrib <NSCopying>
+
 
 //!	Returns the attribute's name, or null
 @property (readonly) NSString * name;
@@ -26,13 +29,13 @@ NS_ASSUME_NONNULL_BEGIN
 //!	Returns the attribute's value type.
 @property (readonly) ISFValType type;
 //!	Sets/gets the attribute's current value.
-@property (readwrite) id<ISFMTLSceneVal> currentVal;
+@property (strong) id<ISFMTLSceneVal> currentVal;
 //	updates this attribute's eval variable with the double val of "_currentVal", and returns a ptr to the eval variable
 - (double) updateAndGetEvalVariable;
 //!	Returns a true if this attribute's value is expressed with an image buffer
 @property (readonly) BOOL shouldHaveImageBuffer;
 //!	Sets/gets the receiver's image buffer
-@property (readwrite) id<ISFMTLSceneImgRef> currentImageRef;
+@property (strong) id<ISFMTLSceneImgRef> currentImageRef;
 //!	Gets the attribute's min val
 @property (readonly) id<ISFMTLSceneVal> minVal;
 //!	Gets the attribute's max val
@@ -57,6 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly) BOOL isTransEndImage;
 //!	Returns a true if this attribute is used to send the progress value to the transition
 @property (readonly) BOOL isTransProgressFloat;
+
 
 @end
 

@@ -13,7 +13,7 @@
 		1A1F5B99299958FF009170DA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A1F5B98299958FF009170DA /* Assets.xcassets */; };
 		1A1F5B9C299958FF009170DA /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A1F5B9A299958FF009170DA /* MainMenu.xib */; };
 		1A1F5B9E299958FF009170DA /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A1F5B9D299958FF009170DA /* main.m */; };
-		1A1F682729B8DFA000A45F09 /* ISFMTLScenePass_priv.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A1F682629B8DFA000A45F09 /* ISFMTLScenePass_priv.mm */; };
+		1A1F682729B8DFA000A45F09 /* ISFMTLScenePassTarget_priv.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A1F682629B8DFA000A45F09 /* ISFMTLScenePassTarget_priv.mm */; };
 		1A1F683329B8FD3600A45F09 /* ISFMTLSceneImgRef_priv.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A1F683229B8FD3600A45F09 /* ISFMTLSceneImgRef_priv.mm */; };
 		1A1F683629B904A300A45F09 /* ISFMTLSceneVal_priv.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A1F683529B904A300A45F09 /* ISFMTLSceneVal_priv.mm */; };
 		1AA4B48929C0EE3400440F82 /* ISFMTLSceneAttrib_priv.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4B48829C0EE3400440F82 /* ISFMTLSceneAttrib_priv.mm */; };
@@ -78,16 +78,17 @@
 		1A1F5B9B299958FF009170DA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		1A1F5B9D299958FF009170DA /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		1A1F5B9F299958FF009170DA /* testISFtoMSL.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = testISFtoMSL.entitlements; sourceTree = "<group>"; };
-		1A1F680E29B7AAB100A45F09 /* ISFMTLScenePass.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISFMTLScenePass.h; sourceTree = "<group>"; };
+		1A1F680E29B7AAB100A45F09 /* ISFMTLScenePassTarget.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISFMTLScenePassTarget.h; sourceTree = "<group>"; };
 		1A1F681229B7E41000A45F09 /* ISFMTLSceneAttrib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISFMTLSceneAttrib.h; sourceTree = "<group>"; };
 		1A1F681529B7E41900A45F09 /* ISFMTLSceneVal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISFMTLSceneVal.h; sourceTree = "<group>"; };
-		1A1F682529B8DEC200A45F09 /* ISFMTLScenePass_priv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISFMTLScenePass_priv.h; sourceTree = "<group>"; };
-		1A1F682629B8DFA000A45F09 /* ISFMTLScenePass_priv.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ISFMTLScenePass_priv.mm; sourceTree = "<group>"; };
+		1A1F682529B8DEC200A45F09 /* ISFMTLScenePassTarget_priv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISFMTLScenePassTarget_priv.h; sourceTree = "<group>"; };
+		1A1F682629B8DFA000A45F09 /* ISFMTLScenePassTarget_priv.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ISFMTLScenePassTarget_priv.mm; sourceTree = "<group>"; };
 		1A1F682E29B8E7DB00A45F09 /* ISFMTLSceneImgRef.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISFMTLSceneImgRef.h; sourceTree = "<group>"; };
 		1A1F683129B8FD3600A45F09 /* ISFMTLSceneImgRef_priv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISFMTLSceneImgRef_priv.h; sourceTree = "<group>"; };
 		1A1F683229B8FD3600A45F09 /* ISFMTLSceneImgRef_priv.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ISFMTLSceneImgRef_priv.mm; sourceTree = "<group>"; };
 		1A1F683429B904A300A45F09 /* ISFMTLSceneVal_priv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISFMTLSceneVal_priv.h; sourceTree = "<group>"; };
 		1A1F683529B904A300A45F09 /* ISFMTLSceneVal_priv.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ISFMTLSceneVal_priv.mm; sourceTree = "<group>"; };
+		1A5F5B6529CB5CED00AA1D49 /* ISFImage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISFImage.h; sourceTree = "<group>"; };
 		1AA4B48729C0EE3400440F82 /* ISFMTLSceneAttrib_priv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISFMTLSceneAttrib_priv.h; sourceTree = "<group>"; };
 		1AA4B48829C0EE3400440F82 /* ISFMTLSceneAttrib_priv.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ISFMTLSceneAttrib_priv.mm; sourceTree = "<group>"; };
 		1AEE5882299A6C1000E9BF30 /* libGLSLangValidatorLib.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLSLangValidatorLib.dylib; path = extern/GLSLangValidatorLib/bin/libGLSLangValidatorLib.dylib; sourceTree = SOURCE_ROOT; };
@@ -156,15 +157,16 @@
 				1A1F5B96299958FE009170DA /* AppDelegate.mm */,
 				1AFBD95D29A4049500118E37 /* ISFMTLScene.h */,
 				1AFBD95E29A4049500118E37 /* ISFMTLScene.mm */,
-				1A1F680E29B7AAB100A45F09 /* ISFMTLScenePass.h */,
-				1A1F682529B8DEC200A45F09 /* ISFMTLScenePass_priv.h */,
-				1A1F682629B8DFA000A45F09 /* ISFMTLScenePass_priv.mm */,
+				1A1F680E29B7AAB100A45F09 /* ISFMTLScenePassTarget.h */,
+				1A1F682529B8DEC200A45F09 /* ISFMTLScenePassTarget_priv.h */,
+				1A1F682629B8DFA000A45F09 /* ISFMTLScenePassTarget_priv.mm */,
 				1A1F681229B7E41000A45F09 /* ISFMTLSceneAttrib.h */,
 				1AA4B48729C0EE3400440F82 /* ISFMTLSceneAttrib_priv.h */,
 				1AA4B48829C0EE3400440F82 /* ISFMTLSceneAttrib_priv.mm */,
 				1A1F681529B7E41900A45F09 /* ISFMTLSceneVal.h */,
 				1A1F683429B904A300A45F09 /* ISFMTLSceneVal_priv.h */,
 				1A1F683529B904A300A45F09 /* ISFMTLSceneVal_priv.mm */,
+				1A5F5B6529CB5CED00AA1D49 /* ISFImage.h */,
 				1A1F682E29B8E7DB00A45F09 /* ISFMTLSceneImgRef.h */,
 				1A1F683129B8FD3600A45F09 /* ISFMTLSceneImgRef_priv.h */,
 				1A1F683229B8FD3600A45F09 /* ISFMTLSceneImgRef_priv.mm */,
@@ -280,7 +282,7 @@
 				1AFBD96329A5050B00118E37 /* TestMTLScene.m in Sources */,
 				1AFBD96529A5088300118E37 /* TestScene.metal in Sources */,
 				1AFBD95F29A4049500118E37 /* ISFMTLScene.mm in Sources */,
-				1A1F682729B8DFA000A45F09 /* ISFMTLScenePass_priv.mm in Sources */,
+				1A1F682729B8DFA000A45F09 /* ISFMTLScenePassTarget_priv.mm in Sources */,
 				1A1F5B9E299958FF009170DA /* main.m in Sources */,
 				1A1F683329B8FD3600A45F09 /* ISFMTLSceneImgRef_priv.mm in Sources */,
 				1AA4B48929C0EE3400440F82 /* ISFMTLSceneAttrib_priv.mm in Sources */,

@@ -11,6 +11,8 @@
 #import "ISFMTLSceneVal_priv.h"
 #import "ISFMTLSceneImgRef_priv.h"
 
+#include <memory>
+
 
 
 
@@ -50,6 +52,16 @@
 
 - (VVISF::ISFAttrRef) isfAttrRef	{
 	return _localAttr;
+}
+
+
+#pragma mark - NSCopying
+
+
+- (id) copyWithZone:(NSZone *)zone {
+	ISFMTLSceneAttrib		*returnMe = [[ISFMTLSceneAttrib alloc] initWithISFAttr:_localAttr];
+	//returnMe.img = self.img;
+	return returnMe;
 }
 
 
@@ -95,7 +107,54 @@
 		return ISFValType_AudioFFT;
 	}
 }
+
+
 //!	Sets/gets the attribute's current value.
+//@synthesize currentVal=_currentVal;
+- (void) setCurrentVal:(id<ISFMTLSceneVal>)n	{
+	if (n == nil)	{
+		_localAttr->setCurrentVal(VVISF::CreateISFValNull());
+		return;
+	}
+	
+	ISFMTLSceneVal		*recast = (ISFMTLSceneVal *)n;
+	VVISF::ISFVal		isfVal = recast.isfValue;
+	_localAttr->setCurrentVal(isfVal);
+	
+	
+	/*
+	//	first of all, retain the val locally- it may contain a MTLImgBuffer which contains an id<MTLTexture>
+	_currentVal = n;
+	
+	//	if we were passed nil, update the attr and pass it a null value
+	if (n == nil)	{
+		_localAttr->setCurrentVal(VVISF::CreateISFValNull());
+		return;
+	}
+	
+	//	recast so we can pull the c++ class out of the obj-c wrapper
+	ISFMTLSceneVal		*recast = (ISFMTLSceneVal*)n;
+	VVISF::ISFVal		isfVal = recast.isfValue;
+	_localAttr->setCurrentVal(isfVal);
+	
+	//	if i should have an img buffer 
+	if (self.shouldHaveImageBuffer)	{
+		self.currentImageRef = n.imgValue;
+	}
+	*/
+}
+- (id<ISFMTLSceneVal>) currentVal	{
+	ISFMTLSceneVal		*returnMe = [ISFMTLSceneVal createWithISFVal:_localAttr->currentVal()];
+	return returnMe;
+	
+	
+	/*
+	return _currentVal;
+	*/
+}
+
+
+/*
 - (void) setCurrentVal:(id<ISFMTLSceneVal>)n	{
 	if (n == nil)	{
 		_localAttr->setCurrentVal(VVISF::CreateISFValNull());
@@ -107,6 +166,7 @@
 - (id<ISFMTLSceneVal>) currentVal	{
 	return [ISFMTLSceneVal createWithISFVal:_localAttr->currentVal()];
 }
+*/
 //	updates this attribute's eval variable with the double val of "_currentVal", and returns a ptr to the eval variable
 - (double) updateAndGetEvalVariable	{
 	double			*valPtr = _localAttr->updateAndGetEvalVariable();
@@ -118,16 +178,56 @@
 - (BOOL) shouldHaveImageBuffer	{
 	return (_localAttr->shouldHaveImageBuffer()) ? YES : NO;
 }
+
+
 //!	Sets/gets the receiver's image buffer
-- (void) setCurrentImageRef:(id<ISFMTLSceneImgRef>)n	{
+- (void) setCurrentImageRef:(id<ISFMTLSceneImgRef>)inImg	{
+	if (inImg == nil)	{
+		_localAttr->setCurrentVal( VVISF::CreateISFValNull() );
+		return;
+	}
+	
+	//if (!_localAttr->shouldHaveImageBuffer())	{
+	//	return;
+	//}
+	
+	ISFMTLSceneImgRef		*inImgRecast = (ISFMTLSceneImgRef*)inImg;
+	ISFImageRef				inImgRef = inImgRecast.isfImageRef;
+	_localAttr->setCurrentImageRef(inImgRef);
+	
+	
+	/*
 	if (n == nullptr)
 		return;
 	ISFMTLSceneImgRef		*recast = (ISFMTLSceneImgRef *)n;
 	_localAttr->setCurrentImageRef(recast.isfImageRef);
+	*/
 }
 - (id<ISFMTLSceneImgRef>) currentImageRef	{
+	if (!_localAttr->shouldHaveImageBuffer())	{
+		return nil;
+	}
+	
+	VVISF::ISFImageInfoRef		currentImageInfoRef = _localAttr->getCurrentImageRef();
+	VVISF::ISFImageInfo			*currentImageInfoPtr = currentImageInfoRef.get();
+	if (currentImageInfoPtr == nullptr)
+		return nil;
+	
+	//	if the attribute only has an ISFImageInfo instance, instead of a full-blown ISFImage instance, bail & return nil
+	if (typeid(*currentImageInfoPtr) != typeid(ISFImage))
+		return nil;
+	
+	//	we need to recast the VVISF::ISFImageInfoRef to an ISFImageRef
+	ISFImageRef			currentImageRef = std::static_pointer_cast<ISFImage>(currentImageInfoRef);
+	return [ISFMTLSceneImgRef createWithImgRef:currentImageRef];
+	
+	
+	/*
 	return [ISFMTLSceneImgRef createWithImgRef:_localAttr->getCurrentImageRef()];
+	*/
 }
+
+
 //!	Gets the attribute's min val
 - (id<ISFMTLSceneVal>) minVal	{
 	return [ISFMTLSceneVal createWithISFVal:_localAttr->minVal()];
@@ -184,6 +284,9 @@
 - (BOOL) isTransProgressFloat	{
 	return (_localAttr->isTransProgressFloat()) ? YES : NO;
 }
+
+
+//@synthesize img;
 
 
 @end

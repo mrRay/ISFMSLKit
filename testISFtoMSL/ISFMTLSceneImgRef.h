@@ -7,7 +7,15 @@
 
 #import <Foundation/Foundation.h>
 
+@class MTLImgBuffer;
+
 NS_ASSUME_NONNULL_BEGIN
+
+
+
+
+//	under the hood, contains a std::shared_ptr<ISFImage>. ISFImage is a subclass of VVISF::ISFImageInfo that contains an MTLImgBuffer.
+
 
 
 
@@ -21,6 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly) NSArray<NSString*> * cubePaths;
 
 @property (readonly) BOOL hasValidSize;
+
+@property (readonly) MTLImgBuffer * img;
 
 @end
 

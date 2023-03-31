@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 
-@interface ISFMTLSceneAttrib : NSObject <ISFMTLSceneAttrib>	{
+@interface ISFMTLSceneAttrib : NSObject <ISFMTLSceneAttrib,NSCopying>	{
 	VVISF::ISFAttrRef		_localAttr;
 }
 
