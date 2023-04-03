@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1A17D733299C047C00EBA55E /* VVMetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A17D72D299C046100EBA55E /* VVMetalKit.framework */; };
 		1A17D734299C048200EBA55E /* VVMetalKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1A17D72D299C046100EBA55E /* VVMetalKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1A1F5B97299958FE009170DA /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A1F5B96299958FE009170DA /* AppDelegate.mm */; };
 		1A1F5B99299958FF009170DA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A1F5B98299958FF009170DA /* Assets.xcassets */; };
@@ -106,7 +105,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1A17D733299C047C00EBA55E /* VVMetalKit.framework in Frameworks */,
 				1AEE5887299A6D3C00E9BF30 /* libSPIRVCrossLib.dylib in Frameworks */,
 				1AEE588A299A701900E9BF30 /* libISFGLSLGenerator.dylib in Frameworks */,
 				1AEE5883299A6C1000E9BF30 /* libGLSLangValidatorLib.dylib in Frameworks */,
@@ -136,9 +134,9 @@
 			isa = PBXGroup;
 			children = (
 				1A1F5B94299958FE009170DA /* testISFtoMSL */,
-				1A17D727299C046100EBA55E /* VVMetalKit.xcodeproj */,
 				1A1F5B93299958FE009170DA /* Products */,
 				1A17D732299C047C00EBA55E /* Frameworks */,
+				1A17D727299C046100EBA55E /* VVMetalKit.xcodeproj */,
 			);
 			sourceTree = "<group>";
 		};
@@ -451,6 +449,10 @@
 					"$(PROJECT_DIR)/extern/ISFGLSLGeneratorLib/bin",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-weak_framework",
+					VVMetalKit,
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.testISFtoMSL;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -488,6 +490,10 @@
 					"$(PROJECT_DIR)/extern/ISFGLSLGeneratorLib/bin",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-weak_framework",
+					VVMetalKit,
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.testISFtoMSL;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
