@@ -29,6 +29,9 @@
 		1A727D3929DB18AB00E2CF69 /* libGLSLangValidatorLib.dylib in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1A727D3129DB185600E2CF69 /* libGLSLangValidatorLib.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		1A727D3A29DB18AD00E2CF69 /* libISFGLSLGenerator.dylib in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1A727D3329DB187E00E2CF69 /* libISFGLSLGenerator.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		1A727D3B29DB18AF00E2CF69 /* libSPIRVCrossLib.dylib in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1A727D3529DB188500E2CF69 /* libSPIRVCrossLib.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		1ABD011029DB2B630061EEC9 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1ABD010F29DB2B630061EEC9 /* Metal.framework */; };
+		1ABD011229DB2B690061EEC9 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1ABD011129DB2B690061EEC9 /* MetalKit.framework */; };
+		1ABD011429DB2B7E0061EEC9 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1ABD011329DB2B7E0061EEC9 /* CoreGraphics.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -68,6 +71,9 @@
 		1A727D3129DB185600E2CF69 /* libGLSLangValidatorLib.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLSLangValidatorLib.dylib; path = extern/GLSLangValidatorLib/bin/libGLSLangValidatorLib.dylib; sourceTree = SOURCE_ROOT; };
 		1A727D3329DB187E00E2CF69 /* libISFGLSLGenerator.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libISFGLSLGenerator.dylib; path = extern/ISFGLSLGeneratorLib/bin/libISFGLSLGenerator.dylib; sourceTree = SOURCE_ROOT; };
 		1A727D3529DB188500E2CF69 /* libSPIRVCrossLib.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSPIRVCrossLib.dylib; path = extern/SPIRVCrossLib/bin/libSPIRVCrossLib.dylib; sourceTree = SOURCE_ROOT; };
+		1ABD010F29DB2B630061EEC9 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		1ABD011129DB2B690061EEC9 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
+		1ABD011329DB2B7E0061EEC9 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +81,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1ABD011429DB2B7E0061EEC9 /* CoreGraphics.framework in Frameworks */,
+				1ABD011229DB2B690061EEC9 /* MetalKit.framework in Frameworks */,
+				1ABD011029DB2B630061EEC9 /* Metal.framework in Frameworks */,
 				1A727D3229DB185600E2CF69 /* libGLSLangValidatorLib.dylib in Frameworks */,
 				1A727D3429DB187E00E2CF69 /* libISFGLSLGenerator.dylib in Frameworks */,
 				1A727D3629DB188500E2CF69 /* libSPIRVCrossLib.dylib in Frameworks */,
@@ -89,6 +98,7 @@
 			children = (
 				1A13892429DB01E5003B0759 /* ISFMSLKit */,
 				1A13892329DB01E5003B0759 /* Products */,
+				1ABD010E29DB2B630061EEC9 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -124,6 +134,16 @@
 				1A727D3529DB188500E2CF69 /* libSPIRVCrossLib.dylib */,
 			);
 			path = ISFMSLKit;
+			sourceTree = "<group>";
+		};
+		1ABD010E29DB2B630061EEC9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1ABD011329DB2B7E0061EEC9 /* CoreGraphics.framework */,
+				1ABD011129DB2B690061EEC9 /* MetalKit.framework */,
+				1ABD010F29DB2B630061EEC9 /* Metal.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
