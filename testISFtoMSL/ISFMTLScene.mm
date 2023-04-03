@@ -175,11 +175,11 @@ using namespace std;
 	//self = nil;
 	//return self;
 	
-	//cout << "***************************************************************" << endl;
-	//cout << outMSLVtxString << endl;
-	//cout << "***************************************************************" << endl;
-	//cout << outMSLFrgString << endl;
-	//cout << "***************************************************************" << endl;
+	cout << "***************************************************************" << endl;
+	cout << outMSLVtxString << endl;
+	cout << "***************************************************************" << endl;
+	cout << outMSLFrgString << endl;
+	cout << "***************************************************************" << endl;
 	
 	NSString		*outMSLVtxSrc = [NSString stringWithUTF8String:outMSLVtxString.c_str()];
 	NSString		*outMSLFrgSrc = [NSString stringWithUTF8String:outMSLFrgString.c_str()];
@@ -581,43 +581,9 @@ using namespace std;
 	//	have the doc evaluate its buffer dimensions with the passed render size- do this before we allocate any image resources
 	doc->evalBufferDimensionsWithRenderSize( round(renderSize.width), round(renderSize.height) );
 	
-	//	we're going to store the outputs of each render pass in this array, stored by name
-	NSMutableDictionary		*outPassDict = [[NSMutableDictionary alloc] init];
-	
-	
-	/*
-	//	assemble the buffer of vertex data we're going to use (for all passes)
-	CGRect			viewRect = CGRectMake( 0, 0, renderSize.width, renderSize.height );
-	{
-		
-		//const simd_float4		quadVerts[] = {
-		//	simd_make_float4( CGRectGetMinX(viewRect), CGRectGetMinY(viewRect), 0., 0. ),
-		//	simd_make_float4( CGRectGetMinX(viewRect), CGRectGetMaxY(viewRect), 0., 0. ),
-		//	simd_make_float4( CGRectGetMaxX(viewRect), CGRectGetMinY(viewRect), 0., 0. ),
-		//	simd_make_float4( CGRectGetMaxX(viewRect), CGRectGetMaxY(viewRect), 0., 0. ),
-		//};
-		const vector_float4		quadVerts[4] = {
-			simd_make_float4( static_cast<float>(CGRectGetMinX(viewRect)), static_cast<float>(CGRectGetMinY(viewRect)), float(0.), float(1.) ),
-			simd_make_float4( static_cast<float>(CGRectGetMinX(viewRect)), static_cast<float>(CGRectGetMaxY(viewRect)), float(0.), float(1.) ),
-			simd_make_float4( static_cast<float>(CGRectGetMaxX(viewRect)), static_cast<float>(CGRectGetMinY(viewRect)), float(0.), float(1.) ),
-			simd_make_float4( static_cast<float>(CGRectGetMaxX(viewRect)), static_cast<float>(CGRectGetMaxY(viewRect)), float(0.), float(1.) ),
-		};
-		//NSLog(@"\t\tsizeof(float) is %d, sizeof(quadVerts) is %d",sizeof(float),sizeof(quadVerts));
-		id<MTLBuffer>		vertBuffer = [self.device
-			newBufferWithBytes:quadVerts
-			length:sizeof(quadVerts)
-			options:MTLResourceStorageModeShared];
-		[self.renderEncoder
-			setVertexBuffer:vertBuffer
-			offset:0
-			atIndex:vtx_func_max_buffer_index + 1];
-	}
-	*/
-	
-	
-	
 	
 	//	these are some vars that we're going to use throughout this (relatively long) process
+	
 	
 	//	every img ref used during every render pass is stored in here (which is retained through the command buffer's lifetime)
 	NSMutableArray<ISFMTLSceneImgRef*>		*singleFrameTexCache = [[NSMutableArray alloc] init];
@@ -630,6 +596,7 @@ using namespace std;
 	NSMutableDictionary<NSValue*,id<MTLBuffer>>	*resToQuadVertsDict = [NSMutableDictionary dictionaryWithCapacity:0];
 	//	at some point during rendering, we may need a random texture for stuff that doesn't have one yet.  use this (you'll have to populate it as needed first)
 	MTLImgBuffer		*emptyTex = nil;
+	
 	
 	//	textures need samplers! make the sampler, then populate the RCE-index-to-sampler dicts
 	MTLSamplerDescriptor	*samplerDesc = [[MTLSamplerDescriptor alloc] init];
@@ -834,33 +801,19 @@ using namespace std;
 				}
 			}
 			break;
-		case VVISF::ISFValType_Cube:	{
-				//VVISF::ISFShaderCubeInfo		*wPtr = (VVISF::ISFShaderCubeInfo*)(uboBaseAttrPtr + attr.offsetInBuffer());
-				//wPtr->size[0] = XXX;
-				//wPtr->size[1] = XXX;
-			}
-			break;
+		//	the data values describing these images are written to the UBO at the same time that the texture 
+		//	they'll use is set asside and associated with specific RCE vert/frag texture indexes
+		case VVISF::ISFValType_Cube:
 		case VVISF::ISFValType_Image:
 		case VVISF::ISFValType_Audio:
-		case VVISF::ISFValType_AudioFFT:	{
-				//VVISF::ISFShaderImgInfo		*wPtr = (VVISF::ISFShaderImgInfo*)(uboBaseAttrPtr + attr.offsetInBuffer());
-				//wPtr->rect[0] = XXX;
-				//wPtr->rect[1] = XXX;
-				//wPtr->rect[2] = XXX;
-				//wPtr->rect[3] = XXX;
-				//
-				//wPtr->size[0] = XXX;
-				//wPtr->size[1] = XXX;
-				//
-				//wPtr->flip = XXX;
-			}
+		case VVISF::ISFValType_AudioFFT:
 			break;
 		}
 	}
 	
 	
 	//	this block pushes the passed texture to the RCE and writes info about it to the UBO, starting at the passed offset
-	void		(^PushNamedTexToUBOandRCE)(const VVISF::ISFImageInfoRef &, const std::string &, const size_t &) = ^(const VVISF::ISFImageInfoRef & imgInfoRef, const std::string & name, const size_t & uboOffset)	{
+	void		(^PrepNamedTexForRenderAtOffset)(const VVISF::ISFImageInfoRef &, const std::string &, const size_t &) = ^(const VVISF::ISFImageInfoRef & imgInfoRef, const std::string & name, const size_t & uboOffset)	{
 		//	try to figure out the index in the render encoder at which this pass's texture needs to be attached
 		uint32_t			fragRenderEncoderIndex = std::numeric_limits<uint32_t>::max();
 		try	{
@@ -896,15 +849,9 @@ using namespace std;
 		if (![singleFrameTexCache containsObject:objCImgRef])
 			[singleFrameTexCache addObject:objCImgRef];
 		if (vertRenderEncoderIndex != std::numeric_limits<uint32_t>::max())	{
-			//[renderEncoder
-			//	setVertexTexture:tmpTex
-			//	atIndex:vertRenderEncoderIndex];
 			[vertRCEIndexToTexDict setObject:objCImgRef forKey:@( vertRenderEncoderIndex )];
 		}
 		if (fragRenderEncoderIndex != std::numeric_limits<uint32_t>::max())	{
-			//[renderEncoder
-			//	setFragmentTexture:tmpTex
-			//	atIndex:fragRenderEncoderIndex];
 			[fragRCEIndexToTexDict setObject:objCImgRef forKey:@( fragRenderEncoderIndex )];
 		}
 		
@@ -926,54 +873,48 @@ using namespace std;
 			wPtr->flip = (flipped) ? 1 : 0;
 		}
 	};
-	//	this block pulls the current image from the passed attribute and pushes the texture to the RCE and writes info about the image to the UBO
-	void		(^PushAttrRefImageToUBOandRCE)(VVISF::ISFAttrRef) = ^(VVISF::ISFAttrRef attr)	{
+	//	this block pulls the current image from the passed attribute ref (populates CPU-side UBO with data describing tex, puts tex in dicts that we use at runtime to pass the tex to the RCE at the appropriate index)
+	void		(^PrepAttrRefImgForRender)(VVISF::ISFAttrRef) = ^(VVISF::ISFAttrRef attr)	{
 		//	if the atttr doesn't have a name, skip it
 		std::string		name = attr->name();
 		if (name.length() < 1)
 			return;
-		
 		//	get the current image from the attr- if it's not the expected type (ISFImage class), skip it- otherwise, recast to an ISFImageRef
 		VVISF::ISFImageInfoRef	imgInfoRef = attr->getCurrentImageRef();
 		if (imgInfoRef == nullptr)
 			return;
-		
 		size_t			offset = attr->offsetInBuffer();
-		
-		PushNamedTexToUBOandRCE(imgInfoRef, name, offset);
+		PrepNamedTexForRenderAtOffset(imgInfoRef, name, offset);
 	};
-	//	this block pulls the current image from the passed pass and pushes the texture to the RCE and writes info about the image to the UBO
-	void		(^PushPassRefImgToUBOandRCE)(VVISF::ISFPassTargetRef) = ^(VVISF::ISFPassTargetRef passTarget)	{
+	//	this block pulls the current image from the passed render pass ref (populates CPU-side UBO with data describing tex, puts tex in dicts that we use at runtime to pass the tex to the RCE at the appropriate index)
+	void		(^PrepPassRefImgForRender)(VVISF::ISFPassTargetRef) = ^(VVISF::ISFPassTargetRef passTarget)	{
 		//	if the atttr doesn't have a name, skip it
 		std::string		name = passTarget->name();
 		if (name.length() < 1)
 			return;
-		
 		//	get the current image from the attr- if it's not the expected type (ISFImage class), skip it- otherwise, recast to an ISFImageRef
 		VVISF::ISFImageInfoRef	imgInfoRef = passTarget->image();
 		if (imgInfoRef == nullptr)
 			return;
-		
 		size_t			offset = passTarget->offsetInBuffer();
-		
-		PushNamedTexToUBOandRCE(imgInfoRef, name, offset);
+		PrepNamedTexForRenderAtOffset(imgInfoRef, name, offset);
 	};
 	
 	
 	//	run through all of the image-based attributes, pushing their textures to the RCE and vals to the UBO
 	for (const VVISF::ISFAttrRef & attr : doc->imageImports())	{
-		PushAttrRefImageToUBOandRCE(attr);
+		PrepAttrRefImgForRender(attr);
 	}
 	for (const VVISF::ISFAttrRef & attr : doc->imageInputs())	{
-		PushAttrRefImageToUBOandRCE(attr);
+		PrepAttrRefImgForRender(attr);
 	}
 	for (const VVISF::ISFAttrRef & attr : doc->audioInputs())	{
-		PushAttrRefImageToUBOandRCE(attr);
+		PrepAttrRefImgForRender(attr);
 	}
 	
 	//	run through the doc's render passes- if it has a name and a texture and we can figure out the associated index, attach it
 	for (const VVISF::ISFPassTargetRef & passTarget : doc->renderPasses())	{
-		PushPassRefImgToUBOandRCE(passTarget);
+		PrepPassRefImgForRender(passTarget);
 	}
 	
 	
@@ -1075,72 +1016,31 @@ using namespace std;
 		ISFImageRef			newTexImgRef = std::make_shared<ISFImage>(newTex);
 		renderPassRef->setImage(newTexImgRef);
 		//	push the new texture to the cache array, the tex/RCE index dict, the UBO data buffer, etc...
-		PushPassRefImgToUBOandRCE(renderPassRef);
+		PrepPassRefImgForRender(renderPassRef);
 		
 		++_passIndex;
+	}
+	
+	//	...now that we're done rendering, run back through the doc's render passes, and give null images to all of the non-persistent render passes to free up their textures
+	for (const VVISF::ISFPassTargetRef & passTarget : doc->renderPasses())	{
+		if (passTarget->persistentFlag())
+			continue;
+		//MTLImgBuffer		*nilPlaceholder = nil;
+		VVISF::ISFImageInfoRef	emptyImg = std::make_shared<ISFImage>((MTLImgBuffer*)nil);
+		passTarget->setImage(emptyImg);
 	}
 	
 	//	add the single frmae cache array to the completion handler, so we send all the textures we were hanging onto during rendering back to the pool
 	[self.commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed)	{
 		NSMutableArray<ISFMTLSceneImgRef*>		*localSingleFrameTexCache = singleFrameTexCache;
+		NSMutableDictionary<NSNumber*,ISFMTLSceneImgRef*>	*localVertRCEIndexToTexDict = vertRCEIndexToTexDict;
+		NSMutableDictionary<NSNumber*,ISFMTLSceneImgRef*>	*localFragRCEIndexToTexDict = fragRCEIndexToTexDict;
+		
 		localSingleFrameTexCache = nil;
+		localVertRCEIndexToTexDict = nil;
+		localFragRCEIndexToTexDict = nil;
 	}];
 	
-	
-	
-	/*
-	//	make a MTLBuffer to contains the values of the inputs/etc we need to send to the shader to render
-	id<MTLBuffer>		inputVals = [self.device
-		newBufferWithBytes:uboDataBuffer
-		length:uboDataBufferSize
-		options:MTLResourceStorageModeShared];
-	*/
-	
-	
-	
-	/*
-	struct VVISF_UNIFORMS {
-		int PASSINDEX;
-		vector_float2 RENDERSIZE;
-		float TIME;
-		float TIMEDELTA;
-		vector_float4 DATE;
-		int FRAMEINDEX;
-		vector_float4 _inputImage_imgRect;
-		vector_float2 _inputImage_imgSize;
-		uint _inputImage_flip;
-	};
-	
-	VVISF_UNIFORMS		paramVals;
-	paramVals.PASSINDEX = 0;
-	paramVals.RENDERSIZE = simd_make_float2(1920, 1080);
-	paramVals.TIME = 0.0;
-	paramVals.TIMEDELTA = 0.0;
-	paramVals.DATE = simd_make_float4(0,0,0,0);
-	paramVals.FRAMEINDEX = 0;
-	paramVals._inputImage_imgRect = simd_make_float4(0,0,1920,1080);
-	paramVals._inputImage_imgSize = simd_make_float2(1920,1080);
-	paramVals._inputImage_flip = 0;
-	//NSLog(@"\t\tsizeof(VVISF_UNIFORMS) is %d",sizeof(paramVals));
-	
-	id<MTLBuffer>		paramsBuffer = [self.device
-		newBufferWithBytes:&paramVals
-		length:sizeof(paramVals)
-		options:MTLResourceStorageModeShared];
-	[self.renderEncoder
-		setVertexBuffer:paramsBuffer
-		offset:0
-		atIndex:0];
-	[self.renderEncoder
-		setFragmentBuffer:paramsBuffer
-		offset:0
-		atIndex:0];
-	*/
-	
-	//[self.renderEncoder
-	//	drawPrimitives:MTLPrimitiveTypeTriangleStrip
-	//	vertexStart:0
-	//	vertexCount:4];
 	
 	
 	//	don't forget to update the rendered frame index!

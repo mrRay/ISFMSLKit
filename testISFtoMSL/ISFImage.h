@@ -34,6 +34,8 @@ class ISFImage : public VVISF::ISFImageInfo	{
 		MTLImgBuffer		*img;
 	public:
 		ISFImage(MTLImgBuffer * inBuffer) : VVISF::ISFImageInfo(inBuffer.srcRect.size.width, inBuffer.srcRect.size.height), img(inBuffer)	{}
+		ISFImage(const uint32_t & inWidth, const uint32_t & inHeight) : VVISF::ISFImageInfo(inWidth, inHeight), img(nil) {}
+		
 		virtual ~ISFImage()	{
 			img = nil;
 		}
