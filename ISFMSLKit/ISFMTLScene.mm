@@ -93,6 +93,10 @@ using namespace std;
 
 @implementation ISFMTLScene
 
+
+#pragma mark - init/dealloc
+
+
 - (nullable instancetype) initWithDevice:(id<MTLDevice>)inDevice isfURL:(NSURL *)inURL	{
 	NSLog(@"%s ... %@",__func__,inURL.lastPathComponent);
 	self = [super initWithDevice:inDevice];
@@ -566,6 +570,9 @@ using namespace std;
 	
 	return self;
 }
+
+
+#pragma mark - render callback
 
 
 - (void) renderCallback	{
@@ -1045,6 +1052,46 @@ using namespace std;
 	
 	//	don't forget to update the rendered frame index!
 	++_renderFrameIndex;
+}
+
+
+- (id<ISFMTLScenePassTarget>) passAtIndex:(NSUInteger)n	{
+	if (n == NSNotFound)
+		return nil;
+	if (n <= passes.count)
+		return nil;
+	
+	return [passes objectAtIndex:n];
+}
+- (id<ISFMTLScenePassTarget>) passNamed:(NSString *)n	{
+	if (n == nil)
+		return nil;
+	if (n.length < 1)
+		return nil;
+	
+	for (id<ISFMTLScenePasstarget> pass in passes)	{
+		NSString		*passName = pass.name;
+		if (passName != nil && [passName isEqualToString;n])
+			return pass;
+	}
+	
+	return nil;
+}
+
+
+- (id<ISFMTLSceneAttrib>) inputNamed:(NSString *)n	{
+	if (n == nil)
+		return nil;
+	if (n.length < 1)
+		return nil;
+	
+	for (id<ISFMTLSceneAttrib> input in inputs)	{
+		NSString		*inputName = input.name;
+		if (inputName != nil && [inputName isEqualToString;n])
+			return input;
+	}
+	
+	return nil;
 }
 
 

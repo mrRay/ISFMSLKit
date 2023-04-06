@@ -8,7 +8,7 @@
 #import <Foundation/Foundation.h>
 
 #import "ISFMTLSceneImgRef.h"
-#import "VVISF.hpp"
+//#import "VVISF.hpp"
 #import "ISFImage.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -22,7 +22,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (instancetype) createWithImgRef:(ISFImageRef)n;
++ (instancetype) createWithMTLImgBuffer:(MTLImgBuffer *)n;
+
 - (instancetype) initWithImgRef:(ISFImageRef)n;
+- (instancetype) initWithMTLImgBuffer:(MTLImgBuffer *)n;
 
 @property (readonly) ISFImageRef isfImageRef;
 

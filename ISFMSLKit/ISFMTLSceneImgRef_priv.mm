@@ -8,6 +8,7 @@
 #import "ISFMTLSceneImgRef_priv.h"
 #import "ISFMTLSceneImgRef.h"
 #import "ISFImage.h"
+#import "VVISF.hpp"
 
 
 
@@ -21,6 +22,9 @@
 + (instancetype) createWithImgRef:(ISFImageRef)n	{
 	return [[ISFMTLSceneImgRef alloc] initWithImgRef:n];
 }
++ (instancetype) createWithMTLImgBuffer:(MTLImgBuffer *)n	{
+	return [[ISFMTLSceneImgRef alloc] initWithMTLImgBuffer:n];
+}
 
 
 #pragma mark - init/dealloc
@@ -33,6 +37,22 @@
 	if (self != nil)	{
 		_localImage = n;
 	}
+	return self;
+}
+- (instancetype) initWithMTLImgBuffer:(MTLImgBuffer *)n	{
+	self = [super init];
+	if (n == nil)
+		self = nil;
+	ISFImageRef		tmpImgRef = std::make_shared<ISFImage>(n);
+	if (tmpImgRef == nullptr)	{
+		self = nil;
+		return self;
+	}
+	
+	if (self != nil)	{
+		_localImage = tmpImgRef;
+	}
+	
 	return self;
 }
 
