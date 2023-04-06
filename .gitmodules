@@ -1,3 +1,3 @@
 [submodule "ISFGLSLGenerator"]
-	path = ISFGLSLGenerator
+	path = submodules/ISFGLSLGenerator
 	url = git@github.com:mrRay/ISFGLSLGenerator.git
