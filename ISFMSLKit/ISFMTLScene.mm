@@ -1069,9 +1069,9 @@ using namespace std;
 	if (n.length < 1)
 		return nil;
 	
-	for (id<ISFMTLScenePasstarget> pass in passes)	{
+	for (id<ISFMTLScenePassTarget> pass in passes)	{
 		NSString		*passName = pass.name;
-		if (passName != nil && [passName isEqualToString;n])
+		if (passName != nil && [passName isEqualToString:n])
 			return pass;
 	}
 	
@@ -1087,7 +1087,7 @@ using namespace std;
 	
 	for (id<ISFMTLSceneAttrib> input in inputs)	{
 		NSString		*inputName = input.name;
-		if (inputName != nil && [inputName isEqualToString;n])
+		if (inputName != nil && [inputName isEqualToString:n])
 			return input;
 	}
 	
