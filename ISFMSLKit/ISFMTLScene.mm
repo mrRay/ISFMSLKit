@@ -110,7 +110,7 @@ using namespace std;
 	NSString		*inURLPath = inURL.path;
 	const char		*inURLPathCStr = inURLPath.UTF8String;
 	//std::string		inURLPathStr { inURLPathCStr };
-	doc = VVISF::CreateISFDocRef(inURLPathCStr, false);
+	doc = VVISF::CreateISFDocRef(inURLPathCStr, true);
 	//doc = CreateISFDocRef(inURLPathStr, false);
 	if (doc == nullptr)	{
 		self = nil;
@@ -122,14 +122,14 @@ using namespace std;
 	
 	//doc->generateShaderSource(&fragSrc, &vertSrc, GLVersion_2, false);
 	doc->generateShaderSource(&fragSrc, &vertSrc, VVISF::GLVersion_4, true, &maxUboSize);
-	//cout << "***************************************************************" << endl;
-	//cout << vertSrc << endl;
-	//cout << "***************************************************************" << endl;
-	//cout << fragSrc << endl;
-	//cout << "***************************************************************" << endl;
-	//cout << "***************************************************************" << endl;
-	//cout << "***************************************************************" << endl;
-	//cout << "***************************************************************" << endl;
+	cout << "***************************************************************" << endl;
+	cout << vertSrc << endl;
+	cout << "***************************************************************" << endl;
+	cout << fragSrc << endl;
+	cout << "***************************************************************" << endl;
+	cout << "***************************************************************" << endl;
+	cout << "***************************************************************" << endl;
+	cout << "***************************************************************" << endl;
 	
 	//NSLog(@"\t\tsizeof(ISFShaderRenderInfo) is %d, sizeof(ISFShaderImgInfo) is %d",sizeof(VVISF::ISFShaderRenderInfo),sizeof(VVISF::ISFShaderImgInfo));
 	//NSLog(@"\t\tmaxUBOSize returned by libISFGLSLGenerator is %d",maxUboSize);
@@ -608,6 +608,7 @@ using namespace std;
 	//	textures need samplers! make the sampler, then populate the RCE-index-to-sampler dicts
 	MTLSamplerDescriptor	*samplerDesc = [[MTLSamplerDescriptor alloc] init];
 	samplerDesc.normalizedCoordinates = YES;
+	//samplerDesc.normalizedCoordinates = NO;
 	samplerDesc.minFilter = MTLSamplerMinMagFilterLinear;
 	samplerDesc.magFilter = MTLSamplerMinMagFilterLinear;
 	samplerDesc.sAddressMode = MTLSamplerAddressModeClampToEdge;
@@ -851,6 +852,11 @@ using namespace std;
 		if (tmpTex == nil)
 			return;
 		
+		#if DEBUG
+		//	assign the attribute's name to the texture's label to make debugging easier
+		tmpTex.label = [NSString stringWithUTF8String:name.c_str()];
+		#endif
+		
 		//	add the img to the tex cache so it's guaranteed to stick around through the completion of rendering
 		ISFMTLSceneImgRef		*objCImgRef = [ISFMTLSceneImgRef createWithImgRef:imgRef];
 		if (![singleFrameTexCache containsObject:objCImgRef])
@@ -869,10 +875,17 @@ using namespace std;
 			NSRect			imgRect = (tmpImgBuffer==nil) ? NSMakeRect(0,0,texSize.width,texSize.height) : tmpImgBuffer.srcRect;
 			BOOL			flipped = (tmpImgBuffer==nil) ? NO : tmpImgBuffer.flipV;
 			
-			wPtr->rect[0] = imgRect.origin.x;
-			wPtr->rect[1] = imgRect.origin.y;
-			wPtr->rect[2] = imgRect.size.width;
-			wPtr->rect[3] = imgRect.size.height;
+			//	these apply the src rect's coords as normalized vals
+			wPtr->rect[0] = imgRect.origin.x/texSize.width;
+			wPtr->rect[1] = imgRect.origin.y/texSize.height;
+			wPtr->rect[2] = imgRect.size.width/texSize.width;
+			wPtr->rect[3] = imgRect.size.height/texSize.height;
+			
+			//	these apply the src rect's coords as pixel coords
+			//wPtr->rect[0] = imgRect.origin.x;
+			//wPtr->rect[1] = imgRect.origin.y;
+			//wPtr->rect[2] = imgRect.size.width;
+			//wPtr->rect[3] = imgRect.size.height;
 			
 			wPtr->size[0] = imgRect.size.width;
 			wPtr->size[1] = imgRect.size.height;
@@ -932,6 +945,7 @@ using namespace std;
 		VVISF::ISFPassTargetRef		&renderPassRef = objCRenderPass.passTargetRef;
 		VVISF::ISFImageInfo		renderPassTargetInfo = renderPassRef->targetImageInfo();
 		NSSize			renderPassSize = NSMakeSize(renderPassTargetInfo.width, renderPassTargetInfo.height);
+		NSLog(@"\t\trendering pass %d",_passIndex);
 		
 		//	allocate a new texture for the render pass- this is what we're going to render into
 		MTLImgBuffer		*newTex = nil;
@@ -939,9 +953,14 @@ using namespace std;
 			newTex = self.renderTarget;
 		}
 		else	{
-			newTex = (objCRenderPass.float32)
-				? [[MTLPool global] rgbaFloatTexSized:CGSizeMake(renderPassTargetInfo.width, renderPassTargetInfo.height)]
-				: [[MTLPool global] bgra8TexSized:CGSizeMake(renderPassTargetInfo.width, renderPassTargetInfo.height)];
+			if (objCRenderPass.float32)
+				newTex = [[MTLPool global] rgbaFloatTexSized:CGSizeMake(renderPassTargetInfo.width, renderPassTargetInfo.height)];
+			else
+				newTex = [[MTLPool global] bgra8TexSized:CGSizeMake(renderPassTargetInfo.width, renderPassTargetInfo.height)];
+			
+			//newTex = (objCRenderPass.float32)
+			//	? [[MTLPool global] rgbaFloatTexSized:CGSizeMake(renderPassTargetInfo.width, renderPassTargetInfo.height)]
+			//	: [[MTLPool global] bgra8TexSized:CGSizeMake(renderPassTargetInfo.width, renderPassTargetInfo.height)];
 		}
 		
 		//	make a render pass descriptor and then a command encoder, configure the viewport & attach the PSO
@@ -952,8 +971,11 @@ using namespace std;
 		attachDesc.loadAction = MTLLoadActionDontCare;
 		
 		id<MTLRenderCommandEncoder>		renderEncoder = [self.commandBuffer renderCommandEncoderWithDescriptor:passDesc];
-		[renderEncoder setViewport:(MTLViewport){ 0.f, 0.f, renderSize.width, renderSize.height, -1.f, 1.f }];
+		[renderEncoder setViewport:(MTLViewport){ 0.f, 0.f, (double)renderPassTargetInfo.width, (double)renderPassTargetInfo.height, -1.f, 1.f }];
 		[renderEncoder setRenderPipelineState:objCRenderPass.pso];
+		#if DEBUG
+		renderEncoder.label = [NSString stringWithFormat:@"Pass %d named \"%@\"",_passIndex,objCRenderPass.name];
+		#endif
 		
 		//	attach the appropriate quad verts buffer to the render encoder
 		NSValue			*resValue = [NSValue valueWithSize:renderPassSize];
@@ -1001,6 +1023,10 @@ using namespace std;
 			newBufferWithBytes:uboDataBuffer
 			length:uboDataBufferSize
 			options:MTLResourceStorageModeShared];
+		#if DEBUG
+		uboMtlBuffer.label = [NSString stringWithFormat:@"Pass %d UBO",_passIndex];
+		#endif
+		
 		[renderEncoder
 			setVertexBuffer:uboMtlBuffer
 			offset:0
@@ -1053,6 +1079,41 @@ using namespace std;
 	//	don't forget to update the rendered frame index!
 	++_renderFrameIndex;
 }
+
+
+#pragma mark - superclass overrides
+
+
+- (MTLImgBuffer *) createAndRenderToBufferSized:(CGSize)inSize inCommandBuffer:(id<MTLCommandBuffer>)cb	{
+	MTLPool			*pool = [MTLPool global];
+	if (pool == nil)
+		return nil;
+	
+	MTLImgBuffer		*returnMe = nil;
+	//	get the last pass, figure out whether we need a float texture or not
+	const auto &		passes = doc->renderPasses();
+	const auto &		pass = passes[passes.size()-1];
+	if (pass->floatFlag())
+		returnMe = [pool rgbaFloatTexSized:inSize];
+	else
+		returnMe = [pool bgra8TexSized:inSize];
+	
+	if (returnMe == nil)
+		return returnMe;
+	
+	[self renderToBuffer:returnMe inCommandBuffer:cb];
+	
+	return returnMe;
+	
+	//MTLImgBuffer		*returnMe = [pool bgra8TexSized:inSize];
+	//if (returnMe == nil)
+	//	return nil;
+	//[self renderToBuffer:returnMe inCommandBuffer:cb];
+	//return returnMe;
+}
+
+
+#pragma mark - accessors
 
 
 - (id<ISFMTLScenePassTarget>) passAtIndex:(NSUInteger)n	{
