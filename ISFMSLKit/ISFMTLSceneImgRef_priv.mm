@@ -57,6 +57,11 @@
 }
 
 
+- (NSString *) description	{
+	return [NSString stringWithFormat:@"<ISFMTLSceneImgRef %@>",(_localImage==nullptr) ? nil : _localImage->img.texture.label];
+}
+
+
 #pragma mark - key/value
 
 

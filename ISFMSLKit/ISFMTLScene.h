@@ -19,7 +19,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ISFMTLScene : MTLScene
 
-- (nullable instancetype) initWithDevice:(id<MTLDevice>)inDevice isfURL:(NSURL *)inURL;
+- (nullable instancetype) initWithDevice:(id<MTLDevice>)inDevice;
+
+- (void) loadURL:(NSURL *)n;
 
 @property (readonly) NSArray<id<ISFMTLScenePassTarget>> * passes;
 @property (readonly) NSArray<id<ISFMTLSceneAttrib>> * inputs;

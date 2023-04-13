@@ -25,6 +25,9 @@
 #import "ISFMTLSceneAttrib_priv.h"
 #import "ISFMTLScenePassTarget_priv.h"
 
+#import "ISFMTLCache.h"
+#import "ISFMTLCacheObject.h"
+
 
 
 
@@ -42,31 +45,6 @@ using namespace std;
 @interface ISFMTLScene ()	{
 	VVISF::ISFDocRef		doc;
 	
-	id<MTLLibrary>			vtxLib;
-	id<MTLLibrary>			frgLib;
-	
-	id<MTLFunction>			vtxFunc;
-	id<MTLFunction>			frgFunc;
-	
-	//	the string is the ISF attribute name (or "VVISF_UNIFORMS&"), the int is the index in the shader at which 
-	//	metal expects the corresponding resource to be attached.  populated by examining the frag shader.
-	std::map<std::string,int>		fragBufferVarIndexMap;
-	std::map<std::string,int>		fragTextureVarIndexMap;
-	std::map<std::string,int>		fragSamplerVarIndexMap;
-	
-	std::map<std::string,int>		vertBufferVarIndexMap;
-	std::map<std::string,int>		vertTextureVarIndexMap;
-	std::map<std::string,int>		vertSamplerVarIndexMap;
-	
-	//	when MSL is generated, we need to know what the max "buffer[XXX]" value is, because when we supply the 
-	//	vertex data to the vertex shader, we're supplying it as an attribute to the vertex descriptor, which 
-	//	means when we attach the corresponding buffer to the shader we need to do so at an index that is one 
-	//	larger than the max index being used ("XXX + 1").  this is really only an issue because the shader code is the 
-	//	result of a transpilation, if the shader was just...written (by a human or an AI) it's likely that 
-	//	it'd use an enum in a header to declare and define attachment indexes.
-	int			vtx_func_max_buffer_index;
-	
-	//NSArray<id<MTLRenderPipelineState>>		*psos;
 	NSMutableArray<id<ISFMTLScenePassTarget>>		*passes;
 	
 	NSMutableArray<id<ISFMTLSceneAttrib>>	*inputs;
@@ -75,7 +53,9 @@ using namespace std;
 	//	source code is generated programmatically, we can figure out exactly what the structure of the data we 
 	//	need to pass needs to look like- and populate the data buffer automatically- by examining the ISFDoc's 
 	//	structure and the state of its various attributes and passes.
-	size_t		maxUboSize;
+	//size_t		maxUboSize;
+	
+	ISFMTLCacheObject		*loaded;
 	
 	size_t			uboDataBufferSize;
 	void			*uboDataBuffer;
@@ -97,307 +77,64 @@ using namespace std;
 #pragma mark - init/dealloc
 
 
-- (nullable instancetype) initWithDevice:(id<MTLDevice>)inDevice isfURL:(NSURL *)inURL	{
-	NSLog(@"%s ... %@",__func__,inURL.lastPathComponent);
+- (nullable instancetype) initWithDevice:(id<MTLDevice>)inDevice	{
 	self = [super initWithDevice:inDevice];
-	if (inURL == nil)
-		self = nil;
 	
-	if (self == nil)
-		return self;
+	if (self != nil)	{
+		doc = nullptr;
+		passes = [[NSMutableArray alloc] init];
+		inputs = [[NSMutableArray alloc] init];
+		loaded = nil;
+		uboDataBufferSize = 0;
+		uboDataBuffer = nil;
+	}
+	
+	return self;
+}
+
+
+#pragma mark - frontend
+
+
+- (void) loadURL:(NSURL *)n	{
+	//NSLog(@"%s ... %@",__func__,n.path.lastPathComponent);
+	//	clear out the old
+	doc = nullptr;
+	[passes removeAllObjects];
+	[inputs removeAllObjects];
+	loaded = nil;
+	
+	uboDataBufferSize = 0;
+	if (uboDataBuffer != nil)	{
+		free(uboDataBuffer);
+		uboDataBuffer = nil;
+	}
+	
+	//	load the new- if there's nothing new to load, bail early
+	NSString		*path = n.path;
+	if (path == nil)	{
+		return;
+	}
 	
 	//	create an ISFDoc from the passed URL
-	NSString		*inURLPath = inURL.path;
-	const char		*inURLPathCStr = inURLPath.UTF8String;
-	//std::string		inURLPathStr { inURLPathCStr };
-	doc = VVISF::CreateISFDocRef(inURLPathCStr, true);
+	const char		*pathCStr = path.UTF8String;
+	//std::string		inURLPathStr { pathCStr };
+	doc = VVISF::CreateISFDocRef(pathCStr, true);
 	//doc = CreateISFDocRef(inURLPathStr, false);
 	if (doc == nullptr)	{
-		self = nil;
-		return self;
+		NSLog(@"ERR: unable to make doc from path %@ (%s)",path,__func__);
+		return;
 	}
 	
-	string		fragSrc;
-	string		vertSrc;
-	
-	//doc->generateShaderSource(&fragSrc, &vertSrc, GLVersion_2, false);
-	doc->generateShaderSource(&fragSrc, &vertSrc, VVISF::GLVersion_4, true, &maxUboSize);
-	cout << "***************************************************************" << endl;
-	cout << vertSrc << endl;
-	cout << "***************************************************************" << endl;
-	cout << fragSrc << endl;
-	cout << "***************************************************************" << endl;
-	cout << "***************************************************************" << endl;
-	cout << "***************************************************************" << endl;
-	cout << "***************************************************************" << endl;
-	
-	//NSLog(@"\t\tsizeof(ISFShaderRenderInfo) is %d, sizeof(ISFShaderImgInfo) is %d",sizeof(VVISF::ISFShaderRenderInfo),sizeof(VVISF::ISFShaderImgInfo));
-	//NSLog(@"\t\tmaxUBOSize returned by libISFGLSLGenerator is %d",maxUboSize);
-	
-	vector<uint32_t>	outSPIRVVtxData;
-	vector<uint32_t>	outSPIRVFrgData;
-	if (!ConvertGLSLVertShaderToSPIRV(vertSrc, outSPIRVVtxData))	{
-		NSLog(@"***************** ERR: unable to convert vert shader for file %s, bailing",std::filesystem::path(inURLPathCStr).stem().c_str());
-		self = nil;
-		return self;
-	}
-	
-	if (!ConvertGLSLFragShaderToSPIRV(fragSrc, outSPIRVFrgData))	{
-		NSLog(@"***************** ERR: unable to convert frag shader for file %s, bailing",std::filesystem::path(inURLPathCStr).stem().c_str());
-		self = nil;
-		return self;
-	}
-	
-	//NSString		*filename = [inURL URLByDeletingPathExtension].lastPathComponent;
-	string			raw_filename = std::filesystem::path(inURLPathCStr).stem().string();
-	string			filename { "" };
-	for (auto tmpchar : raw_filename)	{
-		if (isalnum(tmpchar))
-			filename += tmpchar;
-		else
-			filename += "_";
-	}
-	string			fragFuncName = filename+"FragFunc";
-	string			vertFuncName = filename+"VertFunc";
-	
-	//	we're giving the vertex function an explicit name (we have to, otherwise it's just called "main" and we 
-	//	won't be able to link it in a lib with other functions), so we go with a filename-based function name for now
-	string		outMSLVtxString;
-	string		outMSLFrgString;
-	if (!ConvertVertSPIRVToMSL(outSPIRVVtxData, vertFuncName, outMSLVtxString))	{
-		NSLog(@"***************** ERR: unable to convert SPIRV for file %s, bailing",std::filesystem::path(inURLPathCStr).stem().c_str());
-		self = nil;
-		return self;
-	}
-	if (!ConvertFragSPIRVToMSL(outSPIRVFrgData, fragFuncName, outMSLFrgString))	{
-		NSLog(@"***************** ERR: unable to convert SPIRV for file %s, bailing",std::filesystem::path(inURLPathCStr).stem().c_str());
-		self = nil;
-		return self;
-	}
-	
-	//NSLog(@"%s- bailing early",__func__);
-	//self = nil;
-	//return self;
-	
-	cout << "***************************************************************" << endl;
-	cout << outMSLVtxString << endl;
-	cout << "***************************************************************" << endl;
-	cout << outMSLFrgString << endl;
-	cout << "***************************************************************" << endl;
-	
-	NSString		*outMSLVtxSrc = [NSString stringWithUTF8String:outMSLVtxString.c_str()];
-	NSString		*outMSLFrgSrc = [NSString stringWithUTF8String:outMSLFrgString.c_str()];
-	
-	NSError			*nsErr = nil;
-	vtxLib = [self.device newLibraryWithSource:outMSLVtxSrc options:nil error:&nsErr];
-	if (vtxLib == nil)	{
-		NSLog(@"***************** ERR: unable to make lib from vtx src %s, bailing (%@)",std::filesystem::path(inURLPathCStr).stem().c_str(),nsErr);
-		self = nil;
-		return self;
-	}
-	frgLib = [self.device newLibraryWithSource:outMSLFrgSrc options:nil error:&nsErr];
-	if (frgLib == nil)	{
-		NSLog(@"***************** ERR: unable to make lib from frg src %s, bailing (%@)",std::filesystem::path(inURLPathCStr).stem().c_str(),nsErr);
-		self = nil;
-		return self;
-	}
-	
-	vtxFunc = [vtxLib newFunctionWithName:[NSString stringWithUTF8String:vertFuncName.c_str()]];
-	if (vtxFunc == nil)	{
-		NSLog(@"***************** ERR: unable to make func from vtx lib %s, bailing",std::filesystem::path(inURLPathCStr).stem().c_str());
-		self = nil;
-		return self;
-	}
-	frgFunc = [frgLib newFunctionWithName:[NSString stringWithUTF8String:fragFuncName.c_str()]];
-	if (frgFunc == nil)	{
-		NSLog(@"***************** ERR: unable to make func from frg lib %s, bailing",std::filesystem::path(inURLPathCStr).stem().c_str());
-		self = nil;
-		return self;
-	}
-	
-	//	this lambda finds the passed string (whole-word-match only) in the other passed string
-	auto FindNamedMainFuncDeclaration = [](const std::string &inFuncName, const std::string &inShaderString) -> std::string	{
-		std::regex			regex = std::regex( std::string("\\b") + inFuncName + std::string("\\b") );
-		std::smatch			matches;
-		if (!std::regex_search(inShaderString, matches, regex))	{
-			return std::string("");
-		}
-		int				line_begin = (int)matches.position();
-		int				line_end = line_begin + (int)matches.length();
-		//  run from the beginning of the match backward until we find a line-break
-		for (auto iter = std::begin(inShaderString)+line_begin; iter != std::begin(inShaderString); --iter) {
-			if (*iter == 10 || *iter == 13)
-				break;
-			--line_begin;
-		}
-		//  run from the end of the match forward until we find a line-break
-		for (auto iter = std::begin(inShaderString)+line_end; iter != std::end(inShaderString); ++iter) {
-			//cout << "\tchecking " << *iter << endl;
-			if (*iter == 10 || *iter == 13)
-				break;
-			++line_end;
-		}
-		return inShaderString.substr(line_begin, line_end - line_begin);
-	};
-	//	the MTLVertexDescriptor needs to be configured such that the MTLBuffer containing vertex data is assigned at one higher than the max buffer(int) value in the vertex shader source code.  so we need to parse the vertex shader source code to find this value.
-	//	first look for the line in the vertex shader src that contains the name of the main function- we need to search it, so first we want to make a standalone string with the whole line
-	string			vertFuncLine = FindNamedMainFuncDeclaration(vertFuncName, outMSLVtxString);
-	string			fragFuncLine = FindNamedMainFuncDeclaration(fragFuncName, outMSLFrgString);
-	
-	
-	//	this lambda accepts a function declaration, and returns an array of the args passed to it, stripped of enclosing whitespace
-	auto GetFuncStringArgs = [](const std::string &inFuncLine) -> std::vector<std::string>	{
-		std::vector<std::string>		returnMe;
-		//	find the first left parenthesis in inFuncLine using find_first_of
-		auto		leftParenIter = inFuncLine.find_first_of('(');
-		//	find the last right parenthesis in inFuncLine using find_last_of
-		auto		rightParenIter = inFuncLine.find_last_of(')');
-		//	make a substring of inFuncLine using the characters between leftParenIter and rightParenIter, non-inclusive
-		std::string		inFuncParams = inFuncLine.substr(leftParenIter+1, rightParenIter-leftParenIter-1);
-		//	split up inFuncParams using commas as the delimiter
-		std::vector<std::string>		inFuncParamsSplit;
-		std::regex			regex = std::regex( std::string(",") );
-		std::sregex_token_iterator		iter(inFuncParams.begin(), inFuncParams.end(), regex, -1);
-		std::sregex_token_iterator		end;
-		while (iter != end)	{
-			if (iter->length() > 0)
-				inFuncParamsSplit.push_back(*iter);
-			++iter;
-		}
-		for (auto iter = std::begin(inFuncParamsSplit); iter != std::end(inFuncParamsSplit); ++iter)	{
-			//	trim whitespace from the beginning of the string
-			auto		trimBeginIter = iter->find_first_not_of(" \t");
-			//	trim whitespace from the end of the string
-			auto		trimEndIter = iter->find_last_not_of(" \t");
-			//	make a substring of the string using the trimmed indices
-			std::string		trimmedString = iter->substr(trimBeginIter, trimEndIter-trimBeginIter+1);
-			//	add the trimmed string to the map
-			returnMe.push_back(trimmedString);
-		}
-		return returnMe;
-	};
-	std::vector<std::string>		vertArgs = GetFuncStringArgs(vertFuncLine);
-	std::vector<std::string>		fragArgs = GetFuncStringArgs(fragFuncLine);
-	
-	
-	//	this lambda looks through the array of function arguments looking for the passed attribute string (stuff 
-	//	like "buffer(0)") and returns a map of the variable name and the index.  it also inserts "VVISF_UNIFORMS" 
-	//	instead of the var name (which is expected to be an arbitray integer) in the map where appropriate.
-	auto SearchForMetalAttrInFuncArgs = [](const std::string &searchAttrName, const std::vector<std::string> &funcArgsToSearch) -> std::map<std::string,int>	{
-		//std::cout << "SearchForMetalAttrInFuncArgs()" << std::endl;
-		std::map<std::string,int>		returnMe;
-		
-		for (auto funcArg : funcArgsToSearch)	{
-			std::string		regexString = std::string("\\[\\[[\\s]*") + searchAttrName + std::string("\\([\\s]*([0-9]+)[\\s]*\\)[\\s]*\\]\\]");
-			std::regex		regex = std::regex(regexString);
-			for (auto searchTermIter = std::sregex_iterator(funcArg.begin(), funcArg.end(), regex); searchTermIter != std::sregex_iterator(); ++searchTermIter)	{
-				std::smatch		match = *searchTermIter;
-				int			parsedBufferIndex = stoi(match[1]);
-				
-				//	split 'funcArg' up using spaces as the delimiter
-				std::vector<std::string>		funcArgWords;
-				std::regex			regex = std::regex( std::string(" ") );
-				std::sregex_token_iterator		iter(funcArg.begin(), funcArg.end(), regex, -1);
-				std::sregex_token_iterator		end;
-				while (iter != end)	{
-					funcArgWords.push_back(*iter);
-					++iter;
-				}
-				//std::cout << "funcArgWords are: ";
-				//bool		first = true;
-				//for (auto tmpStr : funcArgWords)	{
-				//	if (!first)
-				//		std::cout << ", ";
-				//	std::cout << tmpStr;
-				//	first = false;
-				//}
-				//std::cout << std::endl;
-				
-				if (funcArgWords.size() < 2)
-					continue;
-				
-				//	variable name's the second-to-last term in the array!
-				std::string		varName = funcArgWords[ funcArgWords.size()-2 ];
-				//	if 'funcArgWords' contains a string that is equal to "VVISF_UNIFORMS&", then set 'varName' equal to "VVISF_UNIFORMS&"
-				for (auto tmpStr : funcArgWords)	{
-					if (tmpStr == "VVISF_UNIFORMS&")	{
-						varName = "VVISF_UNIFORMS&";
-						break;
-					}
-				}
-				
-				returnMe[varName] = parsedBufferIndex;
-			}
-		}
-		
-		return returnMe;
-	};
-	//	these maps let you figure out which variable name (eg: "inputImage") a given attribute index (eg: "texture", "0") corresponds to.
-	//	we need this data to apply textures/buffers to the metal render command encoder.  technically, the 'vert' and 'frag' arrays should contain matching vals?
-	vertBufferVarIndexMap = SearchForMetalAttrInFuncArgs("buffer", vertArgs);
-	vertTextureVarIndexMap = SearchForMetalAttrInFuncArgs("texture", vertArgs);
-	vertSamplerVarIndexMap = SearchForMetalAttrInFuncArgs("sampler", vertArgs);
-	
-	fragBufferVarIndexMap = SearchForMetalAttrInFuncArgs("buffer", fragArgs);
-	fragTextureVarIndexMap = SearchForMetalAttrInFuncArgs("texture", fragArgs);
-	fragSamplerVarIndexMap = SearchForMetalAttrInFuncArgs("sampler", fragArgs);
-	
-	
-	//std::cout << "vertBufferVarIndexMap is: " << std::endl;
-	//for (auto iter = std::begin(vertBufferVarIndexMap); iter != std::end(vertBufferVarIndexMap); ++iter)
-	//	std::cout << "\t" << iter->first << " : " << iter->second << std::endl;
-	//
-	//std::cout << "vertTextureVarIndexMap is: " << std::endl;
-	//for (auto iter = std::begin(vertTextureVarIndexMap); iter != std::end(vertTextureVarIndexMap); ++iter)
-	//	std::cout << "\t" << iter->first << " : " << iter->second << std::endl;
-	//
-	//std::cout << "vertSamplerVarIndexMap is: " << std::endl;
-	//for (auto iter = std::begin(vertSamplerVarIndexMap); iter != std::end(vertSamplerVarIndexMap); ++iter)
-	//	std::cout << "\t" << iter->first << " : " << iter->second << std::endl;
-	
-	
-	//std::cout << "fragBufferVarIndexMap is: " << std::endl;
-	//for (auto iter = std::begin(fragBufferVarIndexMap); iter != std::end(fragBufferVarIndexMap); ++iter)
-	//	std::cout << "\t" << iter->first << " : " << iter->second << std::endl;
-	//
-	//std::cout << "fragTextureVarIndexMap is: " << std::endl;
-	//for (auto iter = std::begin(fragTextureVarIndexMap); iter != std::end(fragTextureVarIndexMap); ++iter)
-	//	std::cout << "\t" << iter->first << " : " << iter->second << std::endl;
-	//
-	//std::cout << "fragSamplerVarIndexMap is: " << std::endl;
-	//for (auto iter = std::begin(fragSamplerVarIndexMap); iter != std::end(fragSamplerVarIndexMap); ++iter)
-	//	std::cout << "\t" << iter->first << " : " << iter->second << std::endl;
-	
-	
-	//	now that we've assembled a collection of all of the args with the sampler attribute and their corresponding indexes, we can just look for the max index value and update the vertex function max buffer index ivar
-	vtx_func_max_buffer_index = 0;
-	for (auto iter = std::begin(fragBufferVarIndexMap); iter != std::end(fragBufferVarIndexMap); ++iter)	{
-		if (iter->second > vtx_func_max_buffer_index)
-			vtx_func_max_buffer_index = iter->second;
-	}
-	//NSLog(@"vtx_func_max_buffer_index is %d",vtx_func_max_buffer_index);
-	
-	
-	
-	
-	/*
-	//	...now we need to locate the maximum buffer(XXX) index used in this line- we'll use regex to run through all of them
-	vtx_func_max_buffer_index = 0;
-	{
-		regex		regex = std::regex("\\[\\[[\\s]*buffer\\([\\s]*([0-9]+)[\\s]*\\)[\\s]*\\]\\]");
-		for (auto iter = sregex_iterator(vertFuncLine.begin(), vertFuncLine.end(), regex); iter != sregex_iterator(); ++iter)	{
-			smatch		match = *iter;
-			int			buffer_index = stoi(match[1]);
-			vtx_func_max_buffer_index = max(vtx_func_max_buffer_index, buffer_index);
-		}
-	}
-	NSLog(@"vtx_func_max_buffer_index is %d",vtx_func_max_buffer_index);
-	*/
+	loaded = [ISFMTLCache.primary getCachedISFAtURL:n];
+	//NSLog(@"\t\tfragTextureVarIndexDict is %@",loaded.fragTextureVarIndexDict);
+	//NSLog(@"\t\tvertTextureVarIndexDict is %@",loaded.vertTextureVarIndexDict);
 	
 	
 	//	allocate a block of memory- statically, so we only do it once per instance of ISFMTLScene and then re-use the mem
 	#define UBO_BLOCK_BASE 48
-	uboDataBufferSize = maxUboSize + (UBO_BLOCK_BASE - (maxUboSize % UBO_BLOCK_BASE));
+	uboDataBufferSize = loaded.maxUBOSize + (UBO_BLOCK_BASE - (loaded.maxUBOSize % UBO_BLOCK_BASE));
+	//NSLog(@"\t\tmaxUBOSize is %d, data buffer size is %d",loaded.maxUBOSize,uboDataBufferSize);
 	//uboDataBufferSize = maxUboSize;
 	//NSLog(@"** WARNING hard coding uboDataBufferSize to 96, %s",__func__);
 	//uboDataBufferSize = 96;
@@ -409,7 +146,7 @@ using namespace std;
 	
 	vtxDesc.attributes[0].format = MTLVertexFormatFloat4;
 	vtxDesc.attributes[0].offset = 0;
-	vtxDesc.attributes[0].bufferIndex = vtx_func_max_buffer_index + 1;
+	vtxDesc.attributes[0].bufferIndex = loaded.vtxFuncMaxBufferIndex + 1;
 	vtxDesc.layouts[1].stride = sizeof(float) * 4;
 	vtxDesc.layouts[1].stepFunction = MTLVertexStepFunctionPerVertex;
 	vtxDesc.layouts[1].stepRate = 1;
@@ -418,8 +155,8 @@ using namespace std;
 	MTLRenderPipelineDescriptor		*passDesc_8bit = [[MTLRenderPipelineDescriptor alloc] init];
 	MTLRenderPipelineDescriptor		*passDesc_float = [[MTLRenderPipelineDescriptor alloc] init];
 	for (MTLRenderPipelineDescriptor * passDesc in @[ passDesc_8bit, passDesc_float ])	{
-		passDesc.vertexFunction = vtxFunc;
-		passDesc.fragmentFunction = frgFunc;
+		passDesc.vertexFunction = loaded.vtxFunc;
+		passDesc.fragmentFunction = loaded.frgFunc;
 		passDesc.vertexDescriptor = vtxDesc;
 	}
 	passDesc_8bit.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
@@ -430,23 +167,10 @@ using namespace std;
 	id<MTLRenderPipelineState>		pso_float = nil;
 	
 	//	make an obj-c pass for each pass in the doc- our obj-c pass object will hold intermediate render targets and other such conveniences required to implement stuff
-	passes = [[NSMutableArray alloc] init];
+	//passes = [[NSMutableArray alloc] init];
 	int			passIndex = 0;
+	NSError		*nsErr = nil;
 	for (VVISF::ISFPassTargetRef tmpPass : doc->renderPasses())	{
-		//VVISF::ISFPassTargetRef		tmpPass = doc->passTargetForKey(renderPassName);
-		//if (tmpPass == nullptr)	{
-		//	NSLog(@"ERR: pass %d for name \'%s\' was null in %s",passIndex,renderPassName.c_str(),__func__);
-		//	self = nil;
-		//	return self;
-		//}
-		
-		//VVISF::ISFImageInfoRef			imgRef = tmpPass->image();
-		//if (imgRef == nullptr)	{
-		//	NSLog(@"ERR: pass %d img null in %s",passIndex,__func__);
-		//	self = nil;
-		//	return self;
-		//}
-		
 		id<ISFMTLScenePassTarget>		pass = [ISFMTLScenePassTarget createWithPassTarget:tmpPass];
 		//pass.target = nil;
 		pass.passIndex = passIndex;
@@ -467,7 +191,7 @@ using namespace std;
 	}
 	
 	//	make an obj-c attr for each attr in the doc- our objc-c attributes will be how other obj-c classes interact with the ISF and know what sort of inputs it offers and what kind of values they accept
-	inputs = [[NSMutableArray alloc] init];
+	//inputs = [[NSMutableArray alloc] init];
 	for (VVISF::ISFAttrRef attr_cpp : doc->inputs())	{
 		//	make the attr and add it to our local array of attrs immediately
 		id<ISFMTLSceneAttrib>		attr = [ISFMTLSceneAttrib createWithISFAttr:attr_cpp];
@@ -513,8 +237,7 @@ using namespace std;
 				MTLImgBuffer	*img = [[MTLPool global] bufferForExistingTexture:tex];
 				if (img == nil)	{
 					NSLog(@"ERR: couldn't make img from tex for attr %s, %s",attr_cpp->name().c_str(),__func__);
-					self = nil;
-					return self;
+					return;
 				}
 				
 				ISFImageRef		imgRef = std::make_shared<ISFImage>(img);
@@ -537,38 +260,6 @@ using namespace std;
 	_renderTime = 0.0;
 	_renderTimeDelta = 0.0;
 	_passIndex = 0;
-	
-	
-	
-	/*
-	MTLRenderPipelineDescriptor		*psDesc = [[MTLRenderPipelineDescriptor alloc] init];
-	psDesc.vertexFunction = vtxFunc;
-	psDesc.fragmentFunction = frgFunc;
-	psDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
-	psDesc.vertexDescriptor = vtxDesc;
-	
-	self.renderPipelineStateObject = [self.device newRenderPipelineStateWithDescriptor:psDesc error:&nsErr];
-	if (self.renderPipelineStateObject == nil || nsErr != nil)	{
-		NSLog(@"***************** ERR: unable to make PSO for file %s (%@)",std::filesystem::path(inURLPathCStr).stem().c_str(),nsErr);
-		self = nil;
-		return self;
-	}
-	
-	NSLog(@"sizeof ISFShaderRenderInfo is %d",sizeof(ISFShaderRenderInfo));
-	NSLog(@"sizeof ISFShaderImgInfo is %d",sizeof(ISFShaderImgInfo));
-	
-	for (auto inputAttr : doc->inputs())	{
-		NSLog(@"\t\tattr %s has buffer offset %d",inputAttr->name().c_str(),inputAttr->offsetInBuffer());
-	}
-	for (auto pass : doc->persistentPassTargets())	{
-		NSLog(@"\t\tpersistent pass %s has buffer offset %d",pass->name().c_str(),pass->offsetInBuffer());
-	}
-	for (auto pass : doc->tempPassTargets())	{
-		NSLog(@"\t\ttemp pass %s has buffer offset %d",pass->name().c_str(),pass->offsetInBuffer());
-	}
-	*/
-	
-	return self;
 }
 
 
@@ -576,7 +267,9 @@ using namespace std;
 
 
 - (void) renderCallback	{
-	NSLog(@"%s",__func__);
+	//NSLog(@"%s",__func__);
+	
+	ISFMTLCacheObject		*localCacheObj = loaded;
 	
 	//	update local variables that get adjusted per-render or need to get pre-populated
 	VVISF::Timestamp		targetRenderTime = VVISF::Timestamp() - _baseTime;
@@ -614,12 +307,12 @@ using namespace std;
 	samplerDesc.sAddressMode = MTLSamplerAddressModeClampToEdge;
 	samplerDesc.tAddressMode = MTLSamplerAddressModeClampToEdge;
 	id<MTLSamplerState>		sampler = [self.device newSamplerStateWithDescriptor:samplerDesc];
-	for (const auto & [samplerName, samplerIndex] : vertSamplerVarIndexMap)	{
-		[vertRCEIndexToSamplerDict setObject:sampler forKey:@(samplerIndex)];
-	}
-	for (const auto & [samplerName, samplerIndex] : fragSamplerVarIndexMap)	{
-		[fragRCEIndexToSamplerDict setObject:sampler forKey:@(samplerIndex)];
-	}
+	[localCacheObj.vertSamplerVarIndexDict enumerateKeysAndObjectsUsingBlock:^(NSString *samplerName, NSNumber *attrIndex, BOOL *stop)	{
+		[vertRCEIndexToSamplerDict setObject:sampler forKey:attrIndex];
+	}];
+	[localCacheObj.fragSamplerVarIndexDict enumerateKeysAndObjectsUsingBlock:^(NSString *samplerName, NSNumber *attrIndex, BOOL *stop)	{
+		[fragRCEIndexToSamplerDict setObject:sampler forKey:attrIndex];
+	}];
 	
 	
 	//	run through the render passes, allocating some resources we'll need for rendering: textures for named render passes and quad vertex data
@@ -696,8 +389,9 @@ using namespace std;
 		
 		//	...if we're here, this attr doesn't have an image yet, just give it a generic empty black texture
 		
-		if (emptyTex == nil)
+		if (emptyTex == nil)	{
 			emptyTex = [[MTLPool global] bgra8TexSized:CGSizeMake(64,64)];
+		}
 		imgRef = std::make_shared<ISFImage>(emptyTex);
 		imgInfoRef = std::static_pointer_cast<VVISF::ISFImageInfo>(imgRef);
 		tmpAttr->setCurrentImageRef(imgInfoRef);
@@ -823,19 +517,13 @@ using namespace std;
 	//	this block pushes the passed texture to the RCE and writes info about it to the UBO, starting at the passed offset
 	void		(^PrepNamedTexForRenderAtOffset)(const VVISF::ISFImageInfoRef &, const std::string &, const size_t &) = ^(const VVISF::ISFImageInfoRef & imgInfoRef, const std::string & name, const size_t & uboOffset)	{
 		//	try to figure out the index in the render encoder at which this pass's texture needs to be attached
-		uint32_t			fragRenderEncoderIndex = std::numeric_limits<uint32_t>::max();
-		try	{
-			fragRenderEncoderIndex = self->fragTextureVarIndexMap.at(name);
-		}
-		catch (...)	{
-		}
-		
-		uint32_t			vertRenderEncoderIndex = std::numeric_limits<uint32_t>::max();
-		try	{
-			vertRenderEncoderIndex = self->vertTextureVarIndexMap.at(name);
-		}
-		catch (...)	{
-		}
+		NSString			*attrName = [NSString stringWithUTF8String:name.c_str()];
+		//NSLog(@"PrepNamedTexForRenderAtOffset() ... %@",attrName);
+		NSNumber			*tmpNum = nil;
+		tmpNum = [localCacheObj.fragTextureVarIndexDict objectForKey:attrName];
+		uint32_t			fragRenderEncoderIndex = (tmpNum==nil) ? std::numeric_limits<uint32_t>::max() : tmpNum.unsignedIntValue;
+		tmpNum = [localCacheObj.vertTextureVarIndexDict objectForKey:attrName];
+		uint32_t			vertRenderEncoderIndex = (tmpNum==nil) ? std::numeric_limits<uint32_t>::max() : tmpNum.unsignedIntValue;
 		
 		//	get the current image from the attr- if it's not the expected type (ISFImage class), skip it- otherwise, recast to an ISFImageRef
 		VVISF::ISFImageInfo		*imgInfoPtr = imgInfoRef.get();
@@ -855,6 +543,7 @@ using namespace std;
 		#if DEBUG
 		//	assign the attribute's name to the texture's label to make debugging easier
 		tmpTex.label = [NSString stringWithUTF8String:name.c_str()];
+		//NSLog(@"\t\t\ttex is named %@, index is %ld",tmpTex.label,fragRenderEncoderIndex);
 		#endif
 		
 		//	add the img to the tex cache so it's guaranteed to stick around through the completion of rendering
@@ -881,12 +570,6 @@ using namespace std;
 			wPtr->rect[2] = imgRect.size.width/texSize.width;
 			wPtr->rect[3] = imgRect.size.height/texSize.height;
 			
-			//	these apply the src rect's coords as pixel coords
-			//wPtr->rect[0] = imgRect.origin.x;
-			//wPtr->rect[1] = imgRect.origin.y;
-			//wPtr->rect[2] = imgRect.size.width;
-			//wPtr->rect[3] = imgRect.size.height;
-			
 			wPtr->size[0] = imgRect.size.width;
 			wPtr->size[1] = imgRect.size.height;
 			
@@ -904,6 +587,7 @@ using namespace std;
 		if (imgInfoRef == nullptr)
 			return;
 		size_t			offset = attr->offsetInBuffer();
+		//NSLog(@"\t\tprepping attr named %@",[NSString stringWithUTF8String:name.c_str()]);
 		PrepNamedTexForRenderAtOffset(imgInfoRef, name, offset);
 	};
 	//	this block pulls the current image from the passed render pass ref (populates CPU-side UBO with data describing tex, puts tex in dicts that we use at runtime to pass the tex to the RCE at the appropriate index)
@@ -917,6 +601,7 @@ using namespace std;
 		if (imgInfoRef == nullptr)
 			return;
 		size_t			offset = passTarget->offsetInBuffer();
+		//NSLog(@"\t\tprepping render pass named %@",[NSString stringWithUTF8String:name.c_str()]);
 		PrepNamedTexForRenderAtOffset(imgInfoRef, name, offset);
 	};
 	
@@ -945,7 +630,7 @@ using namespace std;
 		VVISF::ISFPassTargetRef		&renderPassRef = objCRenderPass.passTargetRef;
 		VVISF::ISFImageInfo		renderPassTargetInfo = renderPassRef->targetImageInfo();
 		NSSize			renderPassSize = NSMakeSize(renderPassTargetInfo.width, renderPassTargetInfo.height);
-		NSLog(@"\t\trendering pass %d",_passIndex);
+		//NSLog(@"\t\trendering pass %d",_passIndex);
 		
 		//	allocate a new texture for the render pass- this is what we're going to render into
 		MTLImgBuffer		*newTex = nil;
@@ -957,10 +642,6 @@ using namespace std;
 				newTex = [[MTLPool global] rgbaFloatTexSized:CGSizeMake(renderPassTargetInfo.width, renderPassTargetInfo.height)];
 			else
 				newTex = [[MTLPool global] bgra8TexSized:CGSizeMake(renderPassTargetInfo.width, renderPassTargetInfo.height)];
-			
-			//newTex = (objCRenderPass.float32)
-			//	? [[MTLPool global] rgbaFloatTexSized:CGSizeMake(renderPassTargetInfo.width, renderPassTargetInfo.height)]
-			//	: [[MTLPool global] bgra8TexSized:CGSizeMake(renderPassTargetInfo.width, renderPassTargetInfo.height)];
 		}
 		
 		//	make a render pass descriptor and then a command encoder, configure the viewport & attach the PSO
@@ -983,7 +664,7 @@ using namespace std;
 		[renderEncoder
 			setVertexBuffer:quadVertsBuffer
 			offset:0
-			atIndex:vtx_func_max_buffer_index + 1];
+			atIndex:localCacheObj.vtxFuncMaxBufferIndex + 1];
 		
 		//	iterate across the dicts of index-to-texture mappings, pushing the textures to the RCE
 		[vertRCEIndexToTexDict enumerateKeysAndObjectsUsingBlock:^(NSNumber *indexNum, ISFMTLSceneImgRef *objCImgRef, BOOL *stop)	{
@@ -1004,6 +685,7 @@ using namespace std;
 				setFragmentTexture:tmpTex
 				atIndex:indexNum.intValue];
 		}];
+		//NSLog(@"\t\t\tfragRCEIndexToTexDict is %@",fragRCEIndexToTexDict);
 		
 		//	iterate across the dicts of index-to-sampler mappings, pushing the samplers to the RCE
 		[vertRCEIndexToSamplerDict enumerateKeysAndObjectsUsingBlock:^(NSNumber *indexNum, id<MTLSamplerState> sampler, BOOL *stop)	{

@@ -19,4 +19,6 @@ FOUNDATION_EXPORT const unsigned char ISFMSLKitVersionString[];
 #import "ISFMTLSceneImgRef.h"
 #import "ISFMTLScenePassTarget.h"
 #import "ISFMTLSceneVal.h"
+#import "ISFMTLCacheObject.h"
+#import "ISFMTLCache.h"
 
