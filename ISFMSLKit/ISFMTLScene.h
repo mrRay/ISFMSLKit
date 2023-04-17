@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable instancetype) initWithDevice:(id<MTLDevice>)inDevice;
 
 - (void) loadURL:(NSURL *)n;
+- (NSURL *) url;
 
 @property (readonly) NSArray<id<ISFMTLScenePassTarget>> * passes;
 @property (readonly) NSArray<id<ISFMTLSceneAttrib>> * inputs;

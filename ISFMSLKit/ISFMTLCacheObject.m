@@ -6,6 +6,9 @@
 //
 
 #import "ISFMTLCacheObject.h"
+#import <VVCore/VVCore.h>
+
+#import "ISFMTLCache.h"
 
 
 
@@ -37,6 +40,7 @@ NSString * const kISFMTLCacheObject_vtxFuncMaxBufferIndex = @"kISFMTLCacheObject
 //@property (readwrite,strong) id<MTLFunction> vtxFunc;
 //@property (readwrite,strong) id<MTLFunction> frgFunc;
 
+
 @end
 
 
@@ -57,15 +61,15 @@ NSString * const kISFMTLCacheObject_vtxFuncMaxBufferIndex = @"kISFMTLCacheObject
 	
 	if (self != nil)	{
 		NSString		*tmpString = nil;
-		NSURL			*tmpURL = nil;
+		//NSURL			*tmpURL = nil;
 		NSDate			*tmpDate = nil;
 		NSDictionary	*tmpDict = nil;
 		NSNumber		*tmpNum = nil;
 		
 		tmpString = [n decodeObjectForKey:kISFMTLCacheObject_name];
 		_name = tmpString;
-		tmpURL = [n decodeObjectForKey:kISFMTLCacheObject_path];
-		_path = tmpURL;
+		tmpString = [n decodeObjectForKey:kISFMTLCacheObject_path];
+		_path = tmpString;
 		tmpString = [n decodeObjectForKey:kISFMTLCacheObject_glslShaderHash];
 		_glslShaderHash = tmpString;
 		tmpDate = [n decodeObjectForKey:kISFMTLCacheObject_modDate];
@@ -153,38 +157,110 @@ NSString * const kISFMTLCacheObject_vtxFuncMaxBufferIndex = @"kISFMTLCacheObject
 
 @synthesize device=_device;
 - (void) setDevice:(id<MTLDevice>)n	{
-	BOOL			purge = NO;
-	if (_device != nil && n != nil && /*![_device isEqualTo:n]*/ _device != n)
-		purge = YES;
+	//	if the device changed, we definitely need to purge
+	BOOL			purge = YES;
+	if ((_device==nil && n==nil) || (_device!=nil && n!=nil && /*[_device isEqualTo:n]*/ _device==n))
+		purge = NO;
 	
 	_device = n;
 	
+	void (^PurgeBlock)(void) = ^()	{
+		self->_vtxLib = nil;
+		self->_vtxFunc = nil;
+		self->_frgLib = nil;
+		self->_frgFunc = nil;
+		self->_archive = nil;
+	};
+	
 	if (purge)	{
-		_vtxLib = nil;
-		_frgLib = nil;
-		_vtxFunc = nil;
-		_frgFunc = nil;
-		
+		PurgeBlock();
 	}
 	
+	NSError			*nsErr = nil;
+	
 	if (_vtxLib == nil)	{
-		NSError			*nsErr = nil;
 		_vtxLib = [_device newLibraryWithSource:_mslVertShader options:nil error:&nsErr];
 		if (_vtxLib == nil)	{
 			NSLog(@"ERR: unable to make lib from vtx src %@, bailing (%@)",_name,nsErr);
+			PurgeBlock();
+			return;
 		}
+	}
+	
+	if (_frgLib == nil)	{
 		_frgLib = [_device newLibraryWithSource:_mslFragShader options:nil error:&nsErr];
 		if (_frgLib == nil)	{
 			NSLog(@"ERR: unable to make lib from frg src %@, bailing (%@)",_name,nsErr);
+			PurgeBlock();
+			return;
 		}
-		
+	}
+	
+	if (_vtxFunc == nil)	{
 		_vtxFunc = [_vtxLib newFunctionWithName:_vertFuncName];
 		if (_vtxFunc == nil)	{
 			NSLog(@"ERR: unable to make func from vtx lib %@, bailing",_name);
+			PurgeBlock();
+			return;
 		}
+	}
+	
+	if (_frgFunc == nil)	{
 		_frgFunc = [_frgLib newFunctionWithName:_fragFuncName];
 		if (_frgFunc == nil)	{
 			NSLog(@"ERR: unable to make func from frg lib %@, bailing",_name);
+			PurgeBlock();
+			return;
+		}
+	}
+	
+	if (_archive == nil)	{
+		NSURL			*binaryArchiveDir = [NSURL fileURLWithPath:self.parentCache.path];
+		binaryArchiveDir = [binaryArchiveDir URLByAppendingPathComponent:@"BinaryArchives"];
+		NSString		*fullPathHash = [self.path md5String];
+		NSURL			*binaryArchiveURL = [binaryArchiveDir URLByAppendingPathComponent:fullPathHash];
+		//NSLog(@"binaryArchiveURL is %@",binaryArchiveURL.path);
+		MTLBinaryArchiveDescriptor		*archiveDesc = [[MTLBinaryArchiveDescriptor alloc] init];
+		archiveDesc.url = nil;
+		_archive = [self.device newBinaryArchiveWithDescriptor:archiveDesc error:&nsErr];
+		
+		//	make a vertex descriptor that describes the vertex data we'll be passing to the shader
+		MTLVertexDescriptor		*vtxDesc = [MTLVertexDescriptor vertexDescriptor];
+		
+		vtxDesc.attributes[0].format = MTLVertexFormatFloat4;
+		vtxDesc.attributes[0].offset = 0;
+		vtxDesc.attributes[0].bufferIndex = _vtxFuncMaxBufferIndex + 1;
+		vtxDesc.layouts[1].stride = sizeof(float) * 4;
+		vtxDesc.layouts[1].stepFunction = MTLVertexStepFunctionPerVertex;
+		vtxDesc.layouts[1].stepRate = 1;
+		
+		//	make pipeline descriptors for all possible states we need to describe (8bit & float)
+		MTLRenderPipelineDescriptor		*passDesc_8bit = [[MTLRenderPipelineDescriptor alloc] init];
+		MTLRenderPipelineDescriptor		*passDesc_float = [[MTLRenderPipelineDescriptor alloc] init];
+		for (MTLRenderPipelineDescriptor * passDesc in @[ passDesc_8bit, passDesc_float ])	{
+			passDesc.vertexFunction = _vtxFunc;
+			passDesc.fragmentFunction = _frgFunc;
+			passDesc.vertexDescriptor = vtxDesc;
+		}
+		passDesc_8bit.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+		passDesc_float.colorAttachments[0].pixelFormat = MTLPixelFormatRGBA32Float;
+		
+		if (![_archive addRenderPipelineFunctionsWithDescriptor:passDesc_8bit error:&nsErr] || nsErr != nil)	{
+			NSLog(@"ERR: problem adding pipeline A to bin arch for %@ (%@), %s",self.path,nsErr,__func__);
+			PurgeBlock();
+			return;
+		}
+		if (![_archive addRenderPipelineFunctionsWithDescriptor:passDesc_float error:&nsErr] || nsErr != nil)	{
+			NSLog(@"ERR: problem adding pipeline B to bin arch for %@ (%@), %s",self.path,nsErr,__func__);
+			PurgeBlock();
+			return;
+		}
+		
+		//	write the binary archive to disk
+		if (![_archive serializeToURL:binaryArchiveURL error:&nsErr])	{
+			NSLog(@"ERR: problem serializing binary archive for %@ to disk (%@), %s",self.path,nsErr,__func__);
+			PurgeBlock();
+			return;
 		}
 	}
 }

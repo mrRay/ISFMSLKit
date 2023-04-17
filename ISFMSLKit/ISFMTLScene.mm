@@ -55,7 +55,7 @@ using namespace std;
 	//	structure and the state of its various attributes and passes.
 	//size_t		maxUboSize;
 	
-	ISFMTLCacheObject		*loaded;
+	ISFMTLCacheObject		*cacheObj;
 	
 	size_t			uboDataBufferSize;
 	void			*uboDataBuffer;
@@ -84,7 +84,7 @@ using namespace std;
 		doc = nullptr;
 		passes = [[NSMutableArray alloc] init];
 		inputs = [[NSMutableArray alloc] init];
-		loaded = nil;
+		cacheObj = nil;
 		uboDataBufferSize = 0;
 		uboDataBuffer = nil;
 	}
@@ -102,7 +102,7 @@ using namespace std;
 	doc = nullptr;
 	[passes removeAllObjects];
 	[inputs removeAllObjects];
-	loaded = nil;
+	cacheObj = nil;
 	
 	uboDataBufferSize = 0;
 	if (uboDataBuffer != nil)	{
@@ -126,15 +126,17 @@ using namespace std;
 		return;
 	}
 	
-	loaded = [ISFMTLCache.primary getCachedISFAtURL:n];
-	//NSLog(@"\t\tfragTextureVarIndexDict is %@",loaded.fragTextureVarIndexDict);
-	//NSLog(@"\t\tvertTextureVarIndexDict is %@",loaded.vertTextureVarIndexDict);
+	NSError		*nsErr = nil;
+	
+	cacheObj = [ISFMTLCache.primary getCachedISFAtURL:n];
+	//NSLog(@"\t\tfragTextureVarIndexDict is %@",cacheObj.fragTextureVarIndexDict);
+	//NSLog(@"\t\tvertTextureVarIndexDict is %@",cacheObj.vertTextureVarIndexDict);
 	
 	
 	//	allocate a block of memory- statically, so we only do it once per instance of ISFMTLScene and then re-use the mem
 	#define UBO_BLOCK_BASE 48
-	uboDataBufferSize = loaded.maxUBOSize + (UBO_BLOCK_BASE - (loaded.maxUBOSize % UBO_BLOCK_BASE));
-	//NSLog(@"\t\tmaxUBOSize is %d, data buffer size is %d",loaded.maxUBOSize,uboDataBufferSize);
+	uboDataBufferSize = cacheObj.maxUBOSize + (UBO_BLOCK_BASE - (cacheObj.maxUBOSize % UBO_BLOCK_BASE));
+	//NSLog(@"\t\tmaxUBOSize is %d, data buffer size is %d",cacheObj.maxUBOSize,uboDataBufferSize);
 	//uboDataBufferSize = maxUboSize;
 	//NSLog(@"** WARNING hard coding uboDataBufferSize to 96, %s",__func__);
 	//uboDataBufferSize = 96;
@@ -146,7 +148,7 @@ using namespace std;
 	
 	vtxDesc.attributes[0].format = MTLVertexFormatFloat4;
 	vtxDesc.attributes[0].offset = 0;
-	vtxDesc.attributes[0].bufferIndex = loaded.vtxFuncMaxBufferIndex + 1;
+	vtxDesc.attributes[0].bufferIndex = cacheObj.vtxFuncMaxBufferIndex + 1;
 	vtxDesc.layouts[1].stride = sizeof(float) * 4;
 	vtxDesc.layouts[1].stepFunction = MTLVertexStepFunctionPerVertex;
 	vtxDesc.layouts[1].stepRate = 1;
@@ -155,33 +157,32 @@ using namespace std;
 	MTLRenderPipelineDescriptor		*passDesc_8bit = [[MTLRenderPipelineDescriptor alloc] init];
 	MTLRenderPipelineDescriptor		*passDesc_float = [[MTLRenderPipelineDescriptor alloc] init];
 	for (MTLRenderPipelineDescriptor * passDesc in @[ passDesc_8bit, passDesc_float ])	{
-		passDesc.vertexFunction = loaded.vtxFunc;
-		passDesc.fragmentFunction = loaded.frgFunc;
+		passDesc.vertexFunction = cacheObj.vtxFunc;
+		passDesc.fragmentFunction = cacheObj.frgFunc;
 		passDesc.vertexDescriptor = vtxDesc;
 	}
 	passDesc_8bit.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+	passDesc_8bit.binaryArchives = @[ cacheObj.archive ];
 	passDesc_float.colorAttachments[0].pixelFormat = MTLPixelFormatRGBA32Float;
+	passDesc_float.binaryArchives = @[ cacheObj.archive ];
 	
 	//	we want to minimize the # of PSOs we create and work with, so try to avoid creating one for each pass and instead try to reuse them
-	id<MTLRenderPipelineState>		pso_8bit = nil;
-	id<MTLRenderPipelineState>		pso_float = nil;
+	id<MTLRenderPipelineState>		pso_8bit = [self.device newRenderPipelineStateWithDescriptor:passDesc_8bit options:MTLPipelineOptionFailOnBinaryArchiveMiss reflection:nil error:&nsErr];
+	if (pso_8bit == nil || nsErr != nil)
+		NSLog(@"ERR: problem retrieving pso A (%@) %s",nsErr,__func__);
+	id<MTLRenderPipelineState>		pso_float = [self.device newRenderPipelineStateWithDescriptor:passDesc_float options:MTLPipelineOptionFailOnBinaryArchiveMiss reflection:nil error:&nsErr];
+	if (pso_float == nil || nsErr != nil)
+		NSLog(@"ERR: problem retrieving pso B (%@) %s",nsErr,__func__);
 	
 	//	make an obj-c pass for each pass in the doc- our obj-c pass object will hold intermediate render targets and other such conveniences required to implement stuff
-	//passes = [[NSMutableArray alloc] init];
 	int			passIndex = 0;
-	NSError		*nsErr = nil;
 	for (VVISF::ISFPassTargetRef tmpPass : doc->renderPasses())	{
 		id<ISFMTLScenePassTarget>		pass = [ISFMTLScenePassTarget createWithPassTarget:tmpPass];
-		//pass.target = nil;
 		pass.passIndex = passIndex;
 		if (pass.float32)	{
-			if (pso_float == nil)
-				pso_float = [self.device newRenderPipelineStateWithDescriptor:passDesc_float error:&nsErr];
 			pass.pso = pso_float;
 		}
 		else	{
-			if (pso_8bit == nil)
-				pso_8bit = [self.device newRenderPipelineStateWithDescriptor:passDesc_8bit error:&nsErr];
 			pass.pso = pso_8bit;
 		}
 		
@@ -189,6 +190,7 @@ using namespace std;
 		
 		++passIndex;
 	}
+	
 	
 	//	make an obj-c attr for each attr in the doc- our objc-c attributes will be how other obj-c classes interact with the ISF and know what sort of inputs it offers and what kind of values they accept
 	//inputs = [[NSMutableArray alloc] init];
@@ -261,6 +263,13 @@ using namespace std;
 	_renderTimeDelta = 0.0;
 	_passIndex = 0;
 }
+- (NSURL *) url	{
+	if (doc == nullptr)
+		return nil;
+	const auto			cppPath = doc->path();
+	NSString			*tmpString = [[NSString stringWithUTF8String:cppPath.c_str()] stringByExpandingTildeInPath];
+	return [NSURL fileURLWithPath:tmpString];
+}
 
 
 #pragma mark - render callback
@@ -269,7 +278,9 @@ using namespace std;
 - (void) renderCallback	{
 	//NSLog(@"%s",__func__);
 	
-	ISFMTLCacheObject		*localCacheObj = loaded;
+	//NSDate			*startDate = [NSDate date];
+	
+	ISFMTLCacheObject		*localCacheObj = cacheObj;
 	
 	//	update local variables that get adjusted per-render or need to get pre-populated
 	VVISF::Timestamp		targetRenderTime = VVISF::Timestamp() - _baseTime;
@@ -747,6 +758,9 @@ using namespace std;
 	
 	//	add the single frmae cache array to the completion handler, so we send all the textures we were hanging onto during rendering back to the pool
 	[self.commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed)	{
+		//NSDate			*endDate = [NSDate date];
+		//NSLog(@"rendering took %0.4f seconds",[startDate timeIntervalSinceDate:endDate]);
+		
 		NSMutableArray<ISFMTLSceneImgRef*>		*localSingleFrameTexCache = singleFrameTexCache;
 		NSMutableDictionary<NSNumber*,ISFMTLSceneImgRef*>	*localVertRCEIndexToTexDict = vertRCEIndexToTexDict;
 		NSMutableDictionary<NSNumber*,ISFMTLSceneImgRef*>	*localFragRCEIndexToTexDict = fragRCEIndexToTexDict;

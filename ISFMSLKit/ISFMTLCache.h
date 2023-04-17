@@ -27,6 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
 //	returns the currently cached object for the ISF, or nil if it hasn't been cached yet
 - (ISFMTLCacheObject *) getCachedISFAtURL:(NSURL *)n;
 
+@property (strong,readonly) NSString * path;
+
 @end
 
 

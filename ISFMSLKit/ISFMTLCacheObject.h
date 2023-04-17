@@ -9,6 +9,8 @@
 
 #import <Metal/Metal.h>
 
+@class ISFMTLCache;
+
 NS_ASSUME_NONNULL_BEGIN
 
 
@@ -22,9 +24,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ISFMTLCacheObject : NSObject <NSCoding>
 
-//	these properties are all cached
+//	these properties are all cached via PINCache
 @property (strong) NSString * name;
-@property (strong) NSURL * path;
+@property (strong) NSString * path;
 @property (strong) NSString * glslShaderHash;
 @property (strong) NSDate * modDate;
 @property (strong) NSString * mslVertShader;
@@ -40,14 +42,20 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readwrite) uint32_t maxUBOSize;
 @property (readwrite) uint32_t vtxFuncMaxBufferIndex;
 
-//	this property is NOT cached- it has to be set by the cache that retrieves this object.  setting it populates other properties (which aren't cached)
+//	this property is NOT cached by PINCache- it has to be set by the cache that retrieves this object.  setting it populates other properties (which aren't cached)
 @property (readwrite,strong) id<MTLDevice> device;
 
-//	these properties are NOT cached- they're populated when you set the cache object's device
+//	these properties are NOT cached by PINCache- they're populated when you set the cache object's device.  we only need these as a fallback, if something goes wrong with the binary archive.
 @property (readwrite,strong) id<MTLLibrary> vtxLib;
 @property (readwrite,strong) id<MTLLibrary> frgLib;
 @property (readwrite,strong) id<MTLFunction> vtxFunc;
 @property (readwrite,strong) id<MTLFunction> frgFunc;
+
+//	these properties are cached- but not by PINCache, they're exported to files on disk in a different directory (same filename used by PINCache)
+@property (readwrite,strong) id<MTLBinaryArchive> archive;
+
+//	this property isn't cached, it's set by the cache that creates the receiver
+@property (weak,readwrite) ISFMTLCache * parentCache;
 
 @end
 
