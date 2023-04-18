@@ -9,6 +9,8 @@
 
 #import <Metal/Metal.h>
 
+#import "ISFMTLBinCacheObject.h"
+
 @class ISFMTLCache;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -24,11 +26,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ISFMTLCacheObject : NSObject <NSCoding>
 
+- (instancetype) init;
+
 //	these properties are all cached via PINCache
 @property (strong) NSString * name;
 @property (strong) NSString * path;
-@property (strong) NSString * glslShaderHash;
-@property (strong) NSDate * modDate;
+@property (strong) NSString * glslFragShaderHash;	//	checksum used to ensure that the cached values are an accurate reflection of the contents of the ISF currently found on disk
+@property (strong) NSDate * modDate;	//	checksum used to ensure that the cached values are an accurate reflection of the contents of the ISF currently found on disk
 @property (strong) NSString * mslVertShader;
 @property (strong) NSString * vertFuncName;
 @property (strong) NSString * mslFragShader;
@@ -42,20 +46,15 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readwrite) uint32_t maxUBOSize;
 @property (readwrite) uint32_t vtxFuncMaxBufferIndex;
 
-//	this property is NOT cached by PINCache- it has to be set by the cache that retrieves this object.  setting it populates other properties (which aren't cached)
-@property (readwrite,strong) id<MTLDevice> device;
+//	NOT cached by PINCache...but ISFMTLBinCacheObject instances serialize id<MTLBinaryCache> data to disk, so this is a form of caching, technically...
+- (ISFMTLBinCacheObject *) binCacheForDevice:(id<MTLDevice>)inDevice;
 
-//	these properties are NOT cached by PINCache- they're populated when you set the cache object's device.  we only need these as a fallback, if something goes wrong with the binary archive.
-@property (readwrite,strong) id<MTLLibrary> vtxLib;
-@property (readwrite,strong) id<MTLLibrary> frgLib;
-@property (readwrite,strong) id<MTLFunction> vtxFunc;
-@property (readwrite,strong) id<MTLFunction> frgFunc;
-
-//	these properties are cached- but not by PINCache, they're exported to files on disk in a different directory (same filename used by PINCache)
-@property (readwrite,strong) id<MTLBinaryArchive> archive;
-
-//	this property isn't cached, it's set by the cache that creates the receiver
+//	this property is NOT cached, it's set by the cache that creates the receiver
 @property (weak,readwrite) ISFMTLCache * parentCache;
+
+//	these methods check the various checksums to determine if the receiver is an accurate representation of the ISF file on disk (YES) or not.
+- (BOOL) modDateChecksum;
+- (BOOL) fragShaderHashChecksum;
 
 @end
 

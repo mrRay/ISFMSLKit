@@ -35,9 +35,18 @@ static ISFMTLCache		*primary = nil;
 
 
 @interface ISFMTLCache ()
-@property (strong) id<MTLDevice> device;
+
+- (void) generalInit;
+
+- (void) _clearCachedISFAtURL:(NSURL *)inURL;
+
+//	doesn't check anything- immediately begins ops necessary to transpile the ISF to MSL.  ALSO KILLS ANY BINARY ARCHIVES!
+- (ISFMTLCacheObject *) _cacheISFAtURL:(NSURL *)inURL;
+- (ISFMTLCacheObject *) _getCachedISFAtURL:(NSURL *)inURL;
+
 @property (strong) PINCache * isfCache;
-@property (strong,readwrite) NSString * path;
+@property (strong,readwrite) NSURL * directory;
+
 @end
 
 
@@ -54,72 +63,225 @@ static ISFMTLCache		*primary = nil;
 }
 
 
-- (instancetype) initWithDevice:(id<MTLDevice>)inDevice path:(NSString *)inPath	{
+- (instancetype) initWithDirectoryPath:(NSString *)inPath	{
+	//NSLog(@"%s ... %@",__func__,inPath);
 	self = [super init];
+	
+	if (inPath == nil)
+		self = nil;
+	
 	if (self != nil)	{
-		_device = inDevice;
-		_path = inPath;
+		_directory = [NSURL fileURLWithPath:inPath];
 		
-		//	first make sure the directory that will contain binary archives exists
-		NSError				*nsErr = nil;
-		NSFileManager		*fm = [NSFileManager defaultManager];
-		NSURL				*binaryArchiveDir = [NSURL fileURLWithPath:self.path];
-		binaryArchiveDir = [binaryArchiveDir URLByAppendingPathComponent:@"BinaryArchives"];
-		if (![fm fileExistsAtPath:binaryArchiveDir.path isDirectory:nil])	{
-			if (![fm createDirectoryAtURL:binaryArchiveDir withIntermediateDirectories:YES attributes:nil error:&nsErr] || nsErr != nil)	{
-				NSLog(@"ERR: unable to create binary archives directory (%@), (%@), %s",binaryArchiveDir.path,nsErr,__func__);
-				self = nil;
-				return self;
-			}
-		}
-		
-		//	make the cache
-		PINDiskCacheSerializerBlock		serializer = ^NSData*(id<NSCoding> object, NSString* key) {
-			return [NSKeyedArchiver archivedDataWithRootObject:object requiringSecureCoding:NO error:nil];
-		};
-		PINDiskCacheDeserializerBlock		deserializer = ^id<NSCoding>(NSData* data, NSString* key) {
-			NSKeyedUnarchiver		*unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:nil];
-			unarchiver.requiresSecureCoding = NO;
-			ISFMTLCacheObject		*unarchived = [unarchiver decodeObjectForKey:NSKeyedArchiveRootObjectKey];
-			unarchived.parentCache = self;
-			unarchived.device = self.device;
-			return unarchived;
-		};
-		
-		self.isfCache = [[PINCache alloc]
-			initWithName:@"ISFMSL"
-			//prefix:@""
-			rootPath:inPath
-			serializer:serializer
-			deserializer:deserializer
-			keyEncoder:nil
-			keyDecoder:nil
-			ttlCache:false];
-		_isfCache.diskCache.byteLimit = 0;
-		_isfCache.diskCache.ageLimit = 0;
-		_isfCache.memoryCache.costLimit = 100 * 1024 * 1024;
-		_isfCache.memoryCache.ageLimit = 0;
+		[self generalInit];
 	}
+	return self;
+}
+- (instancetype) initWithDirectoryURL:(NSURL *)inURL	{
+	//NSLog(@"%s ... %@",__func__,inURL.path);
+	self = [super init];
+	
+	if (inURL == nil)
+		self = nil;
+	
+	if (self != nil)	{
+		_directory = inURL;
+		
+		[self generalInit];
+	}
+	
 	return self;
 }
 
 
-- (ISFMTLCacheObject *) cacheISFAtURL:(NSURL *)n {
-	if (n == nil)
+- (void) generalInit	{
+	//	first make sure the directory that will contain binary archives exists
+	NSError				*nsErr = nil;
+	NSFileManager		*fm = [NSFileManager defaultManager];
+	NSURL				*binaryArchiveDir = self.directory;
+	binaryArchiveDir = [binaryArchiveDir URLByAppendingPathComponent:@"BinaryArchives"];
+	if (![fm fileExistsAtPath:binaryArchiveDir.path isDirectory:nil])	{
+		if (![fm createDirectoryAtURL:binaryArchiveDir withIntermediateDirectories:YES attributes:nil error:&nsErr] || nsErr != nil)	{
+			NSLog(@"ERR: unable to create binary archives directory (%@), (%@), %s",binaryArchiveDir.path,nsErr,__func__);
+		}
+	}
+	
+	//	make the cache
+	PINDiskCacheSerializerBlock		serializer = ^NSData*(id<NSCoding> object, NSString* key) {
+		return [NSKeyedArchiver archivedDataWithRootObject:object requiringSecureCoding:NO error:nil];
+	};
+	PINDiskCacheDeserializerBlock		deserializer = ^id<NSCoding>(NSData* data, NSString* key) {
+		NSKeyedUnarchiver		*unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:nil];
+		unarchiver.requiresSecureCoding = NO;
+		ISFMTLCacheObject		*unarchived = [unarchiver decodeObjectForKey:NSKeyedArchiveRootObjectKey];
+		unarchived.parentCache = self;
+		return unarchived;
+	};
+	
+	self.isfCache = [[PINCache alloc]
+		initWithName:@"ISFMSL"
+		//prefix:@""
+		rootPath:_directory.path
+		serializer:serializer
+		deserializer:deserializer
+		keyEncoder:nil
+		keyDecoder:nil
+		ttlCache:false];
+	_isfCache.diskCache.byteLimit = 0;
+	_isfCache.diskCache.ageLimit = 0;
+	_isfCache.memoryCache.costLimit = 100 * 1024 * 1024;
+	_isfCache.memoryCache.ageLimit = 0;
+}
+
+
+- (void) clearCachedISFAtURL:(NSURL *)n	{
+	if (n == nil)	{
+		return;
+	}
+	
+	@synchronized (self)	{
+		[self _clearCachedISFAtURL:n];
+	}
+}
+- (void) _clearCachedISFAtURL:(NSURL *)inURL	{
+	
+	NSString		*fullPath = [inURL.path stringByExpandingTildeInPath];
+	NSString		*fullPathHash = [fullPath md5String];
+	NSError			*nsErr = nil;
+	
+	NSFileManager	*fm = [NSFileManager defaultManager];
+	
+	[_isfCache removeObjectForKey:fullPathHash];
+	
+	for (NSURL * binArchiveDir in self.binaryArchiveDirectories)	{
+		NSURL		*binArchiveFile = [binArchiveDir URLByAppendingPathComponent:fullPathHash];
+		if ([fm fileExistsAtPath:binArchiveFile.path])	{
+			if (![fm trashItemAtURL:binArchiveFile resultingItemURL:nil error:&nsErr] || nsErr != nil)	{
+				NSLog(@"ERR: (%@) moving (%@) in %s",nsErr,binArchiveFile.path,__func__);
+			}
+		}
+	}
+}
+
+/*
+- (ISFMTLBinCacheObject *) cacheISFAtURL:(NSURL *)inURL forDevice:(id<MTLDevice>)inDevice	{
+	ISFMTLCacheObject		*returnMe = [self cacheISFAtURL:inURL forDevice:inDevice hint:ISFMTLCacheHint_NoHint];
+	return returnMe;
+}
+- (ISFMTLBinCacheObject *) cacheISFAtURL:(NSURL *)inURL forDevice:(id<MTLDevice>)inDevice hint:(ISFMTLCacheHint)inHint	{
+	if (inURL == nil || inDevice == nil)
+		return nil;
+	
+	ISFMTLBinCacheObject		*returnMe = nil;
+	
+	@synchronized (self)	{
+		
+		ISFMTLCacheObject			*parentObj = nil;
+		switch (inHint)	{
+		case ISFMTLCacheHint_NoHint:
+			parentObj = [self _getCachedISFAtURL:inURL];
+			break;
+		case ISFMTLCacheHint_ForceTranspile:
+			[self _clearCachedISFAtURL:inURL];
+			break;
+		case ISFMTLCacheHint_TranspileIfDateDelta:
+			parentObj = [self _getCachedISFAtURL:inURL];
+			if (![parentObj modDateChecksum])	{
+				[self _clearCachedISFAtURL:inURL];
+				parentObj = nil;
+			}
+			break;
+		case ISFMTLCacheHint_TranspileIfContentDelta:
+			parentObj = [self _getCachedISFAtURL:inURL];
+			if (![parentObj fragShaderHashChecksum])	{
+				[self _clearCachedISFAtURL:inURL];
+				parentObj = nil;
+			}
+			break;
+		}
+		
+		if (parentObj == nil)	{
+			parentObj = [self _cacheISFAtURL:inURL];
+		}
+		
+		returnMe = [parentObj binCacheForDevice:inDevice];
+	}
+	return returnMe;
+}
+*/
+
+- (ISFMTLBinCacheObject *) getCachedISFAtURL:(NSURL *)inURL forDevice:(id<MTLDevice>)inDevice	{
+	return [self getCachedISFAtURL:inURL forDevice:inDevice hint:ISFMTLCacheHint_NoHint];
+}
+- (ISFMTLBinCacheObject *) getCachedISFAtURL:(NSURL *)inURL forDevice:(id<MTLDevice>)inDevice hint:(ISFMTLCacheHint)inHint	{
+	if (inURL == nil || inDevice == nil)
+		return nil;
+	
+	ISFMTLBinCacheObject		*returnMe = nil;
+	
+	@synchronized (self)	{
+		
+		ISFMTLCacheObject			*parentObj = nil;
+		switch (inHint)	{
+		case ISFMTLCacheHint_NoHint:
+			parentObj = [self _getCachedISFAtURL:inURL];
+			break;
+		case ISFMTLCacheHint_ForceTranspile:
+			[self _clearCachedISFAtURL:inURL];
+			break;
+		case ISFMTLCacheHint_TranspileIfDateDelta:
+			parentObj = [self _getCachedISFAtURL:inURL];
+			if (![parentObj modDateChecksum])	{
+				[self _clearCachedISFAtURL:inURL];
+				parentObj = nil;
+			}
+			break;
+		case ISFMTLCacheHint_TranspileIfContentDelta:
+			parentObj = [self _getCachedISFAtURL:inURL];
+			if (![parentObj fragShaderHashChecksum])	{
+				[self _clearCachedISFAtURL:inURL];
+				parentObj = nil;
+			}
+			break;
+		}
+		
+		if (parentObj == nil)	{
+			parentObj = [self _cacheISFAtURL:inURL];
+		}
+		
+		returnMe = [parentObj binCacheForDevice:inDevice];
+	}
+	
+	return returnMe;
+}
+
+
+- (ISFMTLCacheObject *) _getCachedISFAtURL:(NSURL *)inURL	{
+	if (inURL == nil)
+		return nil;
+	NSString		*fullPath = [inURL.path stringByExpandingTildeInPath];
+	NSString		*fullPathHash = [fullPath md5String];
+	ISFMTLCacheObject		*returnMe = [_isfCache objectForKey:fullPathHash];
+	return returnMe;
+}
+
+
+- (ISFMTLCacheObject *) _cacheISFAtURL:(NSURL *)inURL	{
+	if (inURL == nil)
 		return nil;
 	
 	//	make sure there's a file at the path
-	NSString			*fullPath = [n.path stringByExpandingTildeInPath];
+	NSString			*fullPath = [inURL.path stringByExpandingTildeInPath];
 	NSFileManager		*fm = [NSFileManager defaultManager];
 	if (![fm fileExistsAtPath:fullPath])	{
-		NSLog(@"ERR: file doesn't exist at %@ (%s)",n,__func__);
+		NSLog(@"ERR: file doesn't exist at %@ (%s)",inURL,__func__);
 		return nil;
 	}
 	//	get the mod date of the file at the path- if we can't, bail, because a cache is only useful if we can check for modifications
 	NSDictionary		*fileAttribs = [fm attributesOfItemAtPath:fullPath error:nil];
 	NSDate				*modDate = (fileAttribs == nil) ? nil : [fileAttribs objectForKey:NSFileModificationDate];
 	if (modDate == nil)	{
-		NSLog(@"ERR: file mod date doesn't exist at %@ (%s)",n,__func__);
+		NSLog(@"ERR: file mod date doesn't exist at %@ (%s)",inURL,__func__);
 		return nil;
 	}
 	
@@ -409,7 +571,7 @@ static ISFMTLCache		*primary = nil;
 	
 	returnMe.name = [NSString stringWithUTF8String:raw_filename.c_str()];
 	returnMe.path = fullPath;
-	returnMe.glslShaderHash = fragSrcHash;
+	returnMe.glslFragShaderHash = fragSrcHash;
 	returnMe.modDate = modDate;
 	returnMe.mslVertShader = outMSLVtxSrc;
 	returnMe.vertFuncName = [NSString stringWithUTF8String:vertFuncName.c_str()];
@@ -429,45 +591,23 @@ static ISFMTLCache		*primary = nil;
 	
 	returnMe.parentCache = self;
 	
-	//	populate the 'device' property last, but before we insert it into the cache (this generates the metal libs & funcs)
-	returnMe.device = self.device;
-	
 	[_isfCache setObject:returnMe forKey:fullPathHash];
 	
 	return returnMe;
 }
 
 
-- (ISFMTLCacheObject *) getCachedISFAtURL:(NSURL *)n {
-	if (n == nil)
-		return nil;
-	
-	NSString		*fullPath = [n.path stringByExpandingTildeInPath];
-	NSString		*fullPathHash = [fullPath md5String];
-	ISFMTLCacheObject		*returnMe = [_isfCache objectForKey:fullPathHash];
-	if (returnMe != nil)	{
-		BOOL				purge = NO;
-		//	if the modification date of the ISF file differs from the modification date of the cached data, purge & re-cash it
-		NSDictionary		*fileAttribs = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath error:nil];
-		NSDate				*modDate = (fileAttribs == nil) ? nil : [fileAttribs objectForKey:NSFileModificationDate];
-		NSDate				*cachedModDate = returnMe.modDate;
-		if ((modDate==nil && cachedModDate!=nil)
-		|| (modDate!=nil && cachedModDate==nil)
-		|| (modDate!=nil && cachedModDate!=nil && ![modDate isEqualTo:cachedModDate]))
-		{
-			purge = YES;
-		}
-		
-		if (purge)	{
-			returnMe = nil;
-		}
-		
-	}
-	
-	if (returnMe == nil)	{
-		returnMe = [self cacheISFAtURL:n];
-	}
-	
+- (NSURL *) binaryArchivesDirectory	{
+	return [self.directory URLByAppendingPathComponent:@"BinaryArchives"];
+}
+- (NSArray<NSURL*> *) binaryArchiveDirectories	{
+	NSFileManager		*fm = [NSFileManager defaultManager];
+	NSError				*nsErr = nil;
+	NSArray<NSURL*>		*returnMe = [fm
+		contentsOfDirectoryAtURL:self.binaryArchivesDirectory
+		includingPropertiesForKeys:@[ NSURLIsDirectoryKey ]
+		options:NSDirectoryEnumerationSkipsHiddenFiles
+		error:&nsErr];
 	return returnMe;
 }
 

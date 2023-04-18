@@ -1,0 +1,42 @@
+//
+//  ISFMTLBinCacheObject.h
+//  ISFMSLKitTestApp
+//
+//  Created by testadmin on 4/18/23.
+//
+
+#import <Foundation/Foundation.h>
+#import <Metal/Metal.h>
+
+@class ISFMTLCacheObject;
+
+NS_ASSUME_NONNULL_BEGIN
+
+
+
+
+@interface ISFMTLBinCacheObject : NSObject
+
+- (instancetype) initWithParent:(ISFMTLCacheObject *)inParent device:(id<MTLDevice>)inDevice;
+
+//	this property is NOT cached by PINCache- it has to be set by the cache that retrieves this object.  setting it populates other properties (which aren't cached)
+@property (readwrite,strong) id<MTLDevice> device;
+
+//	these properties are NOT cached by PINCache- they're populated when you set the cache object's device.  we only need these as a fallback, if something goes wrong with the binary archive.
+@property (readwrite,strong) id<MTLLibrary> vtxLib;
+@property (readwrite,strong) id<MTLLibrary> frgLib;
+@property (readwrite,strong) id<MTLFunction> vtxFunc;
+@property (readwrite,strong) id<MTLFunction> frgFunc;
+
+//	these properties are cached- but not by PINCache, they're exported to files on disk in a different directory (same filename used by PINCache)
+@property (readwrite,strong) id<MTLBinaryArchive> archive;
+
+//	this property isn't cached, it's set by the cache that creates the receiver
+@property (weak,readwrite) ISFMTLCacheObject * parentObj;
+
+@end
+
+
+
+
+NS_ASSUME_NONNULL_END

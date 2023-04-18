@@ -10,6 +10,8 @@
 
 #import "ISFMTLCache.h"
 
+#include "VVISF.hpp"
+
 
 
 
@@ -40,6 +42,7 @@ NSString * const kISFMTLCacheObject_vtxFuncMaxBufferIndex = @"kISFMTLCacheObject
 //@property (readwrite,strong) id<MTLFunction> vtxFunc;
 //@property (readwrite,strong) id<MTLFunction> frgFunc;
 
+@property (strong) NSMutableArray<ISFMTLBinCacheObject*> * binCache;
 
 @end
 
@@ -52,6 +55,30 @@ NSString * const kISFMTLCacheObject_vtxFuncMaxBufferIndex = @"kISFMTLCacheObject
 #pragma mark - init/dealloc
 
 
+- (instancetype) init	{
+	self = [super init];
+	if (self != nil)	{
+		_name = nil;
+		_path = nil;
+		_glslFragShaderHash = nil;
+		_modDate = nil;
+		_mslVertShader = nil;
+		_vertFuncName = nil;
+		_mslFragShader = nil;
+		_fragFuncName = nil;
+		_vertBufferVarIndexDict = nil;
+		_vertTextureVarIndexDict = nil;
+		_vertSamplerVarIndexDict = nil;
+		_fragBufferVarIndexDict = nil;
+		_fragTextureVarIndexDict = nil;
+		_fragSamplerVarIndexDict = nil;
+		_maxUBOSize = 0;
+		_vtxFuncMaxBufferIndex = 0;
+		
+		_binCache = [[NSMutableArray alloc] init];
+	}
+	return self;
+}
 - (instancetype) initWithCoder:(NSCoder *)n	{
 	self = [super init];
 	
@@ -71,7 +98,7 @@ NSString * const kISFMTLCacheObject_vtxFuncMaxBufferIndex = @"kISFMTLCacheObject
 		tmpString = [n decodeObjectForKey:kISFMTLCacheObject_path];
 		_path = tmpString;
 		tmpString = [n decodeObjectForKey:kISFMTLCacheObject_glslShaderHash];
-		_glslShaderHash = tmpString;
+		_glslFragShaderHash = tmpString;
 		tmpDate = [n decodeObjectForKey:kISFMTLCacheObject_modDate];
 		_modDate = tmpDate;
 		tmpString = [n decodeObjectForKey:kISFMTLCacheObject_mslVertShader];
@@ -99,15 +126,22 @@ NSString * const kISFMTLCacheObject_vtxFuncMaxBufferIndex = @"kISFMTLCacheObject
 		tmpNum = [n decodeObjectForKey:kISFMTLCacheObject_vtxFuncMaxBufferIndex];
 		_vtxFuncMaxBufferIndex = tmpNum.intValue;
 		
-		_device = nil;
+		_binCache = [[NSMutableArray alloc] init];
 		
-		_vtxLib = nil;
-		_frgLib = nil;
-		_vtxFunc = nil;
-		_frgFunc = nil;
+		//_device = nil;
+		//
+		//_vtxLib = nil;
+		//_frgLib = nil;
+		//_vtxFunc = nil;
+		//_frgFunc = nil;
 	}
 	
 	return self;
+}
+
+
+- (NSString *) description	{
+	return [NSString stringWithFormat:@"<ISFMTLCacheObject %@ %p>",self.name,self];
 }
 
 
@@ -122,8 +156,8 @@ NSString * const kISFMTLCacheObject_vtxFuncMaxBufferIndex = @"kISFMTLCacheObject
 		[coder encodeObject:_name forKey:kISFMTLCacheObject_name];
 	if (_path != nil)
 		[coder encodeObject:_path forKey:kISFMTLCacheObject_path];
-	if (_glslShaderHash != nil)
-		[coder encodeObject:_glslShaderHash forKey:kISFMTLCacheObject_glslShaderHash];
+	if (_glslFragShaderHash != nil)
+		[coder encodeObject:_glslFragShaderHash forKey:kISFMTLCacheObject_glslShaderHash];
 	if (_modDate != nil)
 		[coder encodeObject:_modDate forKey:kISFMTLCacheObject_modDate];
 	if (_mslVertShader != nil)
@@ -152,120 +186,71 @@ NSString * const kISFMTLCacheObject_vtxFuncMaxBufferIndex = @"kISFMTLCacheObject
 }
 
 
-#pragma mark - key-val overrides
+#pragma mark - frontend
 
 
-@synthesize device=_device;
-- (void) setDevice:(id<MTLDevice>)n	{
-	//	if the device changed, we definitely need to purge
-	BOOL			purge = YES;
-	if ((_device==nil && n==nil) || (_device!=nil && n!=nil && /*[_device isEqualTo:n]*/ _device==n))
-		purge = NO;
+- (ISFMTLBinCacheObject *) binCacheForDevice:(id<MTLDevice>)inDevice	{
+	if (inDevice == nil)
+		return nil;
 	
-	_device = n;
-	
-	void (^PurgeBlock)(void) = ^()	{
-		self->_vtxLib = nil;
-		self->_vtxFunc = nil;
-		self->_frgLib = nil;
-		self->_frgFunc = nil;
-		self->_archive = nil;
-	};
-	
-	if (purge)	{
-		PurgeBlock();
+	for (ISFMTLBinCacheObject * cacheObj in _binCache)	{
+		if (cacheObj.device == inDevice)
+			return cacheObj;
 	}
 	
-	NSError			*nsErr = nil;
+	//	...if we're here, we don't have any cached objects for that device- we need to make one, post-haste!
 	
-	if (_vtxLib == nil)	{
-		_vtxLib = [_device newLibraryWithSource:_mslVertShader options:nil error:&nsErr];
-		if (_vtxLib == nil)	{
-			NSLog(@"ERR: unable to make lib from vtx src %@, bailing (%@)",_name,nsErr);
-			PurgeBlock();
-			return;
-		}
-	}
+	ISFMTLBinCacheObject		*returnMe = [[ISFMTLBinCacheObject alloc] initWithParent:self device:inDevice];
+	if (returnMe != nil)
+		[_binCache addObject:returnMe];
 	
-	if (_frgLib == nil)	{
-		_frgLib = [_device newLibraryWithSource:_mslFragShader options:nil error:&nsErr];
-		if (_frgLib == nil)	{
-			NSLog(@"ERR: unable to make lib from frg src %@, bailing (%@)",_name,nsErr);
-			PurgeBlock();
-			return;
-		}
-	}
-	
-	if (_vtxFunc == nil)	{
-		_vtxFunc = [_vtxLib newFunctionWithName:_vertFuncName];
-		if (_vtxFunc == nil)	{
-			NSLog(@"ERR: unable to make func from vtx lib %@, bailing",_name);
-			PurgeBlock();
-			return;
-		}
-	}
-	
-	if (_frgFunc == nil)	{
-		_frgFunc = [_frgLib newFunctionWithName:_fragFuncName];
-		if (_frgFunc == nil)	{
-			NSLog(@"ERR: unable to make func from frg lib %@, bailing",_name);
-			PurgeBlock();
-			return;
-		}
-	}
-	
-	if (_archive == nil)	{
-		NSURL			*binaryArchiveDir = [NSURL fileURLWithPath:self.parentCache.path];
-		binaryArchiveDir = [binaryArchiveDir URLByAppendingPathComponent:@"BinaryArchives"];
-		NSString		*fullPathHash = [self.path md5String];
-		NSURL			*binaryArchiveURL = [binaryArchiveDir URLByAppendingPathComponent:fullPathHash];
-		//NSLog(@"binaryArchiveURL is %@",binaryArchiveURL.path);
-		MTLBinaryArchiveDescriptor		*archiveDesc = [[MTLBinaryArchiveDescriptor alloc] init];
-		archiveDesc.url = nil;
-		_archive = [self.device newBinaryArchiveWithDescriptor:archiveDesc error:&nsErr];
-		
-		//	make a vertex descriptor that describes the vertex data we'll be passing to the shader
-		MTLVertexDescriptor		*vtxDesc = [MTLVertexDescriptor vertexDescriptor];
-		
-		vtxDesc.attributes[0].format = MTLVertexFormatFloat4;
-		vtxDesc.attributes[0].offset = 0;
-		vtxDesc.attributes[0].bufferIndex = _vtxFuncMaxBufferIndex + 1;
-		vtxDesc.layouts[1].stride = sizeof(float) * 4;
-		vtxDesc.layouts[1].stepFunction = MTLVertexStepFunctionPerVertex;
-		vtxDesc.layouts[1].stepRate = 1;
-		
-		//	make pipeline descriptors for all possible states we need to describe (8bit & float)
-		MTLRenderPipelineDescriptor		*passDesc_8bit = [[MTLRenderPipelineDescriptor alloc] init];
-		MTLRenderPipelineDescriptor		*passDesc_float = [[MTLRenderPipelineDescriptor alloc] init];
-		for (MTLRenderPipelineDescriptor * passDesc in @[ passDesc_8bit, passDesc_float ])	{
-			passDesc.vertexFunction = _vtxFunc;
-			passDesc.fragmentFunction = _frgFunc;
-			passDesc.vertexDescriptor = vtxDesc;
-		}
-		passDesc_8bit.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
-		passDesc_float.colorAttachments[0].pixelFormat = MTLPixelFormatRGBA32Float;
-		
-		if (![_archive addRenderPipelineFunctionsWithDescriptor:passDesc_8bit error:&nsErr] || nsErr != nil)	{
-			NSLog(@"ERR: problem adding pipeline A to bin arch for %@ (%@), %s",self.path,nsErr,__func__);
-			PurgeBlock();
-			return;
-		}
-		if (![_archive addRenderPipelineFunctionsWithDescriptor:passDesc_float error:&nsErr] || nsErr != nil)	{
-			NSLog(@"ERR: problem adding pipeline B to bin arch for %@ (%@), %s",self.path,nsErr,__func__);
-			PurgeBlock();
-			return;
-		}
-		
-		//	write the binary archive to disk
-		if (![_archive serializeToURL:binaryArchiveURL error:&nsErr])	{
-			NSLog(@"ERR: problem serializing binary archive for %@ to disk (%@), %s",self.path,nsErr,__func__);
-			PurgeBlock();
-			return;
-		}
-	}
+	return returnMe;
 }
-- (id<MTLDevice>) device	{
-	return _device;
+
+
+- (BOOL) modDateChecksum	{
+	NSString		*fullPath = [self.path stringByExpandingTildeInPath];
+	//NSString		*fullPathHash = [fullPath md5String];
+	
+	NSFileManager		*fm = [NSFileManager defaultManager];
+	NSDictionary		*fileAttribs = [fm attributesOfItemAtPath:fullPath error:nil];
+	NSDate				*modDate = (fileAttribs == nil) ? nil : [fileAttribs objectForKey:NSFileModificationDate];
+	NSDate				*cachedModDate = self.modDate;
+	if ((modDate==nil && cachedModDate!=nil)
+	|| (modDate!=nil && cachedModDate==nil)
+	|| (modDate!=nil && cachedModDate!=nil && ![modDate isEqualTo:cachedModDate]))
+	{
+		return NO;
+	}
+	
+	return YES;
+}
+- (BOOL) fragShaderHashChecksum	{
+	//	create an ISFDoc from the passed URL
+	NSString		*fullPath = [self.path stringByExpandingTildeInPath];
+	const char		*inURLPathCStr = fullPath.UTF8String;
+	//std::string		inURLPathStr { inURLPathCStr };
+	VVISF::ISFDocRef		doc = VVISF::CreateISFDocRef(inURLPathCStr, true);
+	if (doc == nullptr)	{
+		NSLog(@"ERR: unable to make doc from ISF %@ (%s)",fullPath,__func__);
+		return NO;
+	}
+	
+	std::string		glslFragSrc;
+	std::string		glslVertSrc;
+	
+	//doc->generateShaderSource(&glslFragSrc, &glslVertSrc, GLVersion_2, false);
+	doc->generateShaderSource(&glslFragSrc, &glslVertSrc, VVISF::GLVersion_4, true);
+	NSString		*fragSrcHash = [[NSString stringWithUTF8String:glslFragSrc.c_str()] md5String];
+	NSString		*cachedFragSrcHash = self.glslFragShaderHash;
+	if ((fragSrcHash==nil && cachedFragSrcHash!=nil)
+	|| (fragSrcHash!=nil && cachedFragSrcHash==nil)
+	|| (fragSrcHash!=nil && cachedFragSrcHash!=nil && ![fragSrcHash isEqualToString:cachedFragSrcHash]))
+	{
+		return NO;
+	}
+	
+	return YES;
 }
 
 

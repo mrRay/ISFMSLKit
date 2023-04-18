@@ -55,7 +55,9 @@ using namespace std;
 	//	structure and the state of its various attributes and passes.
 	//size_t		maxUboSize;
 	
-	ISFMTLCacheObject		*cacheObj;
+	//ISFMTLCacheObject		*cacheObj;
+	ISFMTLCacheObject		*cachedObj;
+	ISFMTLBinCacheObject	*cachedRenderObj;
 	
 	size_t			uboDataBufferSize;
 	void			*uboDataBuffer;
@@ -84,7 +86,8 @@ using namespace std;
 		doc = nullptr;
 		passes = [[NSMutableArray alloc] init];
 		inputs = [[NSMutableArray alloc] init];
-		cacheObj = nil;
+		cachedObj = nil;
+		cachedRenderObj = nil;
 		uboDataBufferSize = 0;
 		uboDataBuffer = nil;
 	}
@@ -102,7 +105,8 @@ using namespace std;
 	doc = nullptr;
 	[passes removeAllObjects];
 	[inputs removeAllObjects];
-	cacheObj = nil;
+	cachedObj = nil;
+	cachedRenderObj = nil;
 	
 	uboDataBufferSize = 0;
 	if (uboDataBuffer != nil)	{
@@ -128,15 +132,16 @@ using namespace std;
 	
 	NSError		*nsErr = nil;
 	
-	cacheObj = [ISFMTLCache.primary getCachedISFAtURL:n];
-	//NSLog(@"\t\tfragTextureVarIndexDict is %@",cacheObj.fragTextureVarIndexDict);
-	//NSLog(@"\t\tvertTextureVarIndexDict is %@",cacheObj.vertTextureVarIndexDict);
+	cachedRenderObj = [ISFMTLCache.primary getCachedISFAtURL:n forDevice:self.device];
+	cachedObj = cachedRenderObj.parentObj;
+	//NSLog(@"\t\tfragTextureVarIndexDict is %@",cachedObj.fragTextureVarIndexDict);
+	//NSLog(@"\t\tvertTextureVarIndexDict is %@",cachedObj.vertTextureVarIndexDict);
 	
 	
 	//	allocate a block of memory- statically, so we only do it once per instance of ISFMTLScene and then re-use the mem
 	#define UBO_BLOCK_BASE 48
-	uboDataBufferSize = cacheObj.maxUBOSize + (UBO_BLOCK_BASE - (cacheObj.maxUBOSize % UBO_BLOCK_BASE));
-	//NSLog(@"\t\tmaxUBOSize is %d, data buffer size is %d",cacheObj.maxUBOSize,uboDataBufferSize);
+	uboDataBufferSize = cachedObj.maxUBOSize + (UBO_BLOCK_BASE - (cachedObj.maxUBOSize % UBO_BLOCK_BASE));
+	//NSLog(@"\t\tmaxUBOSize is %d, data buffer size is %d",cachedObj.maxUBOSize,uboDataBufferSize);
 	//uboDataBufferSize = maxUboSize;
 	//NSLog(@"** WARNING hard coding uboDataBufferSize to 96, %s",__func__);
 	//uboDataBufferSize = 96;
@@ -148,7 +153,7 @@ using namespace std;
 	
 	vtxDesc.attributes[0].format = MTLVertexFormatFloat4;
 	vtxDesc.attributes[0].offset = 0;
-	vtxDesc.attributes[0].bufferIndex = cacheObj.vtxFuncMaxBufferIndex + 1;
+	vtxDesc.attributes[0].bufferIndex = cachedObj.vtxFuncMaxBufferIndex + 1;
 	vtxDesc.layouts[1].stride = sizeof(float) * 4;
 	vtxDesc.layouts[1].stepFunction = MTLVertexStepFunctionPerVertex;
 	vtxDesc.layouts[1].stepRate = 1;
@@ -157,14 +162,14 @@ using namespace std;
 	MTLRenderPipelineDescriptor		*passDesc_8bit = [[MTLRenderPipelineDescriptor alloc] init];
 	MTLRenderPipelineDescriptor		*passDesc_float = [[MTLRenderPipelineDescriptor alloc] init];
 	for (MTLRenderPipelineDescriptor * passDesc in @[ passDesc_8bit, passDesc_float ])	{
-		passDesc.vertexFunction = cacheObj.vtxFunc;
-		passDesc.fragmentFunction = cacheObj.frgFunc;
+		passDesc.vertexFunction = cachedRenderObj.vtxFunc;
+		passDesc.fragmentFunction = cachedRenderObj.frgFunc;
 		passDesc.vertexDescriptor = vtxDesc;
 	}
 	passDesc_8bit.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
-	passDesc_8bit.binaryArchives = @[ cacheObj.archive ];
+	passDesc_8bit.binaryArchives = @[ cachedRenderObj.archive ];
 	passDesc_float.colorAttachments[0].pixelFormat = MTLPixelFormatRGBA32Float;
-	passDesc_float.binaryArchives = @[ cacheObj.archive ];
+	passDesc_float.binaryArchives = @[ cachedRenderObj.archive ];
 	
 	//	we want to minimize the # of PSOs we create and work with, so try to avoid creating one for each pass and instead try to reuse them
 	id<MTLRenderPipelineState>		pso_8bit = [self.device newRenderPipelineStateWithDescriptor:passDesc_8bit options:MTLPipelineOptionFailOnBinaryArchiveMiss reflection:nil error:&nsErr];
@@ -280,7 +285,8 @@ using namespace std;
 	
 	//NSDate			*startDate = [NSDate date];
 	
-	ISFMTLCacheObject		*localCacheObj = cacheObj;
+	ISFMTLCacheObject		*localCachedObj = cachedObj;
+	//ISFMTLBinCacheObject	*localCachedRenderObj = cachedRenderObj;
 	
 	//	update local variables that get adjusted per-render or need to get pre-populated
 	VVISF::Timestamp		targetRenderTime = VVISF::Timestamp() - _baseTime;
@@ -318,10 +324,10 @@ using namespace std;
 	samplerDesc.sAddressMode = MTLSamplerAddressModeClampToEdge;
 	samplerDesc.tAddressMode = MTLSamplerAddressModeClampToEdge;
 	id<MTLSamplerState>		sampler = [self.device newSamplerStateWithDescriptor:samplerDesc];
-	[localCacheObj.vertSamplerVarIndexDict enumerateKeysAndObjectsUsingBlock:^(NSString *samplerName, NSNumber *attrIndex, BOOL *stop)	{
+	[localCachedObj.vertSamplerVarIndexDict enumerateKeysAndObjectsUsingBlock:^(NSString *samplerName, NSNumber *attrIndex, BOOL *stop)	{
 		[vertRCEIndexToSamplerDict setObject:sampler forKey:attrIndex];
 	}];
-	[localCacheObj.fragSamplerVarIndexDict enumerateKeysAndObjectsUsingBlock:^(NSString *samplerName, NSNumber *attrIndex, BOOL *stop)	{
+	[localCachedObj.fragSamplerVarIndexDict enumerateKeysAndObjectsUsingBlock:^(NSString *samplerName, NSNumber *attrIndex, BOOL *stop)	{
 		[fragRCEIndexToSamplerDict setObject:sampler forKey:attrIndex];
 	}];
 	
@@ -531,9 +537,9 @@ using namespace std;
 		NSString			*attrName = [NSString stringWithUTF8String:name.c_str()];
 		//NSLog(@"PrepNamedTexForRenderAtOffset() ... %@",attrName);
 		NSNumber			*tmpNum = nil;
-		tmpNum = [localCacheObj.fragTextureVarIndexDict objectForKey:attrName];
+		tmpNum = [localCachedObj.fragTextureVarIndexDict objectForKey:attrName];
 		uint32_t			fragRenderEncoderIndex = (tmpNum==nil) ? std::numeric_limits<uint32_t>::max() : tmpNum.unsignedIntValue;
-		tmpNum = [localCacheObj.vertTextureVarIndexDict objectForKey:attrName];
+		tmpNum = [localCachedObj.vertTextureVarIndexDict objectForKey:attrName];
 		uint32_t			vertRenderEncoderIndex = (tmpNum==nil) ? std::numeric_limits<uint32_t>::max() : tmpNum.unsignedIntValue;
 		
 		//	get the current image from the attr- if it's not the expected type (ISFImage class), skip it- otherwise, recast to an ISFImageRef
@@ -675,7 +681,7 @@ using namespace std;
 		[renderEncoder
 			setVertexBuffer:quadVertsBuffer
 			offset:0
-			atIndex:localCacheObj.vtxFuncMaxBufferIndex + 1];
+			atIndex:localCachedObj.vtxFuncMaxBufferIndex + 1];
 		
 		//	iterate across the dicts of index-to-texture mappings, pushing the textures to the RCE
 		[vertRCEIndexToTexDict enumerateKeysAndObjectsUsingBlock:^(NSNumber *indexNum, ISFMTLSceneImgRef *objCImgRef, BOOL *stop)	{
