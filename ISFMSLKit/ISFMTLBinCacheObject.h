@@ -15,6 +15,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 
+/*		this class stores objects that are used to render the ISF- id<MTLLibrary> and id<MTLFunction> you need 
+		to create the PSO, and a id<MTLBinaryArchive> corresponding to a file on disk that loads the cached PSO.
+		- instances of this class are created by ISFMTLCache.  once created, ISFMTLCacheObject stores a strong 
+		ref to the instance in its 'binCache' property (it's a private property)
+		- on init, an instance of this class will attempt to load a pre-existing binary cache from disk.  if 
+		no binary cache exists, it will compile and cache the PSO into a binary archive, which gets written to disk.
+*/
+
+
+
+
 @interface ISFMTLBinCacheObject : NSObject
 
 - (instancetype) initWithParent:(ISFMTLCacheObject *)inParent device:(id<MTLDevice>)inDevice;

@@ -18,7 +18,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 
-/*		data object, used to store values.  instances of this object are stored and retrieved by ISFMTLCache.
+/*		data object, used to store values.  instances of this object are stored and retrieved by ISFMTLCache via PINCache under the hood via NSCoding.
+		- doesn't do anything GPU-related directly, really just stores data we generate about the ISF file (including 
+		frag & vert shader source, and info describing how to map the ISF's inputs/attributes to the render encoder)
+		- will generate a bin cache object (ISFMTLBinCacheObject) on request, which is how PSOs are pre-compiled/cached, 
+		which is required for rendering and a CPU-intensive task
 */
 
 

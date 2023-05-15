@@ -791,6 +791,9 @@ using namespace std;
 	if (pool == nil)
 		return nil;
 	
+	if (doc == nullptr)
+		return nil;
+	
 	MTLImgBuffer		*returnMe = nil;
 	//	get the last pass, figure out whether we need a float texture or not
 	const auto &		passes = doc->renderPasses();
