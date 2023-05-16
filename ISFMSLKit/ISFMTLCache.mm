@@ -7,7 +7,8 @@
 
 #import "ISFMTLCache.h"
 
-#import <VVCore/VVCore.h>
+//#import <VVCore/VVCore.h>
+#import "ISFMSLNSStringAdditions.h"
 
 #include "GLSLangValidatorLib.hpp"
 #include "SPIRVCrossLib.hpp"
@@ -146,7 +147,7 @@ static ISFMTLCache		*primary = nil;
 - (void) _clearCachedISFAtURL:(NSURL *)inURL	{
 	
 	NSString		*fullPath = [inURL.path stringByExpandingTildeInPath];
-	NSString		*fullPathHash = [fullPath md5String];
+	NSString		*fullPathHash = [fullPath isfMD5String];
 	NSError			*nsErr = nil;
 	
 	NSFileManager	*fm = [NSFileManager defaultManager];
@@ -260,7 +261,7 @@ static ISFMTLCache		*primary = nil;
 	if (inURL == nil)
 		return nil;
 	NSString		*fullPath = [inURL.path stringByExpandingTildeInPath];
-	NSString		*fullPathHash = [fullPath md5String];
+	NSString		*fullPathHash = [fullPath isfMD5String];
 	ISFMTLCacheObject		*returnMe = [_isfCache objectForKey:fullPathHash];
 	return returnMe;
 }
@@ -286,7 +287,7 @@ static ISFMTLCache		*primary = nil;
 	}
 	
 	//	local path string (uses "~" to abbreviate the home directory if possible)
-	NSString		*fullPathHash = [fullPath md5String];
+	NSString		*fullPathHash = [fullPath isfMD5String];
 	
 	
 	//	create an ISFDoc from the passed URL
@@ -320,7 +321,7 @@ static ISFMTLCache		*primary = nil;
 	//NSLog(@"\t\tsizeof(ISFShaderRenderInfo) is %d, sizeof(ISFShaderImgInfo) is %d",sizeof(VVISF::ISFShaderRenderInfo),sizeof(VVISF::ISFShaderImgInfo));
 	//NSLog(@"\t\tmaxUBOSize returned by libISFGLSLGenerator is %d",maxUboSize);
 	
-	NSString		*fragSrcHash = [[NSString stringWithUTF8String:glslFragSrc.c_str()] md5String];
+	NSString		*fragSrcHash = [[NSString stringWithUTF8String:glslFragSrc.c_str()] isfMD5String];
 	
 	std::vector<uint32_t>	outSPIRVVtxData;
 	std::vector<uint32_t>	outSPIRVFrgData;

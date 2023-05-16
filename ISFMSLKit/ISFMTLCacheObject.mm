@@ -6,7 +6,8 @@
 //
 
 #import "ISFMTLCacheObject.h"
-#import <VVCore/VVCore.h>
+//#import <VVCore/VVCore.h>
+#import "ISFMSLNSStringAdditions.h"
 
 #import "ISFMTLCache.h"
 
@@ -210,7 +211,7 @@ NSString * const kISFMTLCacheObject_vtxFuncMaxBufferIndex = @"kISFMTLCacheObject
 
 - (BOOL) modDateChecksum	{
 	NSString		*fullPath = [self.path stringByExpandingTildeInPath];
-	//NSString		*fullPathHash = [fullPath md5String];
+	//NSString		*fullPathHash = [fullPath isfMD5String];
 	
 	NSFileManager		*fm = [NSFileManager defaultManager];
 	NSDictionary		*fileAttribs = [fm attributesOfItemAtPath:fullPath error:nil];
@@ -241,7 +242,7 @@ NSString * const kISFMTLCacheObject_vtxFuncMaxBufferIndex = @"kISFMTLCacheObject
 	
 	//doc->generateShaderSource(&glslFragSrc, &glslVertSrc, GLVersion_2, false);
 	doc->generateShaderSource(&glslFragSrc, &glslVertSrc, VVISF::GLVersion_4, true);
-	NSString		*fragSrcHash = [[NSString stringWithUTF8String:glslFragSrc.c_str()] md5String];
+	NSString		*fragSrcHash = [[NSString stringWithUTF8String:glslFragSrc.c_str()] isfMD5String];
 	NSString		*cachedFragSrcHash = self.glslFragShaderHash;
 	if ((fragSrcHash==nil && cachedFragSrcHash!=nil)
 	|| (fragSrcHash!=nil && cachedFragSrcHash==nil)

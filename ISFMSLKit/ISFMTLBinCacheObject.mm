@@ -6,10 +6,12 @@
 //
 
 #import "ISFMTLBinCacheObject.h"
-#import <VVCore/VVCore.h>
+//#import <VVCore/VVCore.h>
 
 //#import "ISFMTLCacheObject.h"
 #import "ISFMTLCache.h"
+
+#import "ISFMSLNSStringAdditions.h"
 
 #include <string>
 #include <vector>
@@ -91,7 +93,7 @@ using namespace std;
 			NSString	*mtlDeviceDirName = [_device.name stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 			NSURL		*deviceDir = [binaryArchivesDir URLByAppendingPathComponent:mtlDeviceDirName];
 			
-			NSString	*fullPathHash = [_parentObj.path md5String];
+			NSString	*fullPathHash = [_parentObj.path isfMD5String];
 			NSURL		*archiveURL = [deviceDir URLByAppendingPathComponent:fullPathHash];
 			//NSLog(@"\t\tarchiveURL is %@",archiveURL.path);
 			
