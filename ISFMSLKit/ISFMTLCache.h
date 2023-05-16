@@ -8,8 +8,8 @@
 #import <Foundation/Foundation.h>
 
 #import <PINCache/PINCache.h>
-#import "ISFMTLCacheObject.h"
-#import "ISFMTLBinCacheObject.h"
+#import <ISFMSLKit/ISFMTLCacheObject.h>
+#import <ISFMSLKit/ISFMTLBinCacheObject.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

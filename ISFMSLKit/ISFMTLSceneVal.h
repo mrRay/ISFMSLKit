@@ -7,7 +7,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "ISFMTLSceneImgRef.h"
+#import <ISFMSLKit/ISFMTLSceneImgRef.h>
 
 #import <VVMetalKit/VVMetalKit.h>
 

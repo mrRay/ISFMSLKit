@@ -8,7 +8,7 @@
 #import <Foundation/Foundation.h>
 #import <VVMetalKit/VVMetalKit.h>
 
-#import "ISFMTLSceneImgRef.h"
+#import <ISFMSLKit/ISFMTLSceneImgRef.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

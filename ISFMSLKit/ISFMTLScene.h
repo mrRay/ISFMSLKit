@@ -7,10 +7,10 @@
 
 #import <VVMetalKit/VVMetalKit.h>
 
-#import "ISFMTLSceneImgRef.h"
-#import "ISFMTLSceneVal.h"
-#import "ISFMTLSceneAttrib.h"
-#import "ISFMTLScenePassTarget.h"
+#import <ISFMSLKit/ISFMTLSceneImgRef.h>
+#import <ISFMSLKit/ISFMTLSceneVal.h>
+#import <ISFMSLKit/ISFMTLSceneAttrib.h>
+#import <ISFMSLKit/ISFMTLScenePassTarget.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

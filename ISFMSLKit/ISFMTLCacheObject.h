@@ -9,7 +9,7 @@
 
 #import <Metal/Metal.h>
 
-#import "ISFMTLBinCacheObject.h"
+#import <ISFMSLKit/ISFMTLBinCacheObject.h>
 
 @class ISFMTLCache;
 

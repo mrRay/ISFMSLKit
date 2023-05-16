@@ -7,8 +7,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "ISFMTLSceneVal.h"
-#import "ISFMTLSceneImgRef.h"
+#import <ISFMSLKit/ISFMTLSceneVal.h>
+#import <ISFMSLKit/ISFMTLSceneImgRef.h>
 
 #import <VVMetalKit/VVMetalKit.h>
 

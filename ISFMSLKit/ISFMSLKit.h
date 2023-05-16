@@ -14,13 +14,13 @@ FOUNDATION_EXPORT double ISFMSLKitVersionNumber;
 FOUNDATION_EXPORT const unsigned char ISFMSLKitVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <ISFMSLKit/PublicHeader.h>
-#import "ISFMTLScene.h"
-#import "ISFMTLSceneAttrib.h"
-#import "ISFMTLSceneImgRef.h"
-#import "ISFMTLScenePassTarget.h"
-#import "ISFMTLSceneVal.h"
-#import "ISFMTLCacheObject.h"
-#import "ISFMTLCache.h"
+#import <ISFMSLKit/ISFMTLScene.h>
+#import <ISFMSLKit/ISFMTLSceneAttrib.h>
+#import <ISFMSLKit/ISFMTLSceneImgRef.h>
+#import <ISFMSLKit/ISFMTLScenePassTarget.h>
+#import <ISFMSLKit/ISFMTLSceneVal.h>
+#import <ISFMSLKit/ISFMTLCacheObject.h>
+#import <ISFMSLKit/ISFMTLCache.h>
 
 
 
