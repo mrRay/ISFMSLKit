@@ -37,4 +37,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 
+//	if you need to create an ISFMTLSceneImgRef from a MTLImgBuffer, do so via this function
+id<ISFMTLSceneImgRef> CreateISFMTLSceneImgRefWithMTLImgBuffer(MTLImgBuffer * n);
+
+
+
+
 NS_ASSUME_NONNULL_END

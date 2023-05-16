@@ -161,3 +161,12 @@
 
 @end
 
+
+
+
+
+
+id<ISFMTLSceneImgRef> CreateISFMTLSceneImgRefWithMTLImgBuffer(MTLImgBuffer * n)	{
+	return [ISFMTLSceneImgRef createWithMTLImgBuffer:n];
+}
+
