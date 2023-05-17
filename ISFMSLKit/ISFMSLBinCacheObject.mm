@@ -1,15 +1,15 @@
 //
-//  ISFMTLBinCacheObject.m
+//  ISFMSLBinCacheObject.m
 //  ISFMSLKitTestApp
 //
 //  Created by testadmin on 4/18/23.
 //
 
-#import "ISFMTLBinCacheObject.h"
+#import "ISFMSLBinCacheObject.h"
 //#import <VVCore/VVCore.h>
 
-//#import "ISFMTLCacheObject.h"
-#import "ISFMTLCache.h"
+//#import "ISFMSLCacheObject.h"
+#import "ISFMSLCache.h"
 
 #import "ISFMSLNSStringAdditions.h"
 
@@ -27,10 +27,10 @@ using namespace std;
 
 
 
-@implementation ISFMTLBinCacheObject
+@implementation ISFMSLBinCacheObject
 
 
-- (instancetype) initWithParent:(ISFMTLCacheObject *)inParent device:(id<MTLDevice>)inDevice	{
+- (instancetype) initWithParent:(ISFMSLCacheObject *)inParent device:(id<MTLDevice>)inDevice	{
 	//NSLog(@"%s ... %@, %@",__func__,inParent,inDevice.name);
 	self = [super init];
 	
@@ -168,7 +168,7 @@ using namespace std;
 
 
 - (NSString *) description	{
-	return [NSString stringWithFormat:@"<ISFMTLBinCacheObject (%@) %@ %p>",_parentObj,_device.name,self];
+	return [NSString stringWithFormat:@"<ISFMSLBinCacheObject (%@) %@ %p>",_parentObj,_device.name,self];
 }
 
 

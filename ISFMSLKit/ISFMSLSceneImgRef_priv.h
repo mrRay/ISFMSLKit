@@ -1,5 +1,5 @@
 //
-//  ISFMTLSceneImgRef_priv.h
+//  ISFMSLSceneImgRef_priv.h
 //  testISFtoMSL
 //
 //  Created by testadmin on 3/8/23.
@@ -7,7 +7,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "ISFMTLSceneImgRef.h"
+#import "ISFMSLSceneImgRef.h"
 //#import "VVISF.hpp"
 #import "ISFImage.h"
 
@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 
-@interface ISFMTLSceneImgRef : NSObject <ISFMTLSceneImgRef>	{
+@interface ISFMSLSceneImgRef : NSObject <ISFMSLSceneImgRef>	{
 	//	may also be 'ISFImageRef'!  really, any std::shared_ptr around a subclass of VVISF::ISFImageInfo should work?
 	ISFImageRef		_localImage;
 }

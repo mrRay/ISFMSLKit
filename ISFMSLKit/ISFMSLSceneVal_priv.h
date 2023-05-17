@@ -1,5 +1,5 @@
 //
-//  ISFMTLSceneVal_priv.h
+//  ISFMSLSceneVal_priv.h
 //  testISFtoMSL
 //
 //  Created by testadmin on 3/8/23.
@@ -7,17 +7,17 @@
 
 #import <Foundation/Foundation.h>
 
-#import "ISFMTLSceneVal.h"
+#import "ISFMSLSceneVal.h"
 #include "VVISF.hpp"
 
-//@protocol ISFMTLSceneVal;
+//@protocol ISFMSLSceneVal;
 
 NS_ASSUME_NONNULL_BEGIN
 
 
 
 
-@interface ISFMTLSceneVal : NSObject <ISFMTLSceneVal>	{
+@interface ISFMSLSceneVal : NSObject <ISFMSLSceneVal>	{
 	VVISF::ISFVal			_localVal;
 }
 

@@ -5,8 +5,8 @@
 //  Created by testadmin on 3/22/23.
 //
 
-#ifndef ISFMTLSceneImg_h
-#define ISFMTLSceneImg_h
+#ifndef ISFMSLSceneImg_h
+#define ISFMSLSceneImg_h
 
 #include <memory>
 
@@ -60,4 +60,4 @@ using ISFImageRef = std::shared_ptr<ISFImage>;
 
 
 
-#endif /* ISFMTLSceneImg_h */
+#endif /* ISFMSLSceneImg_h */

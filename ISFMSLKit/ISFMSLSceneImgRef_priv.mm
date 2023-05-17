@@ -1,29 +1,29 @@
 //
-//  ISFMTLSceneImgRef_priv.m
+//  ISFMSLSceneImgRef_priv.m
 //  testISFtoMSL
 //
 //  Created by testadmin on 3/8/23.
 //
 
-#import "ISFMTLSceneImgRef_priv.h"
-#import "ISFMTLSceneImgRef.h"
+#import "ISFMSLSceneImgRef_priv.h"
+#import "ISFMSLSceneImgRef.h"
 #import "ISFImage.h"
 #import "VVISF.hpp"
 
 
 
 
-@implementation ISFMTLSceneImgRef
+@implementation ISFMSLSceneImgRef
 
 
 #pragma mark - class methods
 
 
 + (instancetype) createWithImgRef:(ISFImageRef)n	{
-	return [[ISFMTLSceneImgRef alloc] initWithImgRef:n];
+	return [[ISFMSLSceneImgRef alloc] initWithImgRef:n];
 }
 + (instancetype) createWithMTLImgBuffer:(MTLImgBuffer *)n	{
-	return [[ISFMTLSceneImgRef alloc] initWithMTLImgBuffer:n];
+	return [[ISFMSLSceneImgRef alloc] initWithMTLImgBuffer:n];
 }
 
 
@@ -58,7 +58,7 @@
 
 
 - (NSString *) description	{
-	return [NSString stringWithFormat:@"<ISFMTLSceneImgRef %@>",(_localImage==nullptr) ? nil : _localImage->img.texture.label];
+	return [NSString stringWithFormat:@"<ISFMSLSceneImgRef %@>",(_localImage==nullptr) ? nil : _localImage->img.texture.label];
 }
 
 
@@ -79,12 +79,12 @@
 	if (self == n)
 		return YES;
 	
-	//	if it's another ISFMTLSceneImgRef...
+	//	if it's another ISFMSLSceneImgRef...
 	if (![n isKindOfClass:[self class]])	{
 		return NO;
 	}
 	
-	ISFMTLSceneImgRef		*recast = (ISFMTLSceneImgRef *)n;
+	ISFMSLSceneImgRef		*recast = (ISFMSLSceneImgRef *)n;
 	
 	//	compare interior objects
 	ISFImageRef		remoteImageRef = recast.isfImageRef;
@@ -102,7 +102,7 @@
 }
 
 
-#pragma mark - ISFMTLSceneImgRef
+#pragma mark - ISFMSLSceneImgRef
 
 
 - (uint32_t) width	{
@@ -166,7 +166,7 @@
 
 
 
-id<ISFMTLSceneImgRef> CreateISFMTLSceneImgRefWithMTLImgBuffer(MTLImgBuffer * n)	{
-	return [ISFMTLSceneImgRef createWithMTLImgBuffer:n];
+id<ISFMSLSceneImgRef> CreateISFMSLSceneImgRefWithMTLImgBuffer(MTLImgBuffer * n)	{
+	return [ISFMSLSceneImgRef createWithMTLImgBuffer:n];
 }
 

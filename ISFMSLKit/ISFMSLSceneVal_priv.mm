@@ -1,34 +1,34 @@
 //
-//  ISFMTLSceneVal_priv.m
+//  ISFMSLSceneVal_priv.m
 //  testISFtoMSL
 //
 //  Created by testadmin on 3/8/23.
 //
 
-#import "ISFMTLSceneVal_priv.h"
-#import "ISFMTLSceneVal.h"
-#import "ISFMTLSceneImgRef_priv.h"
+#import "ISFMSLSceneVal_priv.h"
+#import "ISFMSLSceneVal.h"
+#import "ISFMSLSceneImgRef_priv.h"
 #import "ISFImage.h"
 
 
 
 
-@implementation ISFMTLSceneVal
+@implementation ISFMSLSceneVal
 
 
 #pragma mark - class methods
 
 
 + (instancetype) createWithISFVal:(VVISF::ISFVal &)n	{
-	return [[ISFMTLSceneVal alloc] initWithISFVal:n];
+	return [[ISFMSLSceneVal alloc] initWithISFVal:n];
 }
 
 
-//+ (id<ISFMTLSceneVal>) createWithDouble:(double)n	{
+//+ (id<ISFMSLSceneVal>) createWithDouble:(double)n	{
 //	VVISF::ISFVal		tmpVal = VVISF::CreateISFValFloat(n);
-//	return [[ISFMTLSceneVal alloc] initWithISFVal:tmpVal];
+//	return [[ISFMSLSceneVal alloc] initWithISFVal:tmpVal];
 //}
-+ (id<ISFMTLSceneVal>) createWithImg:(MTLImgBuffer *)n	{
++ (id<ISFMSLSceneVal>) createWithImg:(MTLImgBuffer *)n	{
 	if (n == nil)
 		return nil;
 	
@@ -38,7 +38,7 @@
 	//VVISF::ISFImageInfoRef	tmpImageRef = std::make_shared<VVISF::ISFImageInfo>(n.width, n.height);
 	//VVISF::ISFVal		tmpVal = VVISF::CreateISFValImage(tmpImageRef);
 	
-	ISFMTLSceneVal		*returnMe = [[ISFMTLSceneVal alloc] initWithISFVal:tmpVal];
+	ISFMSLSceneVal		*returnMe = [[ISFMSLSceneVal alloc] initWithISFVal:tmpVal];
 	//returnMe.img = n;
 	return returnMe;
 }
@@ -64,7 +64,7 @@
 }
 
 
-#pragma mark - ISFMTLSceneVal protocol
+#pragma mark - ISFMSLSceneVal protocol
 
 
 - (ISFValType) type	{
@@ -115,7 +115,7 @@
 - (double) colorValueByIndex:(int)n	{
 	return _localVal.getColorValByChannel(n);
 }
-- (id<ISFMTLSceneImgRef>) imgValue	{
+- (id<ISFMSLSceneImgRef>) imgValue	{
 	VVISF::ISFImageInfoRef		currentImageInfoRef = _localVal.getImageRef();
 	VVISF::ISFImageInfo			*currentImageInfoPtr = currentImageInfoRef.get();
 	if (currentImageInfoPtr == nullptr)
@@ -127,12 +127,12 @@
 	
 	//	we need to recast the VVISF::ISFImageInfoRef to an ISFImageRef
 	ISFImageRef			currentImageRef = std::static_pointer_cast<ISFImage>(currentImageInfoRef);
-	return [ISFMTLSceneImgRef createWithImgRef:currentImageRef];
+	return [ISFMSLSceneImgRef createWithImgRef:currentImageRef];
 	
 	
 	
 	
-	//return [ISFMTLSceneImgRef createWithImgRef:_localVal.getImageRef()];
+	//return [ISFMSLSceneImgRef createWithImgRef:_localVal.getImageRef()];
 }
 
 
@@ -143,7 +143,7 @@
 
 
 - (id) copyWithZone:(NSZone *)zone {
-	ISFMTLSceneVal		*returnMe = [[ISFMTLSceneVal alloc] initWithISFVal:_localVal];
+	ISFMSLSceneVal		*returnMe = [[ISFMSLSceneVal alloc] initWithISFVal:_localVal];
 	//returnMe.img = self.img;
 	return returnMe;
 }

@@ -1,11 +1,11 @@
 //
-//	ISFMTLCache.m
+//	ISFMSLCache.m
 //	ISFMSLKitTestApp
 //
 //	Created by testadmin on 4/11/23.
 //
 
-#import "ISFMTLCache.h"
+#import "ISFMSLCache.h"
 
 //#import <VVCore/VVCore.h>
 #import "ISFMSLNSStringAdditions.h"
@@ -30,20 +30,20 @@ using namespace std;
 
 
 
-static ISFMTLCache		*primary = nil;
+static ISFMSLCache		*primary = nil;
 
 
 
 
-@interface ISFMTLCache ()
+@interface ISFMSLCache ()
 
 - (void) generalInit;
 
 - (void) _clearCachedISFAtURL:(NSURL *)inURL;
 
 //	doesn't check anything- immediately begins ops necessary to transpile the ISF to MSL.  ALSO KILLS ANY BINARY ARCHIVES!
-- (ISFMTLCacheObject *) _cacheISFAtURL:(NSURL *)inURL;
-- (ISFMTLCacheObject *) _getCachedISFAtURL:(NSURL *)inURL;
+- (ISFMSLCacheObject *) _cacheISFAtURL:(NSURL *)inURL;
+- (ISFMSLCacheObject *) _getCachedISFAtURL:(NSURL *)inURL;
 
 @property (strong) PINCache * isfCache;
 @property (strong,readwrite) NSURL * directory;
@@ -53,13 +53,13 @@ static ISFMTLCache		*primary = nil;
 
 
 
-@implementation ISFMTLCache
+@implementation ISFMSLCache
 
 
-+ (void) setPrimary:(ISFMTLCache *)n	{
++ (void) setPrimary:(ISFMSLCache *)n	{
 	primary = n;
 }
-+ (ISFMTLCache *) primary	{
++ (ISFMSLCache *) primary	{
 	return primary;
 }
 
@@ -100,7 +100,7 @@ static ISFMTLCache		*primary = nil;
 	NSError				*nsErr = nil;
 	NSFileManager		*fm = [NSFileManager defaultManager];
 	NSURL				*binaryArchiveDir = self.directory;
-	binaryArchiveDir = [binaryArchiveDir URLByAppendingPathComponent:@"BinaryArchives"];
+	binaryArchiveDir = [self binaryArchivesDirectory];
 	if (![fm fileExistsAtPath:binaryArchiveDir.path isDirectory:nil])	{
 		if (![fm createDirectoryAtURL:binaryArchiveDir withIntermediateDirectories:YES attributes:nil error:&nsErr] || nsErr != nil)	{
 			NSLog(@"ERR: unable to create binary archives directory (%@), (%@), %s",binaryArchiveDir.path,nsErr,__func__);
@@ -114,7 +114,7 @@ static ISFMTLCache		*primary = nil;
 	PINDiskCacheDeserializerBlock		deserializer = ^id<NSCoding>(NSData* data, NSString* key) {
 		NSKeyedUnarchiver		*unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:nil];
 		unarchiver.requiresSecureCoding = NO;
-		ISFMTLCacheObject		*unarchived = [unarchiver decodeObjectForKey:NSKeyedArchiveRootObjectKey];
+		ISFMSLCacheObject		*unarchived = [unarchiver decodeObjectForKey:NSKeyedArchiveRootObjectKey];
 		unarchived.parentCache = self;
 		return unarchived;
 	};
@@ -165,34 +165,34 @@ static ISFMTLCache		*primary = nil;
 }
 
 /*
-- (ISFMTLBinCacheObject *) cacheISFAtURL:(NSURL *)inURL forDevice:(id<MTLDevice>)inDevice	{
-	ISFMTLCacheObject		*returnMe = [self cacheISFAtURL:inURL forDevice:inDevice hint:ISFMTLCacheHint_NoHint];
+- (ISFMSLBinCacheObject *) cacheISFAtURL:(NSURL *)inURL forDevice:(id<MTLDevice>)inDevice	{
+	ISFMSLCacheObject		*returnMe = [self cacheISFAtURL:inURL forDevice:inDevice hint:ISFMSLCacheHint_NoHint];
 	return returnMe;
 }
-- (ISFMTLBinCacheObject *) cacheISFAtURL:(NSURL *)inURL forDevice:(id<MTLDevice>)inDevice hint:(ISFMTLCacheHint)inHint	{
+- (ISFMSLBinCacheObject *) cacheISFAtURL:(NSURL *)inURL forDevice:(id<MTLDevice>)inDevice hint:(ISFMSLCacheHint)inHint	{
 	if (inURL == nil || inDevice == nil)
 		return nil;
 	
-	ISFMTLBinCacheObject		*returnMe = nil;
+	ISFMSLBinCacheObject		*returnMe = nil;
 	
 	@synchronized (self)	{
 		
-		ISFMTLCacheObject			*parentObj = nil;
+		ISFMSLCacheObject			*parentObj = nil;
 		switch (inHint)	{
-		case ISFMTLCacheHint_NoHint:
+		case ISFMSLCacheHint_NoHint:
 			parentObj = [self _getCachedISFAtURL:inURL];
 			break;
-		case ISFMTLCacheHint_ForceTranspile:
+		case ISFMSLCacheHint_ForceTranspile:
 			[self _clearCachedISFAtURL:inURL];
 			break;
-		case ISFMTLCacheHint_TranspileIfDateDelta:
+		case ISFMSLCacheHint_TranspileIfDateDelta:
 			parentObj = [self _getCachedISFAtURL:inURL];
 			if (![parentObj modDateChecksum])	{
 				[self _clearCachedISFAtURL:inURL];
 				parentObj = nil;
 			}
 			break;
-		case ISFMTLCacheHint_TranspileIfContentDelta:
+		case ISFMSLCacheHint_TranspileIfContentDelta:
 			parentObj = [self _getCachedISFAtURL:inURL];
 			if (![parentObj fragShaderHashChecksum])	{
 				[self _clearCachedISFAtURL:inURL];
@@ -211,33 +211,33 @@ static ISFMTLCache		*primary = nil;
 }
 */
 
-- (ISFMTLBinCacheObject *) getCachedISFAtURL:(NSURL *)inURL forDevice:(id<MTLDevice>)inDevice	{
-	return [self getCachedISFAtURL:inURL forDevice:inDevice hint:ISFMTLCacheHint_NoHint];
+- (ISFMSLBinCacheObject *) getCachedISFAtURL:(NSURL *)inURL forDevice:(id<MTLDevice>)inDevice	{
+	return [self getCachedISFAtURL:inURL forDevice:inDevice hint:ISFMSLCacheHint_NoHint];
 }
-- (ISFMTLBinCacheObject *) getCachedISFAtURL:(NSURL *)inURL forDevice:(id<MTLDevice>)inDevice hint:(ISFMTLCacheHint)inHint	{
+- (ISFMSLBinCacheObject *) getCachedISFAtURL:(NSURL *)inURL forDevice:(id<MTLDevice>)inDevice hint:(ISFMSLCacheHint)inHint	{
 	if (inURL == nil || inDevice == nil)
 		return nil;
 	
-	ISFMTLBinCacheObject		*returnMe = nil;
+	ISFMSLBinCacheObject		*returnMe = nil;
 	
 	@synchronized (self)	{
 		
-		ISFMTLCacheObject			*parentObj = nil;
+		ISFMSLCacheObject			*parentObj = nil;
 		switch (inHint)	{
-		case ISFMTLCacheHint_NoHint:
+		case ISFMSLCacheHint_NoHint:
 			parentObj = [self _getCachedISFAtURL:inURL];
 			break;
-		case ISFMTLCacheHint_ForceTranspile:
+		case ISFMSLCacheHint_ForceTranspile:
 			[self _clearCachedISFAtURL:inURL];
 			break;
-		case ISFMTLCacheHint_TranspileIfDateDelta:
+		case ISFMSLCacheHint_TranspileIfDateDelta:
 			parentObj = [self _getCachedISFAtURL:inURL];
 			if (![parentObj modDateChecksum])	{
 				[self _clearCachedISFAtURL:inURL];
 				parentObj = nil;
 			}
 			break;
-		case ISFMTLCacheHint_TranspileIfContentDelta:
+		case ISFMSLCacheHint_TranspileIfContentDelta:
 			parentObj = [self _getCachedISFAtURL:inURL];
 			if (![parentObj fragShaderHashChecksum])	{
 				[self _clearCachedISFAtURL:inURL];
@@ -257,17 +257,17 @@ static ISFMTLCache		*primary = nil;
 }
 
 
-- (ISFMTLCacheObject *) _getCachedISFAtURL:(NSURL *)inURL	{
+- (ISFMSLCacheObject *) _getCachedISFAtURL:(NSURL *)inURL	{
 	if (inURL == nil)
 		return nil;
 	NSString		*fullPath = [inURL.path stringByExpandingTildeInPath];
 	NSString		*fullPathHash = [fullPath isfMD5String];
-	ISFMTLCacheObject		*returnMe = [_isfCache objectForKey:fullPathHash];
+	ISFMSLCacheObject		*returnMe = [_isfCache objectForKey:fullPathHash];
 	return returnMe;
 }
 
 
-- (ISFMTLCacheObject *) _cacheISFAtURL:(NSURL *)inURL	{
+- (ISFMSLCacheObject *) _cacheISFAtURL:(NSURL *)inURL	{
 	if (inURL == nil)
 		return nil;
 	
@@ -568,7 +568,7 @@ static ISFMTLCache		*primary = nil;
 	
 	
 	//	make the cache object, populate it, cache it
-	ISFMTLCacheObject		*returnMe = [[ISFMTLCacheObject alloc] init];
+	ISFMSLCacheObject		*returnMe = [[ISFMSLCacheObject alloc] init];
 	
 	returnMe.name = [NSString stringWithUTF8String:raw_filename.c_str()];
 	returnMe.path = fullPath;
@@ -599,7 +599,7 @@ static ISFMTLCache		*primary = nil;
 
 
 - (NSURL *) binaryArchivesDirectory	{
-	return [self.directory URLByAppendingPathComponent:@"BinaryArchives"];
+	return [[self.directory URLByAppendingPathComponent:@"BinaryArchives"] URLByAppendingPathComponent:@"ISFMSL"];
 }
 - (NSArray<NSURL*> *) binaryArchiveDirectories	{
 	NSFileManager		*fm = [NSFileManager defaultManager];

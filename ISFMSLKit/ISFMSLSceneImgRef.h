@@ -1,5 +1,5 @@
 //
-//  ISFMTLSceneImgRef.h
+//  ISFMSLSceneImgRef.h
 //  testISFtoMSL
 //
 //  Created by testadmin on 3/8/23.
@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 
-@protocol ISFMTLSceneImgRef
+@protocol ISFMSLSceneImgRef
 
 @property (readonly) uint32_t width;
 @property (readonly) uint32_t height;
@@ -37,8 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 
-//	if you need to create an ISFMTLSceneImgRef from a MTLImgBuffer, do so via this function
-id<ISFMTLSceneImgRef> CreateISFMTLSceneImgRefWithMTLImgBuffer(MTLImgBuffer * n);
+//	if you need to create an ISFMSLSceneImgRef from a MTLImgBuffer, do so via this function
+id<ISFMSLSceneImgRef> CreateISFMSLSceneImgRefWithMTLImgBuffer(MTLImgBuffer * n);
 
 
 

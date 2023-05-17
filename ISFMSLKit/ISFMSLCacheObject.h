@@ -1,5 +1,5 @@
 //
-//  ISFMTLCacheObject.h
+//  ISFMSLCacheObject.h
 //  VVMetalKit-SimplePlayback
 //
 //  Created by testadmin on 4/12/23.
@@ -9,26 +9,26 @@
 
 #import <Metal/Metal.h>
 
-#import <ISFMSLKit/ISFMTLBinCacheObject.h>
+#import <ISFMSLKit/ISFMSLBinCacheObject.h>
 
-@class ISFMTLCache;
+@class ISFMSLCache;
 
 NS_ASSUME_NONNULL_BEGIN
 
 
 
 
-/*		data object, used to store values.  instances of this object are stored and retrieved by ISFMTLCache via PINCache under the hood via NSCoding.
+/*		data object, used to store values.  instances of this object are stored and retrieved by ISFMSLCache via PINCache under the hood via NSCoding.
 		- doesn't do anything GPU-related directly, really just stores data we generate about the ISF file (including 
 		frag & vert shader source, and info describing how to map the ISF's inputs/attributes to the render encoder)
-		- will generate a bin cache object (ISFMTLBinCacheObject) on request, which is how PSOs are pre-compiled/cached, 
+		- will generate a bin cache object (ISFMSLBinCacheObject) on request, which is how PSOs are pre-compiled/cached, 
 		which is required for rendering and a CPU-intensive task
 */
 
 
 
 
-@interface ISFMTLCacheObject : NSObject <NSCoding>
+@interface ISFMSLCacheObject : NSObject <NSCoding>
 
 - (instancetype) init;
 
@@ -50,11 +50,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readwrite) uint32_t maxUBOSize;
 @property (readwrite) uint32_t vtxFuncMaxBufferIndex;
 
-//	NOT cached by PINCache...but ISFMTLBinCacheObject instances serialize id<MTLBinaryCache> data to disk, so this is a form of caching, technically...
-- (ISFMTLBinCacheObject *) binCacheForDevice:(id<MTLDevice>)inDevice;
+//	NOT cached by PINCache...but ISFMSLBinCacheObject instances serialize id<MTLBinaryCache> data to disk, so this is a form of caching, technically...
+- (ISFMSLBinCacheObject *) binCacheForDevice:(id<MTLDevice>)inDevice;
 
 //	this property is NOT cached, it's set by the cache that creates the receiver
-@property (weak,readwrite) ISFMTLCache * parentCache;
+@property (weak,readwrite) ISFMSLCache * parentCache;
 
 //	these methods check the various checksums to determine if the receiver is an accurate representation of the ISF file on disk (YES) or not.
 - (BOOL) modDateChecksum;

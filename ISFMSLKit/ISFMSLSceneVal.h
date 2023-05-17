@@ -1,5 +1,5 @@
 //
-//  ISFMTLSceneVal.h
+//  ISFMSLSceneVal.h
 //  testISFtoMSL
 //
 //  Created by testadmin on 3/7/23.
@@ -7,7 +7,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <ISFMSLKit/ISFMTLSceneImgRef.h>
+#import <ISFMSLKit/ISFMSLSceneImgRef.h>
 
 #import <VVMetalKit/VVMetalKit.h>
 
@@ -33,10 +33,10 @@ typedef NS_ENUM(NSInteger, ISFValType)	{
 
 
 
-@protocol ISFMTLSceneVal <NSCopying>
+@protocol ISFMSLSceneVal <NSCopying>
 
-//+ (id<ISFMTLSceneVal>) createWithDouble:(double)n;
-+ (id<ISFMTLSceneVal>) createWithImg:(MTLImgBuffer *)n;
+//+ (id<ISFMSLSceneVal>) createWithDouble:(double)n;
++ (id<ISFMSLSceneVal>) createWithImg:(MTLImgBuffer *)n;
 
 @property (readonly) ISFValType type;
 @property (readonly) double doubleValue;
@@ -46,7 +46,7 @@ typedef NS_ENUM(NSInteger, ISFValType)	{
 - (double) pointValueByIndex:(int)n;
 @property (readonly) double * colorValuePointer;
 - (double) colorValueByIndex:(int)n;
-- (id<ISFMTLSceneImgRef>) imgValue;
+- (id<ISFMSLSceneImgRef>) imgValue;
 
 //@property (strong,nullable) MTLImgBuffer * img;	//	retained by this obj-c backend/not part of the VVISF base lib
 

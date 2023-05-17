@@ -1,11 +1,11 @@
 //
-//  ISFMTLScene.m
+//  ISFMSLScene.m
 //  testISFtoMSL
 //
 //  Created by testadmin on 2/20/23.
 //
 
-#import "ISFMTLScene.h"
+#import "ISFMSLScene.h"
 
 #include "GLSLangValidatorLib.hpp"
 #include "SPIRVCrossLib.hpp"
@@ -20,13 +20,13 @@
 #include "VVISF.hpp"
 #include "ISFImage.h"
 
-#import "ISFMTLSceneImgRef_priv.h"
-#import "ISFMTLSceneVal_priv.h"
-#import "ISFMTLSceneAttrib_priv.h"
-#import "ISFMTLScenePassTarget_priv.h"
+#import "ISFMSLSceneImgRef_priv.h"
+#import "ISFMSLSceneVal_priv.h"
+#import "ISFMSLSceneAttrib_priv.h"
+#import "ISFMSLScenePassTarget_priv.h"
 
-#import "ISFMTLCache.h"
-#import "ISFMTLCacheObject.h"
+#import "ISFMSLCache.h"
+#import "ISFMSLCacheObject.h"
 
 
 
@@ -42,12 +42,12 @@ using namespace std;
 
 
 
-@interface ISFMTLScene ()	{
+@interface ISFMSLScene ()	{
 	VVISF::ISFDocRef		doc;
 	
-	NSMutableArray<id<ISFMTLScenePassTarget>>		*passes;
+	NSMutableArray<id<ISFMSLScenePassTarget>>		*passes;
 	
-	NSMutableArray<id<ISFMTLSceneAttrib>>	*inputs;
+	NSMutableArray<id<ISFMSLSceneAttrib>>	*inputs;
 	
 	//	we need to pass data describing the state/value of the ISF's inputs to the shaders- since the shader 
 	//	source code is generated programmatically, we can figure out exactly what the structure of the data we 
@@ -55,9 +55,9 @@ using namespace std;
 	//	structure and the state of its various attributes and passes.
 	//size_t		maxUboSize;
 	
-	//ISFMTLCacheObject		*cacheObj;
-	ISFMTLCacheObject		*cachedObj;
-	ISFMTLBinCacheObject	*cachedRenderObj;
+	//ISFMSLCacheObject		*cacheObj;
+	ISFMSLCacheObject		*cachedObj;
+	ISFMSLBinCacheObject	*cachedRenderObj;
 	
 	size_t			uboDataBufferSize;
 	void			*uboDataBuffer;
@@ -73,7 +73,7 @@ using namespace std;
 
 
 
-@implementation ISFMTLScene
+@implementation ISFMSLScene
 
 
 #pragma mark - init/dealloc
@@ -132,13 +132,13 @@ using namespace std;
 	
 	NSError		*nsErr = nil;
 	
-	cachedRenderObj = [ISFMTLCache.primary getCachedISFAtURL:n forDevice:self.device];
+	cachedRenderObj = [ISFMSLCache.primary getCachedISFAtURL:n forDevice:self.device];
 	cachedObj = cachedRenderObj.parentObj;
 	//NSLog(@"\t\tfragTextureVarIndexDict is %@",cachedObj.fragTextureVarIndexDict);
 	//NSLog(@"\t\tvertTextureVarIndexDict is %@",cachedObj.vertTextureVarIndexDict);
 	
 	
-	//	allocate a block of memory- statically, so we only do it once per instance of ISFMTLScene and then re-use the mem
+	//	allocate a block of memory- statically, so we only do it once per instance of ISFMSLScene and then re-use the mem
 	#define UBO_BLOCK_BASE 48
 	uboDataBufferSize = cachedObj.maxUBOSize + (UBO_BLOCK_BASE - (cachedObj.maxUBOSize % UBO_BLOCK_BASE));
 	//NSLog(@"\t\tmaxUBOSize is %d, data buffer size is %d",cachedObj.maxUBOSize,uboDataBufferSize);
@@ -182,7 +182,7 @@ using namespace std;
 	//	make an obj-c pass for each pass in the doc- our obj-c pass object will hold intermediate render targets and other such conveniences required to implement stuff
 	int			passIndex = 0;
 	for (VVISF::ISFPassTargetRef tmpPass : doc->renderPasses())	{
-		id<ISFMTLScenePassTarget>		pass = [ISFMTLScenePassTarget createWithPassTarget:tmpPass];
+		id<ISFMSLScenePassTarget>		pass = [ISFMSLScenePassTarget createWithPassTarget:tmpPass];
 		pass.passIndex = passIndex;
 		if (pass.float32)	{
 			pass.pso = pso_float;
@@ -201,7 +201,7 @@ using namespace std;
 	//inputs = [[NSMutableArray alloc] init];
 	for (VVISF::ISFAttrRef attr_cpp : doc->inputs())	{
 		//	make the attr and add it to our local array of attrs immediately
-		id<ISFMTLSceneAttrib>		attr = [ISFMTLSceneAttrib createWithISFAttr:attr_cpp];
+		id<ISFMSLSceneAttrib>		attr = [ISFMSLSceneAttrib createWithISFAttr:attr_cpp];
 		if (attr == nil)
 			continue;
 		[inputs addObject:attr];
@@ -249,7 +249,7 @@ using namespace std;
 				
 				ISFImageRef		imgRef = std::make_shared<ISFImage>(img);
 				attr_cpp->setCurrentImageRef(imgRef);
-				//id<ISFMTLSceneVal>	val = [ISFMTLSceneVal createWithImg:img];
+				//id<ISFMSLSceneVal>	val = [ISFMSLSceneVal createWithImg:img];
 				//attr.currentVal = val;
 			}
 			break;
@@ -285,8 +285,8 @@ using namespace std;
 	
 	//NSDate			*startDate = [NSDate date];
 	
-	ISFMTLCacheObject		*localCachedObj = cachedObj;
-	//ISFMTLBinCacheObject	*localCachedRenderObj = cachedRenderObj;
+	ISFMSLCacheObject		*localCachedObj = cachedObj;
+	//ISFMSLBinCacheObject	*localCachedRenderObj = cachedRenderObj;
 	
 	//	update local variables that get adjusted per-render or need to get pre-populated
 	VVISF::Timestamp		targetRenderTime = VVISF::Timestamp() - _baseTime;
@@ -303,11 +303,11 @@ using namespace std;
 	
 	
 	//	every img ref used during every render pass is stored in here (which is retained through the command buffer's lifetime)
-	NSMutableArray<ISFMTLSceneImgRef*>		*singleFrameTexCache = [[NSMutableArray alloc] init];
+	NSMutableArray<ISFMSLSceneImgRef*>		*singleFrameTexCache = [[NSMutableArray alloc] init];
 	//	the shader has attribute syntax like texture(2), etc- this dict maps these indexes to textures so we can apply them rapidly during rendering later
-	NSMutableDictionary<NSNumber*,ISFMTLSceneImgRef*>	*vertRCEIndexToTexDict = [[NSMutableDictionary alloc] init];
+	NSMutableDictionary<NSNumber*,ISFMSLSceneImgRef*>	*vertRCEIndexToTexDict = [[NSMutableDictionary alloc] init];
 	NSMutableDictionary<NSNumber*,id<MTLSamplerState>>	*vertRCEIndexToSamplerDict = [[NSMutableDictionary alloc] init];
-	NSMutableDictionary<NSNumber*,ISFMTLSceneImgRef*>	*fragRCEIndexToTexDict = [[NSMutableDictionary alloc] init];
+	NSMutableDictionary<NSNumber*,ISFMSLSceneImgRef*>	*fragRCEIndexToTexDict = [[NSMutableDictionary alloc] init];
 	NSMutableDictionary<NSNumber*,id<MTLSamplerState>>	*fragRCEIndexToSamplerDict = [[NSMutableDictionary alloc] init];
 	//	maps NSSize-as-NSValue objects describing render target resolutions to id<MTLBuffer> instances that contain vertex data for a single quad for that resolution (these can be passed to the render encoder)
 	NSMutableDictionary<NSValue*,id<MTLBuffer>>	*resToQuadVertsDict = [NSMutableDictionary dictionaryWithCapacity:0];
@@ -564,7 +564,7 @@ using namespace std;
 		#endif
 		
 		//	add the img to the tex cache so it's guaranteed to stick around through the completion of rendering
-		ISFMTLSceneImgRef		*objCImgRef = [ISFMTLSceneImgRef createWithImgRef:imgRef];
+		ISFMSLSceneImgRef		*objCImgRef = [ISFMSLSceneImgRef createWithImgRef:imgRef];
 		if (![singleFrameTexCache containsObject:objCImgRef])
 			[singleFrameTexCache addObject:objCImgRef];
 		if (vertRenderEncoderIndex != std::numeric_limits<uint32_t>::max())	{
@@ -642,7 +642,7 @@ using namespace std;
 	
 	//	run through each pass, doing the actual rendering!
 	_passIndex = 0;
-	for (ISFMTLScenePassTarget *objCRenderPass in passes)	{
+	for (ISFMSLScenePassTarget *objCRenderPass in passes)	{
 		//	get the basic properties of the pass
 		VVISF::ISFPassTargetRef		&renderPassRef = objCRenderPass.passTargetRef;
 		VVISF::ISFImageInfo		renderPassTargetInfo = renderPassRef->targetImageInfo();
@@ -684,7 +684,7 @@ using namespace std;
 			atIndex:localCachedObj.vtxFuncMaxBufferIndex + 1];
 		
 		//	iterate across the dicts of index-to-texture mappings, pushing the textures to the RCE
-		[vertRCEIndexToTexDict enumerateKeysAndObjectsUsingBlock:^(NSNumber *indexNum, ISFMTLSceneImgRef *objCImgRef, BOOL *stop)	{
+		[vertRCEIndexToTexDict enumerateKeysAndObjectsUsingBlock:^(NSNumber *indexNum, ISFMSLSceneImgRef *objCImgRef, BOOL *stop)	{
 			MTLImgBuffer		*tmpImgBuffer = objCImgRef.img;
 			id<MTLTexture>		tmpTex = tmpImgBuffer.texture;
 			if (tmpTex == nil)
@@ -693,7 +693,7 @@ using namespace std;
 				setVertexTexture:tmpTex
 				atIndex:indexNum.intValue];
 		}];
-		[fragRCEIndexToTexDict enumerateKeysAndObjectsUsingBlock:^(NSNumber *indexNum, ISFMTLSceneImgRef *objCImgRef, BOOL *stop)	{
+		[fragRCEIndexToTexDict enumerateKeysAndObjectsUsingBlock:^(NSNumber *indexNum, ISFMSLSceneImgRef *objCImgRef, BOOL *stop)	{
 			MTLImgBuffer		*tmpImgBuffer = objCImgRef.img;
 			id<MTLTexture>		tmpTex = tmpImgBuffer.texture;
 			if (tmpTex == nil)
@@ -767,9 +767,9 @@ using namespace std;
 		//NSDate			*endDate = [NSDate date];
 		//NSLog(@"rendering took %0.4f seconds",[startDate timeIntervalSinceDate:endDate]);
 		
-		NSMutableArray<ISFMTLSceneImgRef*>		*localSingleFrameTexCache = singleFrameTexCache;
-		NSMutableDictionary<NSNumber*,ISFMTLSceneImgRef*>	*localVertRCEIndexToTexDict = vertRCEIndexToTexDict;
-		NSMutableDictionary<NSNumber*,ISFMTLSceneImgRef*>	*localFragRCEIndexToTexDict = fragRCEIndexToTexDict;
+		NSMutableArray<ISFMSLSceneImgRef*>		*localSingleFrameTexCache = singleFrameTexCache;
+		NSMutableDictionary<NSNumber*,ISFMSLSceneImgRef*>	*localVertRCEIndexToTexDict = vertRCEIndexToTexDict;
+		NSMutableDictionary<NSNumber*,ISFMSLSceneImgRef*>	*localFragRCEIndexToTexDict = fragRCEIndexToTexDict;
 		
 		localSingleFrameTexCache = nil;
 		localVertRCEIndexToTexDict = nil;
@@ -821,7 +821,7 @@ using namespace std;
 #pragma mark - accessors
 
 
-- (id<ISFMTLScenePassTarget>) passAtIndex:(NSUInteger)n	{
+- (id<ISFMSLScenePassTarget>) passAtIndex:(NSUInteger)n	{
 	if (n == NSNotFound)
 		return nil;
 	if (n <= passes.count)
@@ -829,13 +829,13 @@ using namespace std;
 	
 	return [passes objectAtIndex:n];
 }
-- (id<ISFMTLScenePassTarget>) passNamed:(NSString *)n	{
+- (id<ISFMSLScenePassTarget>) passNamed:(NSString *)n	{
 	if (n == nil)
 		return nil;
 	if (n.length < 1)
 		return nil;
 	
-	for (id<ISFMTLScenePassTarget> pass in passes)	{
+	for (id<ISFMSLScenePassTarget> pass in passes)	{
 		NSString		*passName = pass.name;
 		if (passName != nil && [passName isEqualToString:n])
 			return pass;
@@ -845,13 +845,13 @@ using namespace std;
 }
 
 
-- (id<ISFMTLSceneAttrib>) inputNamed:(NSString *)n	{
+- (id<ISFMSLSceneAttrib>) inputNamed:(NSString *)n	{
 	if (n == nil)
 		return nil;
 	if (n.length < 1)
 		return nil;
 	
-	for (id<ISFMTLSceneAttrib> input in inputs)	{
+	for (id<ISFMSLSceneAttrib> input in inputs)	{
 		NSString		*inputName = input.name;
 		if (inputName != nil && [inputName isEqualToString:n])
 			return input;
@@ -861,15 +861,15 @@ using namespace std;
 }
 
 
-- (NSArray<id<ISFMTLScenePassTarget>> *) passes	{
+- (NSArray<id<ISFMSLScenePassTarget>> *) passes	{
 	return [NSArray arrayWithArray:passes];
 }
-- (NSArray<id<ISFMTLSceneAttrib>> *) inputs	{
+- (NSArray<id<ISFMSLSceneAttrib>> *) inputs	{
 	return [NSArray arrayWithArray:inputs];
 }
 
 
-- (id<ISFMTLSceneVal>) valueForInputNamed:(NSString *)n	{
+- (id<ISFMSLSceneVal>) valueForInputNamed:(NSString *)n	{
 	if (n == nil)
 		return nil;
 	
@@ -877,9 +877,9 @@ using namespace std;
 	VVISF::ISFAttrRef	tmpAttr = doc->input(tmpName);
 	VVISF::ISFVal		tmpVal = (tmpAttr==nullptr) ? VVISF::CreateISFValNull() : tmpAttr->currentVal();
 	//VVISF::ISFVal	tmpVal = doc->valueForInputNamed(tmpName);
-	return [ISFMTLSceneVal createWithISFVal:tmpVal];
+	return [ISFMSLSceneVal createWithISFVal:tmpVal];
 }
-- (void) setValue:(id<ISFMTLSceneVal>)inVal forInputNamed:(NSString *)inName	{
+- (void) setValue:(id<ISFMSLSceneVal>)inVal forInputNamed:(NSString *)inName	{
 }
 
 

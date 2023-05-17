@@ -1,35 +1,35 @@
 //
-//  ISFMTLSceneAttrib_priv.m
+//  ISFMSLSceneAttrib_priv.m
 //  testISFtoMSL
 //
 //  Created by testadmin on 3/14/23.
 //
 
-#import "ISFMTLSceneAttrib_priv.h"
-#import "ISFMTLSceneAttrib.h"
-#import "ISFMTLSceneVal.h"
-#import "ISFMTLSceneVal_priv.h"
-#import "ISFMTLSceneImgRef_priv.h"
+#import "ISFMSLSceneAttrib_priv.h"
+#import "ISFMSLSceneAttrib.h"
+#import "ISFMSLSceneVal.h"
+#import "ISFMSLSceneVal_priv.h"
+#import "ISFMSLSceneImgRef_priv.h"
 
 #include <memory>
 
 
 
 
-//@interface ISFMTLSceneAttrib ()	{
+//@interface ISFMSLSceneAttrib ()	{
 //}
 
 
 
 
-@implementation ISFMTLSceneAttrib
+@implementation ISFMSLSceneAttrib
 
 
 #pragma mark - class methods
 
 
 + (instancetype) createWithISFAttr:(VVISF::ISFAttrRef)n	{
-	return [[ISFMTLSceneAttrib alloc] initWithISFAttr:n];
+	return [[ISFMSLSceneAttrib alloc] initWithISFAttr:n];
 }
 
 
@@ -59,13 +59,13 @@
 
 
 - (id) copyWithZone:(NSZone *)zone {
-	ISFMTLSceneAttrib		*returnMe = [[ISFMTLSceneAttrib alloc] initWithISFAttr:_localAttr];
+	ISFMSLSceneAttrib		*returnMe = [[ISFMSLSceneAttrib alloc] initWithISFAttr:_localAttr];
 	//returnMe.img = self.img;
 	return returnMe;
 }
 
 
-#pragma mark - ISFMTLSceneAttrib
+#pragma mark - ISFMSLSceneAttrib
 
 
 //!	Returns the attribute's name, or null
@@ -111,13 +111,13 @@
 
 //!	Sets/gets the attribute's current value.
 //@synthesize currentVal=_currentVal;
-- (void) setCurrentVal:(id<ISFMTLSceneVal>)n	{
+- (void) setCurrentVal:(id<ISFMSLSceneVal>)n	{
 	if (n == nil)	{
 		_localAttr->setCurrentVal(VVISF::CreateISFValNull());
 		return;
 	}
 	
-	ISFMTLSceneVal		*recast = (ISFMTLSceneVal *)n;
+	ISFMSLSceneVal		*recast = (ISFMSLSceneVal *)n;
 	VVISF::ISFVal		isfVal = recast.isfValue;
 	_localAttr->setCurrentVal(isfVal);
 	
@@ -133,7 +133,7 @@
 	}
 	
 	//	recast so we can pull the c++ class out of the obj-c wrapper
-	ISFMTLSceneVal		*recast = (ISFMTLSceneVal*)n;
+	ISFMSLSceneVal		*recast = (ISFMSLSceneVal*)n;
 	VVISF::ISFVal		isfVal = recast.isfValue;
 	_localAttr->setCurrentVal(isfVal);
 	
@@ -143,8 +143,8 @@
 	}
 	*/
 }
-- (id<ISFMTLSceneVal>) currentVal	{
-	ISFMTLSceneVal		*returnMe = [ISFMTLSceneVal createWithISFVal:_localAttr->currentVal()];
+- (id<ISFMSLSceneVal>) currentVal	{
+	ISFMSLSceneVal		*returnMe = [ISFMSLSceneVal createWithISFVal:_localAttr->currentVal()];
 	return returnMe;
 	
 	
@@ -155,16 +155,16 @@
 
 
 /*
-- (void) setCurrentVal:(id<ISFMTLSceneVal>)n	{
+- (void) setCurrentVal:(id<ISFMSLSceneVal>)n	{
 	if (n == nil)	{
 		_localAttr->setCurrentVal(VVISF::CreateISFValNull());
 		return;
 	}
-	ISFMTLSceneVal		*recast = (ISFMTLSceneVal*)n;
+	ISFMSLSceneVal		*recast = (ISFMSLSceneVal*)n;
 	_localAttr->setCurrentVal(recast.isfValue);
 }
-- (id<ISFMTLSceneVal>) currentVal	{
-	return [ISFMTLSceneVal createWithISFVal:_localAttr->currentVal()];
+- (id<ISFMSLSceneVal>) currentVal	{
+	return [ISFMSLSceneVal createWithISFVal:_localAttr->currentVal()];
 }
 */
 //	updates this attribute's eval variable with the double val of "_currentVal", and returns a ptr to the eval variable
@@ -181,7 +181,7 @@
 
 
 //!	Sets/gets the receiver's image buffer
-- (void) setCurrentImageRef:(id<ISFMTLSceneImgRef>)inImg	{
+- (void) setCurrentImageRef:(id<ISFMSLSceneImgRef>)inImg	{
 	if (inImg == nil)	{
 		_localAttr->setCurrentVal( VVISF::CreateISFValNull() );
 		return;
@@ -191,7 +191,7 @@
 	//	return;
 	//}
 	
-	ISFMTLSceneImgRef		*inImgRecast = (ISFMTLSceneImgRef*)inImg;
+	ISFMSLSceneImgRef		*inImgRecast = (ISFMSLSceneImgRef*)inImg;
 	ISFImageRef				inImgRef = inImgRecast.isfImageRef;
 	_localAttr->setCurrentImageRef(inImgRef);
 	
@@ -199,11 +199,11 @@
 	/*
 	if (n == nullptr)
 		return;
-	ISFMTLSceneImgRef		*recast = (ISFMTLSceneImgRef *)n;
+	ISFMSLSceneImgRef		*recast = (ISFMSLSceneImgRef *)n;
 	_localAttr->setCurrentImageRef(recast.isfImageRef);
 	*/
 }
-- (id<ISFMTLSceneImgRef>) currentImageRef	{
+- (id<ISFMSLSceneImgRef>) currentImageRef	{
 	if (!_localAttr->shouldHaveImageBuffer())	{
 		return nil;
 	}
@@ -219,30 +219,30 @@
 	
 	//	we need to recast the VVISF::ISFImageInfoRef to an ISFImageRef
 	ISFImageRef			currentImageRef = std::static_pointer_cast<ISFImage>(currentImageInfoRef);
-	return [ISFMTLSceneImgRef createWithImgRef:currentImageRef];
+	return [ISFMSLSceneImgRef createWithImgRef:currentImageRef];
 	
 	
 	/*
-	return [ISFMTLSceneImgRef createWithImgRef:_localAttr->getCurrentImageRef()];
+	return [ISFMSLSceneImgRef createWithImgRef:_localAttr->getCurrentImageRef()];
 	*/
 }
 
 
 //!	Gets the attribute's min val
-- (id<ISFMTLSceneVal>) minVal	{
-	return [ISFMTLSceneVal createWithISFVal:_localAttr->minVal()];
+- (id<ISFMSLSceneVal>) minVal	{
+	return [ISFMSLSceneVal createWithISFVal:_localAttr->minVal()];
 }
 //!	Gets the attribute's max val
-- (id<ISFMTLSceneVal>) maxVal	{
-	return [ISFMTLSceneVal createWithISFVal:_localAttr->maxVal()];
+- (id<ISFMSLSceneVal>) maxVal	{
+	return [ISFMSLSceneVal createWithISFVal:_localAttr->maxVal()];
 }
 //!	Gets the attribute's default val (the value which will be assigned to the attribute when it is first created and used for rendering)
-- (id<ISFMTLSceneVal>) defaultVal	{
-	return [ISFMTLSceneVal createWithISFVal:_localAttr->defaultVal()];
+- (id<ISFMSLSceneVal>) defaultVal	{
+	return [ISFMSLSceneVal createWithISFVal:_localAttr->defaultVal()];
 }
 //!	Gets the attribute's identity val (the value at which this attribute's effects are indistinguishable from its raw input).
-- (id<ISFMTLSceneVal>) identityVal	{
-	return [ISFMTLSceneVal createWithISFVal:_localAttr->identityVal()];
+- (id<ISFMSLSceneVal>) identityVal	{
+	return [ISFMSLSceneVal createWithISFVal:_localAttr->identityVal()];
 }
 //!	Gets the attribute's labels as a std::vector of std::string values.  Only used if the attribute is a 'long'.
 - (NSArray<NSString*> *) labelArray	{

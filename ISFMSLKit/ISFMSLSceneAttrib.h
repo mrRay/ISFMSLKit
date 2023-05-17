@@ -1,5 +1,5 @@
 //
-//  ISFMTLSceneAttrib.h
+//  ISFMSLSceneAttrib.h
 //  testISFtoMSL
 //
 //  Created by testadmin on 3/7/23.
@@ -7,8 +7,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import <ISFMSLKit/ISFMTLSceneVal.h>
-#import <ISFMSLKit/ISFMTLSceneImgRef.h>
+#import <ISFMSLKit/ISFMSLSceneVal.h>
+#import <ISFMSLKit/ISFMSLSceneImgRef.h>
 
 #import <VVMetalKit/VVMetalKit.h>
 
@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 
-@protocol ISFMTLSceneAttrib <NSCopying>
+@protocol ISFMSLSceneAttrib <NSCopying>
 
 
 //!	Returns the attribute's name, or null
@@ -29,21 +29,21 @@ NS_ASSUME_NONNULL_BEGIN
 //!	Returns the attribute's value type.
 @property (readonly) ISFValType type;
 //!	Sets/gets the attribute's current value.
-@property (strong) id<ISFMTLSceneVal> currentVal;
+@property (strong) id<ISFMSLSceneVal> currentVal;
 //	updates this attribute's eval variable with the double val of "_currentVal", and returns a ptr to the eval variable
 - (double) updateAndGetEvalVariable;
 //!	Returns a true if this attribute's value is expressed with an image buffer
 @property (readonly) BOOL shouldHaveImageBuffer;
 //!	Sets/gets the receiver's image buffer
-@property (strong) id<ISFMTLSceneImgRef> currentImageRef;
+@property (strong) id<ISFMSLSceneImgRef> currentImageRef;
 //!	Gets the attribute's min val
-@property (readonly) id<ISFMTLSceneVal> minVal;
+@property (readonly) id<ISFMSLSceneVal> minVal;
 //!	Gets the attribute's max val
-@property (readonly) id<ISFMTLSceneVal> maxVal;
+@property (readonly) id<ISFMSLSceneVal> maxVal;
 //!	Gets the attribute's default val (the value which will be assigned to the attribute when it is first created and used for rendering)
-@property (readonly) id<ISFMTLSceneVal> defaultVal;
+@property (readonly) id<ISFMSLSceneVal> defaultVal;
 //!	Gets the attribute's identity val (the value at which this attribute's effects are indistinguishable from its raw input).
-@property (readonly) id<ISFMTLSceneVal> identityVal;
+@property (readonly) id<ISFMSLSceneVal> identityVal;
 //!	Gets the attribute's labels as a std::vector of std::string values.  Only used if the attribute is a 'long'.
 @property (readonly) NSArray<NSString*> * labelArray;
 //!	Gets the attribute's values as a std::vector of int values.  Only used if the attribute is a 'long'.

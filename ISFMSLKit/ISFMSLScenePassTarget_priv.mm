@@ -1,25 +1,25 @@
 //
-//  ISFMTLScenePassTarget_priv.m
+//  ISFMSLScenePassTarget_priv.m
 //  testISFtoMSL
 //
 //  Created by testadmin on 3/7/23.
 //
 
-#import "ISFMTLScenePassTarget_priv.h"
-#import "ISFMTLScenePassTarget.h"
-#import "ISFMTLSceneImgRef_priv.h"
+#import "ISFMSLScenePassTarget_priv.h"
+#import "ISFMSLScenePassTarget.h"
+#import "ISFMSLSceneImgRef_priv.h"
 
 
 
 
-@implementation ISFMTLScenePassTarget
+@implementation ISFMSLScenePassTarget
 
 
 #pragma mark - class methods
 
 
 + (instancetype) createWithPassTarget:(VVISF::ISFPassTargetRef)n	{
-	return [[ISFMTLScenePassTarget alloc] initWithPassTarget:n];
+	return [[ISFMSLScenePassTarget alloc] initWithPassTarget:n];
 }
 
 
@@ -43,7 +43,7 @@
 }
 
 
-#pragma mark - ISFMTLScenePassTarget protocol
+#pragma mark - ISFMSLScenePassTarget protocol
 
 
 - (BOOL) float32	{
@@ -64,7 +64,7 @@
 		returnMe.height = targetImgInfo.height;
 	return returnMe;
 }
-- (id<ISFMTLSceneImgRef>) image	{
+- (id<ISFMSLSceneImgRef>) image	{
 	VVISF::ISFImageInfoRef		currentImageInfoRef = _localPassTarget->image();
 	VVISF::ISFImageInfo			*currentImageInfoPtr = currentImageInfoRef.get();
 	if (currentImageInfoPtr == nullptr)
@@ -76,13 +76,13 @@
 	
 	//	we need to recast the VVISF::ISFImageInfoRef to an ISFImageRef
 	ISFImageRef			currentImageRef = std::static_pointer_cast<ISFImage>(currentImageInfoRef);
-	return [ISFMTLSceneImgRef createWithImgRef:currentImageRef];
+	return [ISFMSLSceneImgRef createWithImgRef:currentImageRef];
 	
 	
 	
 	
 	
-	//return (_localPassTarget==nullptr) ? nil : [ISFMTLSceneImgRef createWithImgRef:_localPassTarget->image()];
+	//return (_localPassTarget==nullptr) ? nil : [ISFMSLSceneImgRef createWithImgRef:_localPassTarget->image()];
 }
 
 
