@@ -133,6 +133,10 @@ using namespace std;
 	NSError		*nsErr = nil;
 	
 	cachedRenderObj = [ISFMSLCache.primary getCachedISFAtURL:n forDevice:self.device];
+	if (cachedRenderObj == nil)	{
+		NSLog(@"ERR: unable to load file (%@), %s",n.lastPathComponent,__func__);
+		return;
+	}
 	cachedObj = cachedRenderObj.parentObj;
 	//NSLog(@"\t\tfragTextureVarIndexDict is %@",cachedObj.fragTextureVarIndexDict);
 	//NSLog(@"\t\tvertTextureVarIndexDict is %@",cachedObj.vertTextureVarIndexDict);
@@ -173,11 +177,15 @@ using namespace std;
 	
 	//	we want to minimize the # of PSOs we create and work with, so try to avoid creating one for each pass and instead try to reuse them
 	id<MTLRenderPipelineState>		pso_8bit = [self.device newRenderPipelineStateWithDescriptor:passDesc_8bit options:MTLPipelineOptionFailOnBinaryArchiveMiss reflection:nil error:&nsErr];
-	if (pso_8bit == nil || nsErr != nil)
+	if (pso_8bit == nil || nsErr != nil)	{
 		NSLog(@"ERR: problem retrieving pso A (%@) %s",nsErr,__func__);
+		return;
+	}
 	id<MTLRenderPipelineState>		pso_float = [self.device newRenderPipelineStateWithDescriptor:passDesc_float options:MTLPipelineOptionFailOnBinaryArchiveMiss reflection:nil error:&nsErr];
-	if (pso_float == nil || nsErr != nil)
+	if (pso_float == nil || nsErr != nil)	{
 		NSLog(@"ERR: problem retrieving pso B (%@) %s",nsErr,__func__);
+		return;
+	}
 	
 	//	make an obj-c pass for each pass in the doc- our obj-c pass object will hold intermediate render targets and other such conveniences required to implement stuff
 	int			passIndex = 0;
