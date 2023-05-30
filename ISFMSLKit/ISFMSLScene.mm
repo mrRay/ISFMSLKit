@@ -296,7 +296,8 @@ using namespace std;
 	_passIndex = 0;
 	
 	//	have the doc evaluate its buffer dimensions with the passed render size- do this before we allocate any image resources
-	doc->evalBufferDimensionsWithRenderSize( round(renderSize.width), round(renderSize.height) );
+	CGSize			localRenderSize = self.renderSize;
+	doc->evalBufferDimensionsWithRenderSize( round(localRenderSize.width), round(localRenderSize.height) );
 	
 	
 	//	these are some vars that we're going to use throughout this (relatively long) process
@@ -437,8 +438,8 @@ using namespace std;
 	//	continue prepping values for the shader to read with the attribute values by populating the CPU-side UBO (we'll copy it to the GPU each pass)
 	VVISF::ISFShaderRenderInfo		*renderInfoPtr = (VVISF::ISFShaderRenderInfo *)uboDataBuffer;
 	renderInfoPtr->PASSINDEX = _passIndex;
-	renderInfoPtr->RENDERSIZE[0] = renderSize.width;
-	renderInfoPtr->RENDERSIZE[1] = renderSize.height;
+	renderInfoPtr->RENDERSIZE[0] = localRenderSize.width;
+	renderInfoPtr->RENDERSIZE[1] = localRenderSize.height;
 	renderInfoPtr->TIME = _renderTime;
 	renderInfoPtr->TIMEDELTA = _renderTimeDelta;
 	{

@@ -24,7 +24,8 @@ respective values (including image values).
 in particular, image values are described by VVISF::ISFImageInfoRef, which is really a 
 std::shared_ptr<VVISF::ISFImageInfo>.  ISFImageInfo describes an image's dimensions and some basic info about it, but 
 it doesn't contain any actual image data.  the goal of this subclass of ISFImageInfo is to make it to retain 
-an instance of MTLImgBuffer.				*/
+an instance of MTLImgBuffer, making it contain image data.  the VVISF backend will then retain and handle the image
+data transparently for use in your implementation.				*/
 
 
 
