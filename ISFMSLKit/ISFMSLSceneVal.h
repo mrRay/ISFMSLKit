@@ -35,7 +35,11 @@ typedef NS_ENUM(NSInteger, ISFValType)	{
 
 @protocol ISFMSLSceneVal <NSCopying>
 
-//+ (id<ISFMSLSceneVal>) createWithDouble:(double)n;
++ (id<ISFMSLSceneVal>) createWithBool:(BOOL)n;
++ (id<ISFMSLSceneVal>) createWithLong:(int32_t)n;
++ (id<ISFMSLSceneVal>) createWithFloat:(double)n;
++ (id<ISFMSLSceneVal>) createWithPoint2D:(NSPoint)n;
++ (id<ISFMSLSceneVal>) createWithColor:(NSColor *)n;
 + (id<ISFMSLSceneVal>) createWithImg:(MTLImgBuffer *)n;
 
 @property (readonly) ISFValType type;

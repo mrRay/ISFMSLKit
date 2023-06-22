@@ -24,22 +24,46 @@
 }
 
 
-//+ (id<ISFMSLSceneVal>) createWithDouble:(double)n	{
-//	VVISF::ISFVal		tmpVal = VVISF::CreateISFValFloat(n);
-//	return [[ISFMSLSceneVal alloc] initWithISFVal:tmpVal];
-//}
++ (id<ISFMSLSceneVal>) createWithBool:(BOOL)n	{
+	VVISF::ISFVal		tmpVal = VVISF::CreateISFValBool(n);
+	ISFMSLSceneVal		*returnMe = [[ISFMSLSceneVal alloc] initWithISFVal:tmpVal];
+	return returnMe;
+}
++ (id<ISFMSLSceneVal>) createWithLong:(int32_t)n	{
+	VVISF::ISFVal		tmpVal = VVISF::CreateISFValLong(n);
+	ISFMSLSceneVal		*returnMe = [[ISFMSLSceneVal alloc] initWithISFVal:tmpVal];
+	return returnMe;
+}
++ (id<ISFMSLSceneVal>) createWithFloat:(double)n	{
+	VVISF::ISFVal		tmpVal = VVISF::CreateISFValFloat(n);
+	ISFMSLSceneVal		*returnMe = [[ISFMSLSceneVal alloc] initWithISFVal:tmpVal];
+	return returnMe;
+}
++ (id<ISFMSLSceneVal>) createWithPoint2D:(NSPoint)n	{
+	VVISF::ISFVal		tmpVal = VVISF::CreateISFValPoint2D(n.x, n.y);
+	ISFMSLSceneVal		*returnMe = [[ISFMSLSceneVal alloc] initWithISFVal:tmpVal];
+	return returnMe;
+}
++ (id<ISFMSLSceneVal>) createWithColor:(NSColor *)n	{
+	CGFloat		components[8];
+	if (n == nil)	{
+		for (int i=0; i<4; ++i)	{
+			components[i] = 0.;
+		}
+	}
+	else	{
+		[n getComponents:components];
+	}
+	VVISF::ISFVal		tmpVal = VVISF::CreateISFValColor( components[0], components[1], components[2], components[3] );
+	ISFMSLSceneVal		*returnMe = [[ISFMSLSceneVal alloc] initWithISFVal:tmpVal];
+	return returnMe;
+}
 + (id<ISFMSLSceneVal>) createWithImg:(MTLImgBuffer *)n	{
 	if (n == nil)
 		return nil;
-	
 	ISFImageRef			tmpImgRef = std::make_shared<ISFImage>(n);
 	VVISF::ISFVal		tmpVal = VVISF::CreateISFValImage(tmpImgRef);
-	
-	//VVISF::ISFImageInfoRef	tmpImageRef = std::make_shared<VVISF::ISFImageInfo>(n.width, n.height);
-	//VVISF::ISFVal		tmpVal = VVISF::CreateISFValImage(tmpImageRef);
-	
 	ISFMSLSceneVal		*returnMe = [[ISFMSLSceneVal alloc] initWithISFVal:tmpVal];
-	//returnMe.img = n;
 	return returnMe;
 }
 
@@ -53,6 +77,10 @@
 		_localVal = n;
 	}
 	return self;
+}
+- (NSString *) description	{
+	std::string		tmpStr = VVISF::FmtString("<ISFVal %s/%s>", _localVal.getTypeString().c_str(), _localVal.getValString().c_str());
+	return [NSString stringWithUTF8String:tmpStr.c_str()];
 }
 
 
