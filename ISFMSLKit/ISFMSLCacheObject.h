@@ -30,7 +30,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ISFMSLCacheObject : NSObject <NSCoding>
 
-- (instancetype) init;
++ (instancetype) createWithCache:(ISFMSLCache *)inParent url:(NSURL *)inURL;
+
+- (instancetype) initWithCache:(ISFMSLCache *)inParent url:(NSURL *)inURL;
 
 //	these properties are all cached via PINCache
 @property (strong) NSString * name;

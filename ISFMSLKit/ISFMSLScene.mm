@@ -889,6 +889,7 @@ using namespace std;
 	return [ISFMSLSceneVal createWithISFVal:tmpVal];
 }
 - (void) setValue:(id<ISFMSLSceneVal>)inVal forInputNamed:(NSString *)inName	{
+	NSLog(@"%s ... %@, %@",__func__,inName,inVal);
 }
 
 
