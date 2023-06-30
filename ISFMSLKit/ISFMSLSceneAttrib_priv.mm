@@ -123,7 +123,7 @@
 	
 	
 	/*
-	//	first of all, retain the val locally- it may contain a MTLImgBuffer which contains an id<MTLTexture>
+	//	first of all, retain the val locally- it may contain a id<VVMTLTextureImage> which contains an id<MTLTexture>
 	_currentVal = n;
 	
 	//	if we were passed nil, update the attr and pass it a null value

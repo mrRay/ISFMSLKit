@@ -24,7 +24,7 @@ respective values (including image values).
 in particular, image values are described by VVISF::ISFImageInfoRef, which is really a 
 std::shared_ptr<VVISF::ISFImageInfo>.  ISFImageInfo describes an image's dimensions and some basic info about it, but 
 it doesn't contain any actual image data.  the goal of this subclass of ISFImageInfo is to make it to retain 
-an instance of MTLImgBuffer, making it contain image data.  the VVISF backend will then retain and handle the image
+an instance of id<VVMTLTextureImage>, making it contain image data.  the VVISF backend will then retain and handle the image
 data transparently for use in your implementation.				*/
 
 
@@ -32,9 +32,9 @@ data transparently for use in your implementation.				*/
 
 class ISFImage : public VVISF::ISFImageInfo	{
 	public:
-		MTLImgBuffer		*img;
+		id<VVMTLTextureImage>		img;
 	public:
-		ISFImage(MTLImgBuffer * inBuffer) : VVISF::ISFImageInfo(inBuffer.srcRect.size.width, inBuffer.srcRect.size.height), img(inBuffer)	{}
+		ISFImage(id<VVMTLTextureImage> inBuffer) : VVISF::ISFImageInfo(inBuffer.srcRect.size.width, inBuffer.srcRect.size.height), img(inBuffer)	{}
 		ISFImage(const uint32_t & inWidth, const uint32_t & inHeight) : VVISF::ISFImageInfo(inWidth, inHeight), img(nil) {}
 		
 		virtual ~ISFImage()	{
@@ -52,7 +52,7 @@ class ISFImage : public VVISF::ISFImageInfo	{
 		bool operator==(const ISFImage & other) const	{
 			bool		baseClassMatch = VVISF::ISFImageInfo::operator==(other);
 			bool		localImgMatch = ((img == nil && other.img == nil)
-				|| (img != nil && other.img != nil && [img isEqual:other.img]));
+				|| (img != nil && other.img != nil && [(VVMTLTextureImage*)img isEqual:other.img]));
 			return baseClassMatch && localImgMatch;
 		}
 };

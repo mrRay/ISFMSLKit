@@ -22,10 +22,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (instancetype) createWithImgRef:(ISFImageRef)n;
-+ (instancetype) createWithMTLImgBuffer:(MTLImgBuffer *)n;
++ (instancetype) createWithVVMTLTextureImage:(id<VVMTLTextureImage>)n;
 
 - (instancetype) initWithImgRef:(ISFImageRef)n;
-- (instancetype) initWithMTLImgBuffer:(MTLImgBuffer *)n;
+- (instancetype) initWithVVMTLTextureImage:(id<VVMTLTextureImage>)n;
 
 @property (readonly) ISFImageRef isfImageRef;
 

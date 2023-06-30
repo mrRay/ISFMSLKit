@@ -58,7 +58,7 @@
 	ISFMSLSceneVal		*returnMe = [[ISFMSLSceneVal alloc] initWithISFVal:tmpVal];
 	return returnMe;
 }
-+ (id<ISFMSLSceneVal>) createWithImg:(MTLImgBuffer *)n	{
++ (id<ISFMSLSceneVal>) createWithImg:(id<VVMTLTextureImage>)n	{
 	if (n == nil)
 		return nil;
 	ISFImageRef			tmpImgRef = std::make_shared<ISFImage>(n);

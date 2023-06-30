@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 
-@interface ISFMSLScene : MTLScene
+@interface ISFMSLScene : VVMTLScene
 
 - (nullable instancetype) initWithDevice:(id<MTLDevice>)inDevice;
 

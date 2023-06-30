@@ -40,7 +40,7 @@ typedef NS_ENUM(NSInteger, ISFValType)	{
 + (id<ISFMSLSceneVal>) createWithFloat:(double)n;
 + (id<ISFMSLSceneVal>) createWithPoint2D:(NSPoint)n;
 + (id<ISFMSLSceneVal>) createWithColor:(NSColor *)n;
-+ (id<ISFMSLSceneVal>) createWithImg:(MTLImgBuffer *)n;
++ (id<ISFMSLSceneVal>) createWithImg:(id<VVMTLTextureImage>)n;
 
 @property (readonly) ISFValType type;
 @property (readonly) double doubleValue;

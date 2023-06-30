@@ -7,14 +7,14 @@
 
 #import <Foundation/Foundation.h>
 
-@class MTLImgBuffer;
+@protocol VVMTLTextureImage;
 
 NS_ASSUME_NONNULL_BEGIN
 
 
 
 
-//	under the hood, contains a std::shared_ptr<ISFImage>. ISFImage is a subclass of VVISF::ISFImageInfo that contains an MTLImgBuffer.
+//	under the hood, contains a std::shared_ptr<ISFImage>. ISFImage is a subclass of VVISF::ISFImageInfo that contains an id<VVMTLTextureImage>.
 
 
 
@@ -30,15 +30,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (readonly) BOOL hasValidSize;
 
-@property (readonly) MTLImgBuffer * img;
+@property (readonly) id<VVMTLTextureImage> img;
 
 @end
 
 
 
 
-//	if you need to create an ISFMSLSceneImgRef from a MTLImgBuffer, do so via this function
-id<ISFMSLSceneImgRef> CreateISFMSLSceneImgRefWithMTLImgBuffer(MTLImgBuffer * n);
+//	if you need to create an ISFMSLSceneImgRef from a id<VVMTLTextureImage>, do so via this function
+id<ISFMSLSceneImgRef> CreateISFMSLSceneImgRefWithVVMTLTextureImage(id<VVMTLTextureImage> n);
 
 
 

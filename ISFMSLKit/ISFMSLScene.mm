@@ -249,7 +249,7 @@ using namespace std;
 						MTKTextureLoaderOptionSRGB:@NO
 					}
 					error:&nsErr];
-				MTLImgBuffer	*img = [[MTLPool global] bufferForExistingTexture:tex];
+				id<VVMTLTextureImage>		img = [[VVMTLPool global] bufferForExistingTexture:tex];
 				if (img == nil)	{
 					NSLog(@"ERR: couldn't make img from tex for attr %s, %s",attr_cpp->name().c_str(),__func__);
 					return;
@@ -321,7 +321,7 @@ using namespace std;
 	//	maps NSSize-as-NSValue objects describing render target resolutions to id<MTLBuffer> instances that contain vertex data for a single quad for that resolution (these can be passed to the render encoder)
 	NSMutableDictionary<NSValue*,id<MTLBuffer>>	*resToQuadVertsDict = [NSMutableDictionary dictionaryWithCapacity:0];
 	//	at some point during rendering, we may need a random texture for stuff that doesn't have one yet.  use this (you'll have to populate it as needed first)
-	MTLImgBuffer		*emptyTex = nil;
+	id<VVMTLTextureImage>		emptyTex = nil;
 	
 	
 	//	textures need samplers! make the sampler, then populate the RCE-index-to-sampler dicts
@@ -391,9 +391,9 @@ using namespace std;
 			if (imgPtr == nullptr)	{
 				//NSLog(@"\t\tallocating tex for pass %s",tmpPassName.c_str());
 				//	...if we're here, we need to allocate a texture of the appropriate dimensions!
-				MTLImgBuffer		*tmpTex = (tmpPassTarget->floatFlag())
-					? [[MTLPool global] rgbaFloatTexSized:CGSizeMake(targetInfo.width, targetInfo.height)]
-					: [[MTLPool global] bgra8TexSized:CGSizeMake(targetInfo.width, targetInfo.height)];
+				id<VVMTLTextureImage>		tmpTex = (tmpPassTarget->floatFlag())
+					? [[VVMTLPool global] rgbaFloatTexSized:CGSizeMake(targetInfo.width, targetInfo.height)]
+					: [[VVMTLPool global] bgra8TexSized:CGSizeMake(targetInfo.width, targetInfo.height)];
 				ISFImageRef			newImgRef = std::make_shared<ISFImage>(tmpTex);
 				tmpPassTarget->setImage(newImgRef);
 			}
@@ -416,7 +416,7 @@ using namespace std;
 		//	...if we're here, this attr doesn't have an image yet, just give it a generic empty black texture
 		
 		if (emptyTex == nil)	{
-			emptyTex = [[MTLPool global] bgra8TexSized:CGSizeMake(64,64)];
+			emptyTex = [[VVMTLPool global] bgra8TexSized:CGSizeMake(64,64)];
 		}
 		imgRef = std::make_shared<ISFImage>(emptyTex);
 		imgInfoRef = std::static_pointer_cast<VVISF::ISFImageInfo>(imgRef);
@@ -436,7 +436,7 @@ using namespace std;
 		//	...if we're here, this attr doesn't have an image yet, just give it a generic empty black texture
 		
 		if (emptyTex == nil)
-			emptyTex = [[MTLPool global] bgra8TexSized:CGSizeMake(64,64)];
+			emptyTex = [[VVMTLPool global] bgra8TexSized:CGSizeMake(64,64)];
 		imgRef = std::make_shared<ISFImage>(emptyTex);
 		imgInfoRef = std::static_pointer_cast<VVISF::ISFImageInfo>(imgRef);
 		tmpAttr->setCurrentImageRef(imgInfoRef);
@@ -561,7 +561,7 @@ using namespace std;
 		}
 		
 		//	if there's no image (no texture) associated with the render pass, skip it
-		MTLImgBuffer		*tmpImgBuffer = imgPtr->img;
+		id<VVMTLTextureImage>		tmpImgBuffer = imgPtr->img;
 		id<MTLTexture>		tmpTex = tmpImgBuffer.texture;
 		if (tmpTex == nil)
 			return;
@@ -659,15 +659,15 @@ using namespace std;
 		//NSLog(@"\t\trendering pass %d",_passIndex);
 		
 		//	allocate a new texture for the render pass- this is what we're going to render into
-		MTLImgBuffer		*newTex = nil;
+		id<VVMTLTextureImage>		newTex = nil;
 		if (_passIndex == (passes.count-1))	{
 			newTex = self.renderTarget;
 		}
 		else	{
 			if (objCRenderPass.float32)
-				newTex = [[MTLPool global] rgbaFloatTexSized:CGSizeMake(renderPassTargetInfo.width, renderPassTargetInfo.height)];
+				newTex = [[VVMTLPool global] rgbaFloatTexSized:CGSizeMake(renderPassTargetInfo.width, renderPassTargetInfo.height)];
 			else
-				newTex = [[MTLPool global] bgra8TexSized:CGSizeMake(renderPassTargetInfo.width, renderPassTargetInfo.height)];
+				newTex = [[VVMTLPool global] bgra8TexSized:CGSizeMake(renderPassTargetInfo.width, renderPassTargetInfo.height)];
 		}
 		
 		//	make a render pass descriptor and then a command encoder, configure the viewport & attach the PSO
@@ -694,7 +694,7 @@ using namespace std;
 		
 		//	iterate across the dicts of index-to-texture mappings, pushing the textures to the RCE
 		[vertRCEIndexToTexDict enumerateKeysAndObjectsUsingBlock:^(NSNumber *indexNum, ISFMSLSceneImgRef *objCImgRef, BOOL *stop)	{
-			MTLImgBuffer		*tmpImgBuffer = objCImgRef.img;
+			id<VVMTLTextureImage>		tmpImgBuffer = objCImgRef.img;
 			id<MTLTexture>		tmpTex = tmpImgBuffer.texture;
 			if (tmpTex == nil)
 				return;
@@ -703,7 +703,7 @@ using namespace std;
 				atIndex:indexNum.intValue];
 		}];
 		[fragRCEIndexToTexDict enumerateKeysAndObjectsUsingBlock:^(NSNumber *indexNum, ISFMSLSceneImgRef *objCImgRef, BOOL *stop)	{
-			MTLImgBuffer		*tmpImgBuffer = objCImgRef.img;
+			id<VVMTLTextureImage>		tmpImgBuffer = objCImgRef.img;
 			id<MTLTexture>		tmpTex = tmpImgBuffer.texture;
 			if (tmpTex == nil)
 				return;
@@ -766,8 +766,8 @@ using namespace std;
 	for (const VVISF::ISFPassTargetRef & passTarget : doc->renderPasses())	{
 		if (passTarget->persistentFlag())
 			continue;
-		//MTLImgBuffer		*nilPlaceholder = nil;
-		VVISF::ISFImageInfoRef	emptyImg = std::make_shared<ISFImage>((MTLImgBuffer*)nil);
+		//id<VVMTLTextureImage>		nilPlaceholder = nil;
+		VVISF::ISFImageInfoRef	emptyImg = std::make_shared<ISFImage>((id<VVMTLTextureImage>)nil);
 		passTarget->setImage(emptyImg);
 	}
 	
@@ -795,15 +795,15 @@ using namespace std;
 #pragma mark - superclass overrides
 
 
-- (MTLImgBuffer *) createAndRenderToBufferSized:(CGSize)inSize inCommandBuffer:(id<MTLCommandBuffer>)cb	{
-	MTLPool			*pool = [MTLPool global];
+- (id<VVMTLTextureImage>) createAndRenderToBufferSized:(NSSize)inSize inCommandBuffer:(id<MTLCommandBuffer>)cb	{
+	VVMTLPool			*pool = [VVMTLPool global];
 	if (pool == nil)
 		return nil;
 	
 	if (doc == nullptr)
 		return nil;
 	
-	MTLImgBuffer		*returnMe = nil;
+	id<VVMTLTextureImage>		returnMe = nil;
 	//	get the last pass, figure out whether we need a float texture or not
 	const auto &		passes = doc->renderPasses();
 	const auto &		pass = passes[passes.size()-1];
@@ -819,7 +819,7 @@ using namespace std;
 	
 	return returnMe;
 	
-	//MTLImgBuffer		*returnMe = [pool bgra8TexSized:inSize];
+	//id<VVMTLTextureImage>		returnMe = [pool bgra8TexSized:inSize];
 	//if (returnMe == nil)
 	//	return nil;
 	//[self renderToBuffer:returnMe inCommandBuffer:cb];

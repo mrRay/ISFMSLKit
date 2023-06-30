@@ -22,8 +22,8 @@
 + (instancetype) createWithImgRef:(ISFImageRef)n	{
 	return [[ISFMSLSceneImgRef alloc] initWithImgRef:n];
 }
-+ (instancetype) createWithMTLImgBuffer:(MTLImgBuffer *)n	{
-	return [[ISFMSLSceneImgRef alloc] initWithMTLImgBuffer:n];
++ (instancetype) createWithVVMTLTextureImage:(id<VVMTLTextureImage>)n	{
+	return [[ISFMSLSceneImgRef alloc] initWithVVMTLTextureImage:n];
 }
 
 
@@ -39,7 +39,7 @@
 	}
 	return self;
 }
-- (instancetype) initWithMTLImgBuffer:(MTLImgBuffer *)n	{
+- (instancetype) initWithVVMTLTextureImage:(id<VVMTLTextureImage>)n	{
 	self = [super init];
 	if (n == nil)
 		self = nil;
@@ -140,14 +140,14 @@
 //@synthesize img;
 
 
-- (MTLImgBuffer *) img	{
+- (id<VVMTLTextureImage>) img	{
 	//	if the underlying local image ptr's nil, return nil immediately
 	VVISF::ISFImageInfo		*localImagePtr = _localImage.get();
 	if (localImagePtr == nullptr)	{
 		return nil;
 	}
 	
-	//	if the ref we're storing is our subclass (ISFImage) which stores its own MTLImgBuffer, we can return that
+	//	if the ref we're storing is our subclass (ISFImage) which stores its own id<VVMTLTextureImage>, we can return that
 	if (typeid(*localImagePtr) == typeid(ISFImage))	{
 		ISFImage		*recast = static_cast<ISFImage*>(localImagePtr);
 		return recast->img;
@@ -166,7 +166,7 @@
 
 
 
-id<ISFMSLSceneImgRef> CreateISFMSLSceneImgRefWithMTLImgBuffer(MTLImgBuffer * n)	{
-	return [ISFMSLSceneImgRef createWithMTLImgBuffer:n];
+id<ISFMSLSceneImgRef> CreateISFMSLSceneImgRefWithVVMTLTextureImage(id<VVMTLTextureImage> n)	{
+	return [ISFMSLSceneImgRef createWithVVMTLTextureImage:n];
 }
 
