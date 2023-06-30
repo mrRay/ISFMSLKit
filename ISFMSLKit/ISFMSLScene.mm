@@ -6,6 +6,7 @@
 //
 
 #import "ISFMSLScene.h"
+#import <MetalKit/MetalKit.h>
 
 #include "GLSLangValidatorLib.hpp"
 #include "SPIRVCrossLib.hpp"
