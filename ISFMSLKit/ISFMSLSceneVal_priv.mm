@@ -58,6 +58,16 @@
 	ISFMSLSceneVal		*returnMe = [[ISFMSLSceneVal alloc] initWithISFVal:tmpVal];
 	return returnMe;
 }
++ (id<ISFMSLSceneVal>) createWithColorVals:(double*)n	{
+	VVISF::ISFVal		tmpVal = VVISF::CreateISFValColor( *(n+0), *(n+1), *(n+2), *(n+3) );
+	ISFMSLSceneVal		*returnMe = [[ISFMSLSceneVal alloc] initWithISFVal:tmpVal];
+	return returnMe;
+}
++ (id<ISFMSLSceneVal>) createWithEvent	{
+	VVISF::ISFVal		tmpVal = VVISF::CreateISFValEvent();
+	ISFMSLSceneVal		*returnMe = [[ISFMSLSceneVal alloc] initWithISFVal:tmpVal];
+	return returnMe;
+}
 + (id<ISFMSLSceneVal>) createWithImg:(id<VVMTLTextureImage>)n	{
 	if (n == nil)
 		return nil;
@@ -137,6 +147,10 @@
 - (double) pointValueByIndex:(int)n	{
 	return _localVal.getPointValByIndex(n);
 }
+- (NSPoint) point2DVal	{
+	return NSMakePoint(_localVal.getPointValByIndex(0), _localVal.getPointValByIndex(1));
+}
+
 - (double *) colorValuePointer	{
 	return _localVal.getColorValPtr();
 }

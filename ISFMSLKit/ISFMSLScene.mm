@@ -101,7 +101,20 @@ using namespace std;
 
 
 - (void) loadURL:(NSURL *)n	{
+	[self loadURL:n resetTimer:YES];
+}
+- (void) loadURL:(NSURL *)n resetTimer:(BOOL)r	{
 	//NSLog(@"%s ... %@",__func__,n.path.lastPathComponent);
+	
+	//	if the URL we're being asked to load results in no change, bail
+	NSString		*tmpPath = (doc==nullptr) ? nil : [NSString stringWithUTF8String:doc->path().c_str()];
+	NSURL			*currentURL = (tmpPath==nil) ? nil : [NSURL fileURLWithPath:tmpPath];
+	if ((currentURL==nil && n==nil)
+	|| (currentURL!=nil && n!=nil && [currentURL isEqual:n]))
+	{
+		return;
+	}
+	
 	//	clear out the old
 	doc = nullptr;
 	[passes removeAllObjects];
@@ -271,7 +284,8 @@ using namespace std;
 	
 	
 	//	make the base time timestamp now that we've finished loading the doc- this "starts the clock" on the ISF "scene"...
-	_baseTime = VVISF::Timestamp();
+	if (r)
+		_baseTime = VVISF::Timestamp();
 	_renderFrameIndex = 0;
 	_renderTime = 0.0;
 	_renderTimeDelta = 0.0;
@@ -796,7 +810,7 @@ using namespace std;
 #pragma mark - superclass overrides
 
 
-- (id<VVMTLTextureImage>) createAndRenderToBufferSized:(NSSize)inSize inCommandBuffer:(id<MTLCommandBuffer>)cb	{
+- (id<VVMTLTextureImage>) createAndRenderToTextureSized:(NSSize)inSize inCommandBuffer:(id<MTLCommandBuffer>)cb	{
 	VVMTLPool			*pool = [VVMTLPool global];
 	if (pool == nil)
 		return nil;
@@ -816,7 +830,7 @@ using namespace std;
 	if (returnMe == nil)
 		return returnMe;
 	
-	[self renderToBuffer:returnMe inCommandBuffer:cb];
+	[self renderToTexture:returnMe inCommandBuffer:cb];
 	
 	return returnMe;
 	

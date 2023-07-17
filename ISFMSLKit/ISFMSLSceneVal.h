@@ -40,6 +40,8 @@ typedef NS_ENUM(NSInteger, ISFValType)	{
 + (id<ISFMSLSceneVal>) createWithFloat:(double)n;
 + (id<ISFMSLSceneVal>) createWithPoint2D:(NSPoint)n;
 + (id<ISFMSLSceneVal>) createWithColor:(NSColor *)n;
++ (id<ISFMSLSceneVal>) createWithColorVals:(double*)n;
++ (id<ISFMSLSceneVal>) createWithEvent;
 + (id<ISFMSLSceneVal>) createWithImg:(id<VVMTLTextureImage>)n;
 
 @property (readonly) ISFValType type;
@@ -48,6 +50,7 @@ typedef NS_ENUM(NSInteger, ISFValType)	{
 @property (readonly) int32_t longValue;
 @property (readonly) double * pointValuePointer;
 - (double) pointValueByIndex:(int)n;
+@property (readonly) NSPoint point2DVal;
 @property (readonly) double * colorValuePointer;
 - (double) colorValueByIndex:(int)n;
 - (id<ISFMSLSceneImgRef>) imgValue;
