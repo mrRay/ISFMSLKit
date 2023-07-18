@@ -263,7 +263,7 @@ using namespace std;
 						MTKTextureLoaderOptionSRGB:@NO
 					}
 					error:&nsErr];
-				id<VVMTLTextureImage>		img = [[VVMTLPool global] bufferForExistingTexture:tex];
+				id<VVMTLTextureImage>		img = [[VVMTLPool global] textureForExistingTexture:tex];
 				if (img == nil)	{
 					NSLog(@"ERR: couldn't make img from tex for attr %s, %s",attr_cpp->name().c_str(),__func__);
 					return;
@@ -334,7 +334,7 @@ using namespace std;
 	NSMutableDictionary<NSNumber*,ISFMSLSceneImgRef*>	*fragRCEIndexToTexDict = [[NSMutableDictionary alloc] init];
 	NSMutableDictionary<NSNumber*,id<MTLSamplerState>>	*fragRCEIndexToSamplerDict = [[NSMutableDictionary alloc] init];
 	//	maps NSSize-as-NSValue objects describing render target resolutions to id<MTLBuffer> instances that contain vertex data for a single quad for that resolution (these can be passed to the render encoder)
-	NSMutableDictionary<NSValue*,id<MTLBuffer>>	*resToQuadVertsDict = [NSMutableDictionary dictionaryWithCapacity:0];
+	NSMutableDictionary<NSValue*,id<VVMTLBuffer>>	*resToQuadVertsDict = [NSMutableDictionary dictionaryWithCapacity:0];
 	//	at some point during rendering, we may need a random texture for stuff that doesn't have one yet.  use this (you'll have to populate it as needed first)
 	id<VVMTLTextureImage>		emptyTex = nil;
 	
@@ -370,7 +370,7 @@ using namespace std;
 		//	make an NSValue* that describes the size in pixels of this render pass
 		NSValue			*tmpVal = [NSValue valueWithSize:NSMakeSize(targetInfo.width, targetInfo.height)];
 		//	do we already have a MTLBuffer containing quad data for this resolution?  if not...we have to make one!
-		id<MTLBuffer>		tmpBuffer = [resToQuadVertsDict objectForKey:tmpVal];
+		id<VVMTLBuffer>		tmpBuffer = [resToQuadVertsDict objectForKey:tmpVal];
 		if (tmpBuffer == nil)	{
 			CGRect			tmpRect = CGRectMake( 0, 0, targetInfo.width, targetInfo.height );
 			const vector_float4		tmpVerts[4] = {
@@ -380,10 +380,10 @@ using namespace std;
 				simd_make_float4( static_cast<float>(CGRectGetMaxX(tmpRect)), static_cast<float>(CGRectGetMaxY(tmpRect)), float(0.), float(1.) ),
 			};
 			//NSLog(@"\t\tmaking a buffer for vertices sized %ld",sizeof(tmpVerts));
-			tmpBuffer = [self.device
-				newBufferWithBytes:tmpVerts
-				length:sizeof(tmpVerts)
-				options:MTLResourceStorageModeShared];
+			tmpBuffer = [VVMTLPool.global
+				bufferWithLength:sizeof(tmpVerts)
+				storage:MTLStorageModeShared
+				basePtr:(void*)tmpVerts];
 			if (tmpBuffer != nil)	{
 				//[resArray addObject:tmpVal];
 				[resToQuadVertsDict setObject:tmpBuffer forKey:tmpVal];
@@ -701,9 +701,9 @@ using namespace std;
 		
 		//	attach the appropriate quad verts buffer to the render encoder
 		NSValue			*resValue = [NSValue valueWithSize:renderPassSize];
-		id<MTLBuffer>	quadVertsBuffer = [resToQuadVertsDict objectForKey:resValue];
+		id<VVMTLBuffer>	quadVertsBuffer = [resToQuadVertsDict objectForKey:resValue];
 		[renderEncoder
-			setVertexBuffer:quadVertsBuffer
+			setVertexBuffer:quadVertsBuffer.buffer
 			offset:0
 			atIndex:localCachedObj.vtxFuncMaxBufferIndex + 1];
 		
