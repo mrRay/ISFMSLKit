@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 
-@interface ISFMSLSceneVal : NSObject <ISFMSLSceneVal>	{
+@interface ISFMSLSceneVal ()	{
 	VVISF::ISFVal			_localVal;
 }
 

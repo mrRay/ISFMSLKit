@@ -35,15 +35,6 @@ typedef NS_ENUM(NSInteger, ISFValType)	{
 
 @protocol ISFMSLSceneVal <NSCopying>
 
-+ (id<ISFMSLSceneVal>) createWithBool:(BOOL)n;
-+ (id<ISFMSLSceneVal>) createWithLong:(int32_t)n;
-+ (id<ISFMSLSceneVal>) createWithFloat:(double)n;
-+ (id<ISFMSLSceneVal>) createWithPoint2D:(NSPoint)n;
-+ (id<ISFMSLSceneVal>) createWithColor:(NSColor *)n;
-+ (id<ISFMSLSceneVal>) createWithColorVals:(double*)n;
-+ (id<ISFMSLSceneVal>) createWithEvent;
-+ (id<ISFMSLSceneVal>) createWithImg:(id<VVMTLTextureImage>)n;
-
 @property (readonly) ISFValType type;
 @property (readonly) double doubleValue;
 @property (readonly) BOOL boolValue;
@@ -56,6 +47,22 @@ typedef NS_ENUM(NSInteger, ISFValType)	{
 - (id<ISFMSLSceneImgRef>) imgValue;
 
 //@property (strong,nullable) MTLImgBuffer * img;	//	retained by this obj-c backend/not part of the VVISF base lib
+
+@end
+
+
+
+
+@interface ISFMSLSceneVal : NSObject <ISFMSLSceneVal>
+
++ (id<ISFMSLSceneVal>) createWithBool:(BOOL)n;
++ (id<ISFMSLSceneVal>) createWithLong:(int32_t)n;
++ (id<ISFMSLSceneVal>) createWithFloat:(double)n;
++ (id<ISFMSLSceneVal>) createWithPoint2D:(NSPoint)n;
++ (id<ISFMSLSceneVal>) createWithColor:(NSColor *)n;
++ (id<ISFMSLSceneVal>) createWithColorVals:(double*)n;
++ (id<ISFMSLSceneVal>) createWithEvent;
++ (id<ISFMSLSceneVal>) createWithImg:(id<VVMTLTextureImage>)n;
 
 @end
 
