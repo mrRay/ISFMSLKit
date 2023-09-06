@@ -32,6 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (id<ISFMSLScenePassTarget>) passNamed:(NSString *)n;
 
 - (id<ISFMSLSceneAttrib>) inputNamed:(NSString *)n;
+- (NSArray<id<ISFMSLSceneAttrib>> *) inputsOfType:(ISFValType)n;
 
 - (id<ISFMSLSceneVal>) valueForInputNamed:(NSString *)n;
 - (void) setValue:(id<ISFMSLSceneVal>)inVal forInputNamed:(NSString *)inName;

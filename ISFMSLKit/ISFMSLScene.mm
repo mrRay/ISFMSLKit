@@ -883,6 +883,14 @@ using namespace std;
 	
 	return nil;
 }
+- (NSArray<id<ISFMSLSceneAttrib>> *) inputsOfType:(ISFValType)n	{
+	NSMutableArray		*returnMe = [[NSMutableArray alloc] init];
+	for (id<ISFMSLSceneAttrib> input in inputs)	{
+		if (input.type == n)
+			[returnMe addObject:input];
+	}
+	return returnMe;
+}
 
 
 - (NSArray<id<ISFMSLScenePassTarget>> *) passes	{
