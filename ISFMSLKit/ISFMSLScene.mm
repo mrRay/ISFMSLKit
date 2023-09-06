@@ -305,6 +305,8 @@ using namespace std;
 
 - (void) renderCallback	{
 	//NSLog(@"%s",__func__);
+	if (doc == nullptr)
+		return;
 	
 	//NSDate			*startDate = [NSDate date];
 	
@@ -904,7 +906,12 @@ using namespace std;
 	return [ISFMSLSceneVal createWithISFVal:tmpVal];
 }
 - (void) setValue:(id<ISFMSLSceneVal>)inVal forInputNamed:(NSString *)inName	{
-	NSLog(@"%s ... %@, %@",__func__,inName,inVal);
+	if (inName == nil || inVal == nil)
+		return;
+	
+	id<ISFMSLSceneAttrib>		attr = [self inputNamed:inName];
+	attr.currentVal = inVal;
+	//attr.currentImageRef = inVal;
 }
 
 
