@@ -21,7 +21,9 @@ FOUNDATION_EXPORT const unsigned char ISFMSLKitVersionString[];
 #import <ISFMSLKit/ISFMSLSceneVal.h>
 #import <ISFMSLKit/ISFMSLCacheObject.h>
 #import <ISFMSLKit/ISFMSLCache.h>
+#import <ISFMSLKit/ISFMSLNSStringAdditions.h>
 
 
 
-NSArray<NSString*> * CreateArrayOfDefaultISFs();
+
+NSArray<NSString*> * CreateArrayOfDefaultISFs(void);
