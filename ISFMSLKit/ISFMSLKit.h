@@ -14,6 +14,7 @@ FOUNDATION_EXPORT double ISFMSLKitVersionNumber;
 FOUNDATION_EXPORT const unsigned char ISFMSLKitVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <ISFMSLKit/PublicHeader.h>
+#import <ISFMSLKit/ISFMSLConstants.h>
 #import <ISFMSLKit/ISFMSLScene.h>
 #import <ISFMSLKit/ISFMSLSceneAttrib.h>
 #import <ISFMSLKit/ISFMSLSceneImgRef.h>
@@ -26,4 +27,15 @@ FOUNDATION_EXPORT const unsigned char ISFMSLKitVersionString[];
 
 
 
-NSArray<NSString*> * CreateArrayOfDefaultISFs(void);
+#if defined __cplusplus
+extern "C"	{
+#endif
+	
+	NSArray<NSString*> * GetArrayOfDefaultISFs( ISFMSLProtocol inProtocol );
+	
+	NSArray<NSString*> * GetISFsInDirectory(NSString * inDirPath, BOOL inRecursive, ISFMSLProtocol inProtocol);
+	
+#if defined __cplusplus
+}
+#endif
+
