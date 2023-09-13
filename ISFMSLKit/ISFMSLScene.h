@@ -24,6 +24,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void) loadURL:(NSURL *)n;
 - (void) loadURL:(NSURL *)n resetTimer:(BOOL)r;
 @property (readonly) NSURL * url;
+@property (readonly) NSString * fileDescription;
+@property (readonly) NSString * credit;
+@property (readonly) NSString * vsn;
+@property (readonly) NSArray<NSString*> * categoryNames;
 
 @property (readonly) NSArray<id<ISFMSLScenePassTarget>> * passes;
 @property (readonly) NSArray<id<ISFMSLSceneAttrib>> * inputs;

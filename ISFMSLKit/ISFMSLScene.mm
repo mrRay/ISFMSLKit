@@ -68,6 +68,8 @@ using namespace std;
 	double				_renderTime;
 	double				_renderTimeDelta;
 	uint32_t			_passIndex;
+	
+	CopierMTLScene		*_copierScene;	//	used for backend copies only
 }
 @end
 
@@ -298,16 +300,50 @@ using namespace std;
 	NSString			*tmpString = [[NSString stringWithUTF8String:cppPath.c_str()] stringByExpandingTildeInPath];
 	return [NSURL fileURLWithPath:tmpString];
 }
+- (NSString *) fileDescription	{
+	if (doc == nullptr)
+		return nil;
+	const auto			cppStr = doc->description();
+	NSString			*tmpStr = [[NSString stringWithUTF8String:cppStr.c_str()] stringByExpandingTildeInPath];
+	return tmpStr;
+}
+- (NSString *) credit	{
+	if (doc == nullptr)
+		return nil;
+	const auto			cppStr = doc->credit();
+	NSString			*tmpStr = [[NSString stringWithUTF8String:cppStr.c_str()] stringByExpandingTildeInPath];
+	return tmpStr;
+}
+- (NSString *) vsn	{
+	if (doc == nullptr)
+		return nil;
+	const auto			cppStr = doc->vsn();
+	NSString			*tmpStr = [[NSString stringWithUTF8String:cppStr.c_str()] stringByExpandingTildeInPath];
+	return tmpStr;
+}
+- (NSArray<NSString*> *) categoryNames	{
+	if (doc == nullptr)
+		return nil;
+	NSMutableArray		*returnMe = [[NSMutableArray alloc] init];
+	for (const auto & category : doc->categories())	{
+		NSString		*tmpStr = [NSString stringWithUTF8String:category.c_str()];
+		if (tmpStr != nil)
+			[returnMe addObject:tmpStr];
+	}
+	return returnMe;
+}
 
 
 #pragma mark - render callback
 
 
 - (void) renderCallback	{
-	//NSLog(@"%s",__func__);
+	//NSLog(@"%s ... %@",__func__,self.url.lastPathComponent);
 	if (doc == nullptr)
 		return;
 	
+	if (cachedRenderObj == nil)
+		return;
 	//NSDate			*startDate = [NSDate date];
 	
 	ISFMSLCacheObject		*localCachedObj = cachedObj;
@@ -666,6 +702,7 @@ using namespace std;
 	}
 	
 	
+	BOOL		sceneRenderTargetIsFloat = IsMTLPixelFormatFloatingPoint(self.renderTarget.texture.pixelFormat);
 	//	run through each pass, doing the actual rendering!
 	_passIndex = 0;
 	for (ISFMSLScenePassTarget *objCRenderPass in passes)	{
@@ -675,12 +712,18 @@ using namespace std;
 		NSSize			renderPassSize = NSMakeSize(renderPassTargetInfo.width, renderPassTargetInfo.height);
 		//NSLog(@"\t\trendering pass %d",_passIndex);
 		
+		BOOL		lastPassFlag = (_passIndex == (passes.count - 1));
+		BOOL		sceneRenderTargetMatchesLastPassPSO = (sceneRenderTargetIsFloat == objCRenderPass.float32);
 		//	allocate a new texture for the render pass- this is what we're going to render into
 		id<VVMTLTextureImage>		newTex = nil;
-		if (_passIndex == (passes.count-1))	{
-			newTex = self.renderTarget;
+		//	if this is the last pass, try to render into the scene's render target (if it's of a compatible pixel format!)
+		if (lastPassFlag)	{
+			if (sceneRenderTargetMatchesLastPassPSO)	{
+				newTex = self.renderTarget;
+			}
 		}
-		else	{
+		//	make sure we create a new texture for the render pass
+		if (newTex == nil)	{
 			if (objCRenderPass.float32)
 				newTex = [[VVMTLPool global] rgbaFloatTexSized:CGSizeMake(renderPassTargetInfo.width, renderPassTargetInfo.height)];
 			else
@@ -775,6 +818,19 @@ using namespace std;
 		renderPassRef->setImage(newTexImgRef);
 		//	push the new texture to the cache array, the tex/RCE index dict, the UBO data buffer, etc...
 		PrepPassRefImgForRender(renderPassRef);
+		
+		//	...if this was the last pass, but the scene's render target didn't match the last pass's PSO (ex: one-pass ISF that renders to a persistent float buffer, like "Comet Trail.fs"), so we need to copy from the last pass to the render target
+		if (lastPassFlag && !sceneRenderTargetMatchesLastPassPSO)	{
+			if (_copierScene == nil)	{
+				_copierScene = [[CopierMTLScene alloc] initWithDevice:RenderProperties.global.device];
+			}
+			[_copierScene
+				copyImg:newTex
+				toImg:self.renderTarget
+				allowScaling:YES
+				sizingMode:SizingModeFit
+				inCommandBuffer:self.commandBuffer];
+		}
 		
 		++_passIndex;
 	}
