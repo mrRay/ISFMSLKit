@@ -56,6 +56,14 @@ using namespace std;
 		
 		NSError			*nsErr = nil;
 		
+		//NSLog(@"*******************************************");
+		//NSLog(@"\t\tVERT:");
+		//NSLog(@"%@",_parentObj.mslVertShader);
+		//NSLog(@"*******************************************");
+		//NSLog(@"\t\tFRAG:");
+		//NSLog(@"%@",_parentObj.mslFragShader);
+		//NSLog(@"*******************************************");
+		
 		_vtxLib = [_device newLibraryWithSource:_parentObj.mslVertShader options:nil error:&nsErr];
 		if (_vtxLib == nil)	{
 			NSLog(@"ERR: unable to make lib from vtx src %@, bailing (%@)",_parentObj,nsErr);

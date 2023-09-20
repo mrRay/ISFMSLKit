@@ -117,14 +117,14 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 		
 		//doc->generateShaderSource(&glslFragSrc, &glslVertSrc, GLVersion_2, false);
 		doc->generateShaderSource(&glslFragSrc, &glslVertSrc, VVISF::GLVersion_4, true);
-		//cout << "***************************************************************" << endl;
-		//cout << glslVertSrc << endl;
-		//cout << "***************************************************************" << endl;
-		//cout << glslFragSrc << endl;
-		//cout << "***************************************************************" << endl;
-		//cout << "***************************************************************" << endl;
-		//cout << "***************************************************************" << endl;
-		//cout << "***************************************************************" << endl;
+		//std::cout << "***************************************************************" << std::endl;
+		//std::cout << glslVertSrc << std::endl;
+		//std::cout << "***************************************************************" << std::endl;
+		//std::cout << glslFragSrc << std::endl;
+		//std::cout << "***************************************************************" << std::endl;
+		//std::cout << "***************************************************************" << std::endl;
+		//std::cout << "***************************************************************" << std::endl;
+		//std::cout << "***************************************************************" << std::endl;
 		
 		//NSDate			*glslSourceDate = [NSDate date];
 		

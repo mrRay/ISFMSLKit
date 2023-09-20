@@ -148,7 +148,7 @@ using namespace std;
 	
 	NSError		*nsErr = nil;
 	
-	cachedRenderObj = [ISFMSLCache.primary getCachedISFAtURL:n forDevice:self.device];
+	cachedRenderObj = [ISFMSLCache.primary getCachedISFAtURL:n forDevice:self.device hint:ISFMSLCacheHint_TranspileIfDateDelta];
 	if (cachedRenderObj == nil)	{
 		NSLog(@"ERR: unable to load file (%@), %s",n.lastPathComponent,__func__);
 		return;
@@ -652,7 +652,8 @@ using namespace std;
 			wPtr->size[0] = imgRect.size.width;
 			wPtr->size[1] = imgRect.size.height;
 			
-			wPtr->flip = (flipped) ? 1 : 0;
+			//wPtr->flip = (flipped) ? 1 : 0;
+			wPtr->flip = (flipped) ? 0 : 1;	//	the GLSL source code uses a bottom-left origin for sampling, but metal uses top-left origin- so we flip things here!
 		}
 	};
 	//	this block pulls the current image from the passed attribute ref (populates CPU-side UBO with data describing tex, puts tex in dicts that we use at runtime to pass the tex to the RCE at the appropriate index)
