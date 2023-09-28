@@ -853,7 +853,8 @@ using namespace std;
 		NSMutableArray<ISFMSLSceneImgRef*>		*localSingleFrameTexCache = singleFrameTexCache;
 		NSMutableDictionary<NSNumber*,ISFMSLSceneImgRef*>	*localVertRCEIndexToTexDict = vertRCEIndexToTexDict;
 		NSMutableDictionary<NSNumber*,ISFMSLSceneImgRef*>	*localFragRCEIndexToTexDict = fragRCEIndexToTexDict;
-		
+		NSMutableDictionary<NSValue*,id<VVMTLBuffer>>	*localResToQuadVertsDict = resToQuadVertsDict;
+		localResToQuadVertsDict = nil;
 		localSingleFrameTexCache = nil;
 		localVertRCEIndexToTexDict = nil;
 		localFragRCEIndexToTexDict = nil;
