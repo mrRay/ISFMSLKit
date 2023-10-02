@@ -21,8 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype) initWithDevice:(id<MTLDevice>)inDevice;
 
-- (void) loadURL:(NSURL *)n;
-- (void) loadURL:(NSURL *)n resetTimer:(BOOL)r;
+- (void) loadURL:(NSURL * _Nullable)n;
+- (void) loadURL:(NSURL * _Nullable)n resetTimer:(BOOL)r;
 @property (readonly) NSURL * url;
 @property (readonly) NSString * fileDescription;
 @property (readonly) NSString * credit;
