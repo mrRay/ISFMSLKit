@@ -148,12 +148,10 @@
 	}
 	
 	//	if the ref we're storing is our subclass (ISFImage) which stores its own id<VVMTLTextureImage>, we can return that
-	if (typeid(*localImagePtr) == typeid(ISFImage))	{
-		ISFImage		*recast = static_cast<ISFImage*>(localImagePtr);
-		return recast->img;
-	}
-	//else if (typeid(*localImagePtr) == typeid(VVISF::ISFImageInfo))	{
-	//}
+	ISFImage		*recast = dynamic_cast<ISFImage*>(localImagePtr);
+	if (recast == nullptr)
+		return nil;
+	return recast->img;
 	
 	return nil;
 }

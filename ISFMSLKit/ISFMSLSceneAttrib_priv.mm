@@ -214,7 +214,7 @@
 		return nil;
 	
 	//	if the attribute only has an ISFImageInfo instance, instead of a full-blown ISFImage instance, bail & return nil
-	if (typeid(*currentImageInfoPtr) != typeid(ISFImage))
+	if (dynamic_cast<ISFImage*>(currentImageInfoPtr) == nullptr)
 		return nil;
 	
 	//	we need to recast the VVISF::ISFImageInfoRef to an ISFImageRef

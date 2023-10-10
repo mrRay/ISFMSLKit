@@ -434,8 +434,7 @@ using namespace std;
 			//	make sure that the image associated with this render pass- the texture it renders into- is sized appropriately
 			VVISF::ISFImageInfoRef		imgInfoRef = tmpPassTarget->image();
 			VVISF::ISFImageInfo		*imgInfoPtr = imgInfoRef.get();
-			
-			ISFImage		*imgPtr = (imgInfoPtr==nullptr || typeid(imgInfoPtr)!=typeid(ISFImage)) ? nullptr : static_cast<ISFImage*>( imgInfoPtr );
+			ISFImage		*imgPtr = (imgInfoPtr==nullptr) ? nullptr : dynamic_cast<ISFImage*>(imgInfoPtr);
 			//	if the img currently exists but its size doesn't match the target info, clear the local img ptr
 			if (imgPtr!=nullptr && (targetInfo.width != imgPtr->width || targetInfo.height != imgPtr->height))
 				imgPtr = nullptr;
@@ -458,9 +457,7 @@ using namespace std;
 	for (auto tmpAttr : doc->imageInputs())	{
 		VVISF::ISFImageInfoRef	imgInfoRef = tmpAttr->getCurrentImageRef();
 		VVISF::ISFImageInfo		*imgInfoPtr = imgInfoRef.get();
-		
-		ISFImageRef		imgRef = (imgInfoPtr==nullptr || typeid(*imgInfoPtr)!=typeid(ISFImage)) ? nullptr : std::static_pointer_cast<ISFImage>(imgInfoRef);
-		ISFImage		*imgPtr = imgRef.get();
+		ISFImage		*imgPtr = (imgInfoPtr==nullptr) ? nullptr : dynamic_cast<ISFImage*>(imgInfoPtr);
 		
 		//	if we have an image for this attr, great!  skip it and check the next one
 		if (imgPtr != nullptr)
@@ -471,16 +468,14 @@ using namespace std;
 		if (emptyTex == nil)	{
 			emptyTex = [[VVMTLPool global] bgra8TexSized:CGSizeMake(64,64)];
 		}
-		imgRef = std::make_shared<ISFImage>(emptyTex);
+		ISFImageRef		imgRef = std::make_shared<ISFImage>(emptyTex);
 		imgInfoRef = std::static_pointer_cast<VVISF::ISFImageInfo>(imgRef);
 		tmpAttr->setCurrentImageRef(imgInfoRef);
 	}
 	for (auto tmpAttr : doc->audioInputs())	{
 		VVISF::ISFImageInfoRef	imgInfoRef = tmpAttr->getCurrentImageRef();
 		VVISF::ISFImageInfo		*imgInfoPtr = imgInfoRef.get();
-		
-		ISFImageRef		imgRef = (imgInfoPtr==nullptr || typeid(*imgInfoPtr)!=typeid(ISFImage)) ? nullptr : std::static_pointer_cast<ISFImage>(imgInfoRef);
-		ISFImage		*imgPtr = imgRef.get();
+		ISFImage		*imgPtr = (imgInfoPtr==nullptr) ? nullptr : dynamic_cast<ISFImage*>(imgInfoPtr);
 		
 		//	if we have an image for this attr, great!  skip it and check the next one
 		if (imgPtr != nullptr)
@@ -490,7 +485,7 @@ using namespace std;
 		
 		if (emptyTex == nil)
 			emptyTex = [[VVMTLPool global] bgra8TexSized:CGSizeMake(64,64)];
-		imgRef = std::make_shared<ISFImage>(emptyTex);
+		ISFImageRef		imgRef = std::make_shared<ISFImage>(emptyTex);
 		imgInfoRef = std::static_pointer_cast<VVISF::ISFImageInfo>(imgRef);
 		tmpAttr->setCurrentImageRef(imgInfoRef);
 	}
@@ -606,12 +601,12 @@ using namespace std;
 		
 		//	get the current image from the attr- if it's not the expected type (ISFImage class), skip it- otherwise, recast to an ISFImageRef
 		VVISF::ISFImageInfo		*imgInfoPtr = imgInfoRef.get();
-		ISFImageRef		imgRef = (imgInfoPtr==nil || typeid(*imgInfoPtr)!=typeid(ISFImage)) ? nullptr : std::static_pointer_cast<ISFImage>(imgInfoRef);
-		ISFImage		*imgPtr = imgRef.get();
+		ISFImage		*imgPtr = (imgInfoPtr==nullptr) ? nullptr : dynamic_cast<ISFImage*>(imgInfoPtr);
 		if (imgPtr == nullptr)	{
 			std::cout << "ERR: attr missing img, " << __PRETTY_FUNCTION__ << std::endl;
 			return;
 		}
+		ISFImageRef		imgRef = std::static_pointer_cast<ISFImage>(imgInfoRef);
 		
 		//	if there's no image (no texture) associated with the render pass, skip it
 		id<VVMTLTextureImage>		tmpImgBuffer = imgPtr->img;
@@ -760,6 +755,10 @@ using namespace std;
 			if (tmpTex == nil)
 				return;
 			[renderEncoder
+				useResource:tmpTex
+				usage:MTLResourceUsageRead
+				stages:MTLRenderStageVertex];
+			[renderEncoder
 				setVertexTexture:tmpTex
 				atIndex:indexNum.intValue];
 		}];
@@ -768,6 +767,10 @@ using namespace std;
 			id<MTLTexture>		tmpTex = tmpImgBuffer.texture;
 			if (tmpTex == nil)
 				return;
+			[renderEncoder
+				useResource:tmpTex
+				usage:MTLResourceUsageRead
+				stages:MTLRenderStageFragment];
 			[renderEncoder
 				setFragmentTexture:tmpTex
 				atIndex:indexNum.intValue];
