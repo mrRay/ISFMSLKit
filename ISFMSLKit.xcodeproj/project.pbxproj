@@ -1,0 +1,611 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1AB1181E2B32423100DDC139 /* VVMetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB1181D2B32423100DDC139 /* VVMetalKit.framework */; };
+		1AB1181F2B32423100DDC139 /* VVMetalKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB1181D2B32423100DDC139 /* VVMetalKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		1AB118222B32423900DDC139 /* PINCache.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB118202B32423900DDC139 /* PINCache.framework */; };
+		1AB118232B32423900DDC139 /* PINCache.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB118202B32423900DDC139 /* PINCache.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		1AB118242B32423900DDC139 /* PINOperation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB118212B32423900DDC139 /* PINOperation.framework */; };
+		1AB118252B32423900DDC139 /* PINOperation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB118212B32423900DDC139 /* PINOperation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		1AB118272B32428400DDC139 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB118262B32428400DDC139 /* MetalKit.framework */; };
+		1AE830E32B3237770068889F /* ISFMSLKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE830E22B3237770068889F /* ISFMSLKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AE830EC2B3237FD0068889F /* ISFMSLKit.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AE830EB2B3237FD0068889F /* ISFMSLKit.mm */; };
+		1AE831052B3238100068889F /* ISFMSLSceneAttrib_priv.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE830ED2B3238100068889F /* ISFMSLSceneAttrib_priv.h */; };
+		1AE831062B3238100068889F /* ISFMSLCacheObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE830EE2B3238100068889F /* ISFMSLCacheObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AE831072B3238100068889F /* ISFMSLScene.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AE830EF2B3238100068889F /* ISFMSLScene.mm */; };
+		1AE831082B3238100068889F /* ISFImage.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE830F02B3238100068889F /* ISFImage.h */; };
+		1AE831092B3238100068889F /* ISFMSLCacheObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AE830F12B3238100068889F /* ISFMSLCacheObject.mm */; };
+		1AE8310A2B3238100068889F /* ISFMSLSceneVal_priv.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AE830F22B3238100068889F /* ISFMSLSceneVal_priv.mm */; };
+		1AE8310B2B3238100068889F /* ISFMSLNSStringAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE830F32B3238100068889F /* ISFMSLNSStringAdditions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AE8310C2B3238100068889F /* ISFMSLCache.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AE830F42B3238100068889F /* ISFMSLCache.mm */; };
+		1AE8310D2B3238100068889F /* ISFMSLSceneImgRef_priv.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AE830F52B3238100068889F /* ISFMSLSceneImgRef_priv.mm */; };
+		1AE8310E2B3238100068889F /* ISFMSLScenePassTarget_priv.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE830F62B3238100068889F /* ISFMSLScenePassTarget_priv.h */; };
+		1AE8310F2B3238100068889F /* ISFMSLScenePassTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE830F72B3238100068889F /* ISFMSLScenePassTarget.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AE831102B3238100068889F /* ISFMSLSceneAttrib_priv.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AE830F82B3238100068889F /* ISFMSLSceneAttrib_priv.mm */; };
+		1AE831112B3238100068889F /* ISFMSLBinCacheObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE830F92B3238100068889F /* ISFMSLBinCacheObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AE831122B3238100068889F /* ISFMSLNSStringAdditions.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AE830FA2B3238100068889F /* ISFMSLNSStringAdditions.mm */; };
+		1AE831132B3238100068889F /* ISFMSLScene.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE830FB2B3238100068889F /* ISFMSLScene.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AE831142B3238100068889F /* ISFMSLSceneAttrib.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE830FC2B3238100068889F /* ISFMSLSceneAttrib.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AE831152B3238100068889F /* ISFMSLSceneImgRef_priv.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE830FD2B3238100068889F /* ISFMSLSceneImgRef_priv.h */; };
+		1AE831162B3238100068889F /* ISFMSLSceneImgRef.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE830FE2B3238100068889F /* ISFMSLSceneImgRef.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AE831172B3238100068889F /* ISFMSLScenePassTarget_priv.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AE830FF2B3238100068889F /* ISFMSLScenePassTarget_priv.mm */; };
+		1AE831182B3238100068889F /* ISFMSLConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE831002B3238100068889F /* ISFMSLConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AE831192B3238100068889F /* ISFMSLSceneVal_priv.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE831012B3238100068889F /* ISFMSLSceneVal_priv.h */; };
+		1AE8311A2B3238100068889F /* ISFMSLCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE831022B3238100068889F /* ISFMSLCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AE8311B2B3238100068889F /* ISFMSLSceneVal.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE831032B3238100068889F /* ISFMSLSceneVal.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AE8311C2B3238100068889F /* ISFMSLBinCacheObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AE831042B3238100068889F /* ISFMSLBinCacheObject.mm */; };
+		1AE831252B323CE60068889F /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AE831242B323CE60068889F /* Metal.framework */; };
+		1AE831272B323CEE0068889F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AE831262B323CEE0068889F /* CoreGraphics.framework */; };
+		1AE831292B323D0C0068889F /* libGLSLangValidatorLib.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AE831282B323D0C0068889F /* libGLSLangValidatorLib.dylib */; };
+		1AE8312B2B323D100068889F /* libSPIRVCrossLib.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AE8312A2B323D100068889F /* libSPIRVCrossLib.dylib */; };
+		1AE8312D2B323D420068889F /* libGLSLangValidatorLib.dylib in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1AE831282B323D0C0068889F /* libGLSLangValidatorLib.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		1AE8312E2B323D440068889F /* libSPIRVCrossLib.dylib in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1AE8312A2B323D100068889F /* libSPIRVCrossLib.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		1AE831302B323DBB0068889F /* libISFGLSLGenerator.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AE8312F2B323DBB0068889F /* libISFGLSLGenerator.dylib */; };
+		1AE831312B323DE30068889F /* libISFGLSLGenerator.dylib in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1AE8312F2B323DBB0068889F /* libISFGLSLGenerator.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1AE831212B323C5F0068889F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1AE830D62B3237770068889F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1AE8311D2B3238430068889F;
+			remoteInfo = ISFGLSLGenerator;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		1AE8312C2B323D320068889F /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				1AB118232B32423900DDC139 /* PINCache.framework in Embed Frameworks */,
+				1AE831312B323DE30068889F /* libISFGLSLGenerator.dylib in Embed Frameworks */,
+				1AE8312D2B323D420068889F /* libGLSLangValidatorLib.dylib in Embed Frameworks */,
+				1AE8312E2B323D440068889F /* libSPIRVCrossLib.dylib in Embed Frameworks */,
+				1AB118252B32423900DDC139 /* PINOperation.framework in Embed Frameworks */,
+				1AB1181F2B32423100DDC139 /* VVMetalKit.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		1AB1181D2B32423100DDC139 /* VVMetalKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = VVMetalKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		1AB118202B32423900DDC139 /* PINCache.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PINCache.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		1AB118212B32423900DDC139 /* PINOperation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PINOperation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		1AB118262B32428400DDC139 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
+		1AE830DF2B3237770068889F /* ISFMSLKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ISFMSLKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		1AE830E22B3237770068889F /* ISFMSLKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISFMSLKit.h; sourceTree = "<group>"; };
+		1AE830EB2B3237FD0068889F /* ISFMSLKit.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ISFMSLKit.mm; sourceTree = "<group>"; };
+		1AE830ED2B3238100068889F /* ISFMSLSceneAttrib_priv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISFMSLSceneAttrib_priv.h; sourceTree = "<group>"; };
+		1AE830EE2B3238100068889F /* ISFMSLCacheObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISFMSLCacheObject.h; sourceTree = "<group>"; };
+		1AE830EF2B3238100068889F /* ISFMSLScene.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ISFMSLScene.mm; sourceTree = "<group>"; };
+		1AE830F02B3238100068889F /* ISFImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISFImage.h; sourceTree = "<group>"; };
+		1AE830F12B3238100068889F /* ISFMSLCacheObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ISFMSLCacheObject.mm; sourceTree = "<group>"; };
+		1AE830F22B3238100068889F /* ISFMSLSceneVal_priv.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ISFMSLSceneVal_priv.mm; sourceTree = "<group>"; };
+		1AE830F32B3238100068889F /* ISFMSLNSStringAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISFMSLNSStringAdditions.h; sourceTree = "<group>"; };
+		1AE830F42B3238100068889F /* ISFMSLCache.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ISFMSLCache.mm; sourceTree = "<group>"; };
+		1AE830F52B3238100068889F /* ISFMSLSceneImgRef_priv.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ISFMSLSceneImgRef_priv.mm; sourceTree = "<group>"; };
+		1AE830F62B3238100068889F /* ISFMSLScenePassTarget_priv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISFMSLScenePassTarget_priv.h; sourceTree = "<group>"; };
+		1AE830F72B3238100068889F /* ISFMSLScenePassTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISFMSLScenePassTarget.h; sourceTree = "<group>"; };
+		1AE830F82B3238100068889F /* ISFMSLSceneAttrib_priv.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ISFMSLSceneAttrib_priv.mm; sourceTree = "<group>"; };
+		1AE830F92B3238100068889F /* ISFMSLBinCacheObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISFMSLBinCacheObject.h; sourceTree = "<group>"; };
+		1AE830FA2B3238100068889F /* ISFMSLNSStringAdditions.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ISFMSLNSStringAdditions.mm; sourceTree = "<group>"; };
+		1AE830FB2B3238100068889F /* ISFMSLScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISFMSLScene.h; sourceTree = "<group>"; };
+		1AE830FC2B3238100068889F /* ISFMSLSceneAttrib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISFMSLSceneAttrib.h; sourceTree = "<group>"; };
+		1AE830FD2B3238100068889F /* ISFMSLSceneImgRef_priv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISFMSLSceneImgRef_priv.h; sourceTree = "<group>"; };
+		1AE830FE2B3238100068889F /* ISFMSLSceneImgRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISFMSLSceneImgRef.h; sourceTree = "<group>"; };
+		1AE830FF2B3238100068889F /* ISFMSLScenePassTarget_priv.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ISFMSLScenePassTarget_priv.mm; sourceTree = "<group>"; };
+		1AE831002B3238100068889F /* ISFMSLConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISFMSLConstants.h; sourceTree = "<group>"; };
+		1AE831012B3238100068889F /* ISFMSLSceneVal_priv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISFMSLSceneVal_priv.h; sourceTree = "<group>"; };
+		1AE831022B3238100068889F /* ISFMSLCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISFMSLCache.h; sourceTree = "<group>"; };
+		1AE831032B3238100068889F /* ISFMSLSceneVal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISFMSLSceneVal.h; sourceTree = "<group>"; };
+		1AE831042B3238100068889F /* ISFMSLBinCacheObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ISFMSLBinCacheObject.mm; sourceTree = "<group>"; };
+		1AE831242B323CE60068889F /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		1AE831262B323CEE0068889F /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		1AE831282B323D0C0068889F /* libGLSLangValidatorLib.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLSLangValidatorLib.dylib; path = extern/GLSLangValidatorLib/bin/libGLSLangValidatorLib.dylib; sourceTree = "<group>"; };
+		1AE8312A2B323D100068889F /* libSPIRVCrossLib.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSPIRVCrossLib.dylib; path = extern/SPIRVCrossLib/bin/libSPIRVCrossLib.dylib; sourceTree = "<group>"; };
+		1AE8312F2B323DBB0068889F /* libISFGLSLGenerator.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libISFGLSLGenerator.dylib; path = submodules/ISFGLSLGenerator/build/install/lib/libISFGLSLGenerator.dylib; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1AE830DC2B3237770068889F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1AB118272B32428400DDC139 /* MetalKit.framework in Frameworks */,
+				1AE831272B323CEE0068889F /* CoreGraphics.framework in Frameworks */,
+				1AE831252B323CE60068889F /* Metal.framework in Frameworks */,
+				1AB118242B32423900DDC139 /* PINOperation.framework in Frameworks */,
+				1AE831292B323D0C0068889F /* libGLSLangValidatorLib.dylib in Frameworks */,
+				1AB1181E2B32423100DDC139 /* VVMetalKit.framework in Frameworks */,
+				1AE831302B323DBB0068889F /* libISFGLSLGenerator.dylib in Frameworks */,
+				1AB118222B32423900DDC139 /* PINCache.framework in Frameworks */,
+				1AE8312B2B323D100068889F /* libSPIRVCrossLib.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1AE830D52B3237770068889F = {
+			isa = PBXGroup;
+			children = (
+				1AE830E12B3237770068889F /* ISFMSLKit */,
+				1AE830E02B3237770068889F /* Products */,
+				1AE831232B323CE60068889F /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		1AE830E02B3237770068889F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1AE830DF2B3237770068889F /* ISFMSLKit.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1AE830E12B3237770068889F /* ISFMSLKit */ = {
+			isa = PBXGroup;
+			children = (
+				1AE830E22B3237770068889F /* ISFMSLKit.h */,
+				1AE830EB2B3237FD0068889F /* ISFMSLKit.mm */,
+				1AE830F02B3238100068889F /* ISFImage.h */,
+				1AE830F92B3238100068889F /* ISFMSLBinCacheObject.h */,
+				1AE831042B3238100068889F /* ISFMSLBinCacheObject.mm */,
+				1AE831022B3238100068889F /* ISFMSLCache.h */,
+				1AE830F42B3238100068889F /* ISFMSLCache.mm */,
+				1AE830EE2B3238100068889F /* ISFMSLCacheObject.h */,
+				1AE830F12B3238100068889F /* ISFMSLCacheObject.mm */,
+				1AE831002B3238100068889F /* ISFMSLConstants.h */,
+				1AE830F32B3238100068889F /* ISFMSLNSStringAdditions.h */,
+				1AE830FA2B3238100068889F /* ISFMSLNSStringAdditions.mm */,
+				1AE830FB2B3238100068889F /* ISFMSLScene.h */,
+				1AE830EF2B3238100068889F /* ISFMSLScene.mm */,
+				1AE830ED2B3238100068889F /* ISFMSLSceneAttrib_priv.h */,
+				1AE830F82B3238100068889F /* ISFMSLSceneAttrib_priv.mm */,
+				1AE830FC2B3238100068889F /* ISFMSLSceneAttrib.h */,
+				1AE830FD2B3238100068889F /* ISFMSLSceneImgRef_priv.h */,
+				1AE830F52B3238100068889F /* ISFMSLSceneImgRef_priv.mm */,
+				1AE830FE2B3238100068889F /* ISFMSLSceneImgRef.h */,
+				1AE830F62B3238100068889F /* ISFMSLScenePassTarget_priv.h */,
+				1AE830FF2B3238100068889F /* ISFMSLScenePassTarget_priv.mm */,
+				1AE830F72B3238100068889F /* ISFMSLScenePassTarget.h */,
+				1AE831012B3238100068889F /* ISFMSLSceneVal_priv.h */,
+				1AE830F22B3238100068889F /* ISFMSLSceneVal_priv.mm */,
+				1AE831032B3238100068889F /* ISFMSLSceneVal.h */,
+			);
+			path = ISFMSLKit;
+			sourceTree = "<group>";
+		};
+		1AE831232B323CE60068889F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1AB118262B32428400DDC139 /* MetalKit.framework */,
+				1AB118202B32423900DDC139 /* PINCache.framework */,
+				1AB118212B32423900DDC139 /* PINOperation.framework */,
+				1AB1181D2B32423100DDC139 /* VVMetalKit.framework */,
+				1AE831282B323D0C0068889F /* libGLSLangValidatorLib.dylib */,
+				1AE8312A2B323D100068889F /* libSPIRVCrossLib.dylib */,
+				1AE8312F2B323DBB0068889F /* libISFGLSLGenerator.dylib */,
+				1AE831262B323CEE0068889F /* CoreGraphics.framework */,
+				1AE831242B323CE60068889F /* Metal.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		1AE830DA2B3237770068889F /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1AE831132B3238100068889F /* ISFMSLScene.h in Headers */,
+				1AE8311B2B3238100068889F /* ISFMSLSceneVal.h in Headers */,
+				1AE831062B3238100068889F /* ISFMSLCacheObject.h in Headers */,
+				1AE8310F2B3238100068889F /* ISFMSLScenePassTarget.h in Headers */,
+				1AE830E32B3237770068889F /* ISFMSLKit.h in Headers */,
+				1AE8310E2B3238100068889F /* ISFMSLScenePassTarget_priv.h in Headers */,
+				1AE831182B3238100068889F /* ISFMSLConstants.h in Headers */,
+				1AE831142B3238100068889F /* ISFMSLSceneAttrib.h in Headers */,
+				1AE831162B3238100068889F /* ISFMSLSceneImgRef.h in Headers */,
+				1AE8311A2B3238100068889F /* ISFMSLCache.h in Headers */,
+				1AE8310B2B3238100068889F /* ISFMSLNSStringAdditions.h in Headers */,
+				1AE831112B3238100068889F /* ISFMSLBinCacheObject.h in Headers */,
+				1AE831152B3238100068889F /* ISFMSLSceneImgRef_priv.h in Headers */,
+				1AE831082B3238100068889F /* ISFImage.h in Headers */,
+				1AE831052B3238100068889F /* ISFMSLSceneAttrib_priv.h in Headers */,
+				1AE831192B3238100068889F /* ISFMSLSceneVal_priv.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXLegacyTarget section */
+		1AE8311D2B3238430068889F /* ISFGLSLGenerator */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "\"$(PROJECT_DIR)/ISFGLSLGenerator_build_script.sh\"";
+			buildConfigurationList = 1AE8311E2B3238430068889F /* Build configuration list for PBXLegacyTarget "ISFGLSLGenerator" */;
+			buildPhases = (
+			);
+			buildToolPath = /bin/sh;
+			buildWorkingDirectory = "";
+			dependencies = (
+			);
+			name = ISFGLSLGenerator;
+			passBuildSettingsInEnvironment = 1;
+			productName = ISFGLSLGenerator;
+		};
+/* End PBXLegacyTarget section */
+
+/* Begin PBXNativeTarget section */
+		1AE830DE2B3237770068889F /* ISFMSLKit */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1AE830E62B3237770068889F /* Build configuration list for PBXNativeTarget "ISFMSLKit" */;
+			buildPhases = (
+				1AE830DA2B3237770068889F /* Headers */,
+				1AE830DB2B3237770068889F /* Sources */,
+				1AE830DC2B3237770068889F /* Frameworks */,
+				1AE830DD2B3237770068889F /* Resources */,
+				1AE8312C2B323D320068889F /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1AE831222B323C5F0068889F /* PBXTargetDependency */,
+			);
+			name = ISFMSLKit;
+			productName = ISFMSLKit;
+			productReference = 1AE830DF2B3237770068889F /* ISFMSLKit.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1AE830D62B3237770068889F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					1AE830DE2B3237770068889F = {
+						CreatedOnToolsVersion = 14.3.1;
+					};
+					1AE8311D2B3238430068889F = {
+						CreatedOnToolsVersion = 14.3.1;
+					};
+				};
+			};
+			buildConfigurationList = 1AE830D92B3237770068889F /* Build configuration list for PBXProject "ISFMSLKit" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 1AE830D52B3237770068889F;
+			productRefGroup = 1AE830E02B3237770068889F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1AE830DE2B3237770068889F /* ISFMSLKit */,
+				1AE8311D2B3238430068889F /* ISFGLSLGenerator */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1AE830DD2B3237770068889F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1AE830DB2B3237770068889F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1AE831102B3238100068889F /* ISFMSLSceneAttrib_priv.mm in Sources */,
+				1AE831072B3238100068889F /* ISFMSLScene.mm in Sources */,
+				1AE8310A2B3238100068889F /* ISFMSLSceneVal_priv.mm in Sources */,
+				1AE830EC2B3237FD0068889F /* ISFMSLKit.mm in Sources */,
+				1AE831172B3238100068889F /* ISFMSLScenePassTarget_priv.mm in Sources */,
+				1AE8310C2B3238100068889F /* ISFMSLCache.mm in Sources */,
+				1AE831092B3238100068889F /* ISFMSLCacheObject.mm in Sources */,
+				1AE8311C2B3238100068889F /* ISFMSLBinCacheObject.mm in Sources */,
+				1AE8310D2B3238100068889F /* ISFMSLSceneImgRef_priv.mm in Sources */,
+				1AE831122B3238100068889F /* ISFMSLNSStringAdditions.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1AE831222B323C5F0068889F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1AE8311D2B3238430068889F /* ISFGLSLGenerator */;
+			targetProxy = 1AE831212B323C5F0068889F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1AE830E42B3237770068889F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		1AE830E52B3237770068889F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		1AE830E72B3237770068889F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"\"$(PROJECT_DIR)/extern/GLSLangValidatorLib/include\"",
+					"\"$(PROJECT_DIR)/extern/SPIRVCrossLib/include\"",
+					"\"$(PROJECT_DIR)/submodules/ISFGLSLGenerator/build/install/include\"",
+					"\"$(PROJECT_DIR)/submodules/ISFGLSLGenerator/libISFGLSLGenerator/include\"",
+				);
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/extern/GLSLangValidatorLib/bin",
+					"$(PROJECT_DIR)/extern/SPIRVCrossLib/bin",
+					"$(PROJECT_DIR)/submodules/ISFGLSLGenerator/build/install/lib",
+					"\"${TEMP_ROOT}/ISFGLSLGenerator.build/libISFGLSLGenerator\"",
+				);
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = com.vidvox.ISFMSLKit;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Debug;
+		};
+		1AE830E82B3237770068889F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"\"$(PROJECT_DIR)/extern/GLSLangValidatorLib/include\"",
+					"\"$(PROJECT_DIR)/extern/SPIRVCrossLib/include\"",
+					"\"$(PROJECT_DIR)/submodules/ISFGLSLGenerator/build/install/include\"",
+					"\"$(PROJECT_DIR)/submodules/ISFGLSLGenerator/libISFGLSLGenerator/include\"",
+				);
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/extern/GLSLangValidatorLib/bin",
+					"$(PROJECT_DIR)/extern/SPIRVCrossLib/bin",
+					"$(PROJECT_DIR)/submodules/ISFGLSLGenerator/build/install/lib",
+					"\"${TEMP_ROOT}/ISFGLSLGenerator.build/libISFGLSLGenerator\"",
+				);
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = com.vidvox.ISFMSLKit;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Release;
+		};
+		1AE8311F2B3238430068889F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEBUGGING_SYMBOLS = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = KH97KZU7A7;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		1AE831202B3238430068889F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = KH97KZU7A7;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1AE830D92B3237770068889F /* Build configuration list for PBXProject "ISFMSLKit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1AE830E42B3237770068889F /* Debug */,
+				1AE830E52B3237770068889F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1AE830E62B3237770068889F /* Build configuration list for PBXNativeTarget "ISFMSLKit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1AE830E72B3237770068889F /* Debug */,
+				1AE830E82B3237770068889F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1AE8311E2B3238430068889F /* Build configuration list for PBXLegacyTarget "ISFGLSLGenerator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1AE8311F2B3238430068889F /* Debug */,
+				1AE831202B3238430068889F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 1AE830D62B3237770068889F /* Project object */;
+}
