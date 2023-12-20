@@ -8,11 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		1AB1181E2B32423100DDC139 /* VVMetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB1181D2B32423100DDC139 /* VVMetalKit.framework */; };
-		1AB1181F2B32423100DDC139 /* VVMetalKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB1181D2B32423100DDC139 /* VVMetalKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1AB118222B32423900DDC139 /* PINCache.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB118202B32423900DDC139 /* PINCache.framework */; };
-		1AB118232B32423900DDC139 /* PINCache.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB118202B32423900DDC139 /* PINCache.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1AB118242B32423900DDC139 /* PINOperation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB118212B32423900DDC139 /* PINOperation.framework */; };
-		1AB118252B32423900DDC139 /* PINOperation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB118212B32423900DDC139 /* PINOperation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1AB118272B32428400DDC139 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB118262B32428400DDC139 /* MetalKit.framework */; };
 		1AE830E32B3237770068889F /* ISFMSLKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE830E22B3237770068889F /* ISFMSLKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AE830EC2B3237FD0068889F /* ISFMSLKit.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AE830EB2B3237FD0068889F /* ISFMSLKit.mm */; };
@@ -67,12 +64,9 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				1AB118232B32423900DDC139 /* PINCache.framework in Embed Frameworks */,
 				1AE831312B323DE30068889F /* libISFGLSLGenerator.dylib in Embed Frameworks */,
 				1AE8312D2B323D420068889F /* libGLSLangValidatorLib.dylib in Embed Frameworks */,
 				1AE8312E2B323D440068889F /* libSPIRVCrossLib.dylib in Embed Frameworks */,
-				1AB118252B32423900DDC139 /* PINOperation.framework in Embed Frameworks */,
-				1AB1181F2B32423100DDC139 /* VVMetalKit.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
