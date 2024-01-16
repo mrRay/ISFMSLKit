@@ -108,190 +108,194 @@ using namespace std;
 - (void) loadURL:(NSURL *)n resetTimer:(BOOL)r	{
 	//NSLog(@"%s ... %@",__func__,n.path.lastPathComponent);
 	
-	//	if the URL we're being asked to load results in no change, bail
-	NSString		*tmpPath = (doc==nullptr) ? nil : [NSString stringWithUTF8String:doc->path().c_str()];
-	NSURL			*currentURL = (tmpPath==nil) ? nil : [NSURL fileURLWithPath:tmpPath];
-	if ((currentURL==nil && n==nil)
-	|| (currentURL!=nil && n!=nil && [currentURL isEqual:n]))
-	{
-		return;
-	}
-	
-	//	clear out the old
-	doc = nullptr;
-	[passes removeAllObjects];
-	[inputs removeAllObjects];
-	cachedObj = nil;
-	cachedRenderObj = nil;
-	
-	uboDataBufferSize = 0;
-	if (uboDataBuffer != nil)	{
-		free(uboDataBuffer);
-		uboDataBuffer = nil;
-	}
-	
-	//	load the new- if there's nothing new to load, bail early
-	NSString		*path = n.path;
-	if (path == nil)	{
-		return;
-	}
-	
-	//	create an ISFDoc from the passed URL
-	const char		*pathCStr = path.UTF8String;
-	//std::string		inURLPathStr { pathCStr };
-	doc = VVISF::CreateISFDocRef(pathCStr, true);
-	//doc = CreateISFDocRef(inURLPathStr, false);
-	if (doc == nullptr)	{
-		NSLog(@"ERR: unable to make doc from path %@ (%s)",path,__func__);
-		return;
-	}
-	
-	NSError		*nsErr = nil;
-	
-	cachedRenderObj = [ISFMSLCache.primary getCachedISFAtURL:n forDevice:self.device hint:ISFMSLCacheHint_TranspileIfDateDelta];
-	if (cachedRenderObj == nil)	{
-		NSLog(@"ERR: unable to load file (%@), %s",n.lastPathComponent,__func__);
-		return;
-	}
-	cachedObj = cachedRenderObj.parentObj;
-	//NSLog(@"\t\tfragTextureVarIndexDict is %@",cachedObj.fragTextureVarIndexDict);
-	//NSLog(@"\t\tvertTextureVarIndexDict is %@",cachedObj.vertTextureVarIndexDict);
-	
-	
-	//	allocate a block of memory- statically, so we only do it once per instance of ISFMSLScene and then re-use the mem
-	#define UBO_BLOCK_BASE 48
-	uboDataBufferSize = cachedObj.maxUBOSize + (UBO_BLOCK_BASE - (cachedObj.maxUBOSize % UBO_BLOCK_BASE));
-	//NSLog(@"\t\tmaxUBOSize is %d, data buffer size is %d",cachedObj.maxUBOSize,uboDataBufferSize);
-	//uboDataBufferSize = maxUboSize;
-	//NSLog(@"** WARNING hard coding uboDataBufferSize to 96, %s",__func__);
-	//uboDataBufferSize = 96;
-	uboDataBuffer = malloc( uboDataBufferSize );
-	
-	
-	//	make a vertex descriptor that describes the vertex data we'll be passing to the shader
-	MTLVertexDescriptor		*vtxDesc = [MTLVertexDescriptor vertexDescriptor];
-	
-	vtxDesc.attributes[0].format = MTLVertexFormatFloat4;
-	vtxDesc.attributes[0].offset = 0;
-	vtxDesc.attributes[0].bufferIndex = cachedObj.vtxFuncMaxBufferIndex + 1;
-	vtxDesc.layouts[1].stride = sizeof(float) * 4;
-	vtxDesc.layouts[1].stepFunction = MTLVertexStepFunctionPerVertex;
-	vtxDesc.layouts[1].stepRate = 1;
-	
-	//	make pipeline descriptors for all possible states we need to describe (8bit & float)
-	MTLRenderPipelineDescriptor		*passDesc_8bit = [[MTLRenderPipelineDescriptor alloc] init];
-	MTLRenderPipelineDescriptor		*passDesc_float = [[MTLRenderPipelineDescriptor alloc] init];
-	for (MTLRenderPipelineDescriptor * passDesc in @[ passDesc_8bit, passDesc_float ])	{
-		passDesc.vertexFunction = cachedRenderObj.vtxFunc;
-		passDesc.fragmentFunction = cachedRenderObj.frgFunc;
-		passDesc.vertexDescriptor = vtxDesc;
-	}
-	passDesc_8bit.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
-	passDesc_8bit.binaryArchives = @[ cachedRenderObj.archive ];
-	passDesc_float.colorAttachments[0].pixelFormat = MTLPixelFormatRGBA32Float;
-	passDesc_float.binaryArchives = @[ cachedRenderObj.archive ];
-	
-	//	we want to minimize the # of PSOs we create and work with, so try to avoid creating one for each pass and instead try to reuse them
-	id<MTLRenderPipelineState>		pso_8bit = [self.device newRenderPipelineStateWithDescriptor:passDesc_8bit options:MTLPipelineOptionFailOnBinaryArchiveMiss reflection:nil error:&nsErr];
-	if (pso_8bit == nil || nsErr != nil)	{
-		NSLog(@"ERR: problem retrieving pso A (%@) %s",nsErr,__func__);
-		return;
-	}
-	id<MTLRenderPipelineState>		pso_float = [self.device newRenderPipelineStateWithDescriptor:passDesc_float options:MTLPipelineOptionFailOnBinaryArchiveMiss reflection:nil error:&nsErr];
-	if (pso_float == nil || nsErr != nil)	{
-		NSLog(@"ERR: problem retrieving pso B (%@) %s",nsErr,__func__);
-		return;
-	}
-	
-	//	make an obj-c pass for each pass in the doc- our obj-c pass object will hold intermediate render targets and other such conveniences required to implement stuff
-	int			passIndex = 0;
-	for (VVISF::ISFPassTargetRef tmpPass : doc->renderPasses())	{
-		id<ISFMSLScenePassTarget>		pass = [ISFMSLScenePassTarget createWithPassTarget:tmpPass];
-		pass.passIndex = passIndex;
-		if (pass.float32)	{
-			pass.pso = pso_float;
-		}
-		else	{
-			pass.pso = pso_8bit;
+	@synchronized (self)	{
+		
+		//	if the URL we're being asked to load results in no change, bail
+		NSString		*tmpPath = (doc==nullptr) ? nil : [NSString stringWithUTF8String:doc->path().c_str()];
+		NSURL			*currentURL = (tmpPath==nil) ? nil : [NSURL fileURLWithPath:tmpPath];
+		if ((currentURL==nil && n==nil)
+		|| (currentURL!=nil && n!=nil && [currentURL isEqual:n]))
+		{
+			return;
 		}
 		
-		[passes addObject:pass];
+		//	clear out the old
+		doc = nullptr;
+		[passes removeAllObjects];
+		[inputs removeAllObjects];
+		cachedObj = nil;
+		cachedRenderObj = nil;
 		
-		++passIndex;
-	}
-	
-	
-	//	make an obj-c attr for each attr in the doc- our objc-c attributes will be how other obj-c classes interact with the ISF and know what sort of inputs it offers and what kind of values they accept
-	//inputs = [[NSMutableArray alloc] init];
-	for (VVISF::ISFAttrRef attr_cpp : doc->inputs())	{
-		//	make the attr and add it to our local array of attrs immediately
-		id<ISFMSLSceneAttrib>		attr = [ISFMSLSceneAttrib createWithISFAttr:attr_cpp];
-		if (attr == nil)
-			continue;
-		[inputs addObject:attr];
-	}
-	
-	
-	//	run through the doc's image imports- load them into textures, and push the textures into the attrs
-	for (VVISF::ISFAttrRef attr_cpp : doc->imageImports())	{
-		//	...if it's an image-style attribute, and there's a path (or paths if it's a cube!), we need to load that image data into a texture using the supplied device
-		switch (attr_cpp->type())	{
-		case VVISF::ISFValType_None:
-		case VVISF::ISFValType_Event:
-		case VVISF::ISFValType_Bool:
-		case VVISF::ISFValType_Long:
-		case VVISF::ISFValType_Float:
-		case VVISF::ISFValType_Point2D:
-		case VVISF::ISFValType_Color:
-			break;
-		//	cube (six images), may have a paths array
-		case VVISF::ISFValType_Cube:
-			{
-				NSLog(@"************** NOT IMPLEMENTED YET, %s",__func__);
-				[[NSException
-					exceptionWithName:@"not implemented yet"
-					reason:@"not implemented yet"
-					userInfo:nil] raise];
+		uboDataBufferSize = 0;
+		if (uboDataBuffer != nil)	{
+			free(uboDataBuffer);
+			uboDataBuffer = nil;
+		}
+		
+		//	load the new- if there's nothing new to load, bail early
+		NSString		*path = n.path;
+		if (path == nil)	{
+			return;
+		}
+		
+		//	create an ISFDoc from the passed URL
+		const char		*pathCStr = path.UTF8String;
+		//std::string		inURLPathStr { pathCStr };
+		doc = VVISF::CreateISFDocRef(pathCStr, true);
+		//doc = CreateISFDocRef(inURLPathStr, false);
+		if (doc == nullptr)	{
+			NSLog(@"ERR: unable to make doc from path %@ (%s)",path,__func__);
+			return;
+		}
+		
+		NSError		*nsErr = nil;
+		
+		cachedRenderObj = [ISFMSLCache.primary getCachedISFAtURL:n forDevice:self.device hint:ISFMSLCacheHint_TranspileIfDateDelta];
+		if (cachedRenderObj == nil)	{
+			NSLog(@"ERR: unable to load file (%@), %s",n.lastPathComponent,__func__);
+			return;
+		}
+		cachedObj = cachedRenderObj.parentObj;
+		//NSLog(@"\t\tfragTextureVarIndexDict is %@",cachedObj.fragTextureVarIndexDict);
+		//NSLog(@"\t\tvertTextureVarIndexDict is %@",cachedObj.vertTextureVarIndexDict);
+		
+		
+		//	allocate a block of memory- statically, so we only do it once per instance of ISFMSLScene and then re-use the mem
+		#define UBO_BLOCK_BASE 48
+		uboDataBufferSize = cachedObj.maxUBOSize + (UBO_BLOCK_BASE - (cachedObj.maxUBOSize % UBO_BLOCK_BASE));
+		//NSLog(@"\t\tmaxUBOSize is %d, data buffer size is %d",cachedObj.maxUBOSize,uboDataBufferSize);
+		//uboDataBufferSize = maxUboSize;
+		//NSLog(@"** WARNING hard coding uboDataBufferSize to 96, %s",__func__);
+		//uboDataBufferSize = 96;
+		uboDataBuffer = malloc( uboDataBufferSize );
+		
+		
+		//	make a vertex descriptor that describes the vertex data we'll be passing to the shader
+		MTLVertexDescriptor		*vtxDesc = [MTLVertexDescriptor vertexDescriptor];
+		
+		vtxDesc.attributes[0].format = MTLVertexFormatFloat4;
+		vtxDesc.attributes[0].offset = 0;
+		vtxDesc.attributes[0].bufferIndex = cachedObj.vtxFuncMaxBufferIndex + 1;
+		vtxDesc.layouts[1].stride = sizeof(float) * 4;
+		vtxDesc.layouts[1].stepFunction = MTLVertexStepFunctionPerVertex;
+		vtxDesc.layouts[1].stepRate = 1;
+		
+		//	make pipeline descriptors for all possible states we need to describe (8bit & float)
+		MTLRenderPipelineDescriptor		*passDesc_8bit = [[MTLRenderPipelineDescriptor alloc] init];
+		MTLRenderPipelineDescriptor		*passDesc_float = [[MTLRenderPipelineDescriptor alloc] init];
+		for (MTLRenderPipelineDescriptor * passDesc in @[ passDesc_8bit, passDesc_float ])	{
+			passDesc.vertexFunction = cachedRenderObj.vtxFunc;
+			passDesc.fragmentFunction = cachedRenderObj.frgFunc;
+			passDesc.vertexDescriptor = vtxDesc;
+		}
+		passDesc_8bit.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+		passDesc_8bit.binaryArchives = @[ cachedRenderObj.archive ];
+		passDesc_float.colorAttachments[0].pixelFormat = MTLPixelFormatRGBA32Float;
+		passDesc_float.binaryArchives = @[ cachedRenderObj.archive ];
+		
+		//	we want to minimize the # of PSOs we create and work with, so try to avoid creating one for each pass and instead try to reuse them
+		id<MTLRenderPipelineState>		pso_8bit = [self.device newRenderPipelineStateWithDescriptor:passDesc_8bit options:MTLPipelineOptionFailOnBinaryArchiveMiss reflection:nil error:&nsErr];
+		if (pso_8bit == nil || nsErr != nil)	{
+			NSLog(@"ERR: problem retrieving pso A (%@) %s",nsErr,__func__);
+			return;
+		}
+		id<MTLRenderPipelineState>		pso_float = [self.device newRenderPipelineStateWithDescriptor:passDesc_float options:MTLPipelineOptionFailOnBinaryArchiveMiss reflection:nil error:&nsErr];
+		if (pso_float == nil || nsErr != nil)	{
+			NSLog(@"ERR: problem retrieving pso B (%@) %s",nsErr,__func__);
+			return;
+		}
+		
+		//	make an obj-c pass for each pass in the doc- our obj-c pass object will hold intermediate render targets and other such conveniences required to implement stuff
+		int			passIndex = 0;
+		for (VVISF::ISFPassTargetRef tmpPass : doc->renderPasses())	{
+			id<ISFMSLScenePassTarget>		pass = [ISFMSLScenePassTarget createWithPassTarget:tmpPass];
+			pass.passIndex = passIndex;
+			if (pass.float32)	{
+				pass.pso = pso_float;
 			}
-			break;
-		//	image, may have a path
-		case VVISF::ISFValType_Image:
-			{
-				NSURL			*url = [NSURL fileURLWithPath: [NSString stringWithUTF8String:attr_cpp->description().c_str()] ];
-				MTKTextureLoader		*loader = [[MTKTextureLoader alloc] initWithDevice:self.device];
-				id<MTLTexture>			tex = [loader
-					newTextureWithContentsOfURL:url
-					options:@{
-						MTKTextureLoaderOptionSRGB:@NO
-					}
-					error:&nsErr];
-				id<VVMTLTextureImage>		img = [[VVMTLPool global] textureForExistingTexture:tex];
-				if (img == nil)	{
-					NSLog(@"ERR: couldn't make img from tex for attr %s, %s",attr_cpp->name().c_str(),__func__);
-					return;
+			else	{
+				pass.pso = pso_8bit;
+			}
+			
+			[passes addObject:pass];
+			
+			++passIndex;
+		}
+		
+		
+		//	make an obj-c attr for each attr in the doc- our objc-c attributes will be how other obj-c classes interact with the ISF and know what sort of inputs it offers and what kind of values they accept
+		//inputs = [[NSMutableArray alloc] init];
+		for (VVISF::ISFAttrRef attr_cpp : doc->inputs())	{
+			//	make the attr and add it to our local array of attrs immediately
+			id<ISFMSLSceneAttrib>		attr = [ISFMSLSceneAttrib createWithISFAttr:attr_cpp];
+			if (attr == nil)
+				continue;
+			[inputs addObject:attr];
+		}
+		
+		
+		//	run through the doc's image imports- load them into textures, and push the textures into the attrs
+		for (VVISF::ISFAttrRef attr_cpp : doc->imageImports())	{
+			//	...if it's an image-style attribute, and there's a path (or paths if it's a cube!), we need to load that image data into a texture using the supplied device
+			switch (attr_cpp->type())	{
+			case VVISF::ISFValType_None:
+			case VVISF::ISFValType_Event:
+			case VVISF::ISFValType_Bool:
+			case VVISF::ISFValType_Long:
+			case VVISF::ISFValType_Float:
+			case VVISF::ISFValType_Point2D:
+			case VVISF::ISFValType_Color:
+				break;
+			//	cube (six images), may have a paths array
+			case VVISF::ISFValType_Cube:
+				{
+					NSLog(@"************** NOT IMPLEMENTED YET, %s",__func__);
+					[[NSException
+						exceptionWithName:@"not implemented yet"
+						reason:@"not implemented yet"
+						userInfo:nil] raise];
 				}
-				
-				ISFImageRef		imgRef = std::make_shared<ISFImage>(img);
-				attr_cpp->setCurrentImageRef(imgRef);
-				//id<ISFMSLSceneVal>	val = [ISFMSLSceneVal createWithImg:img];
-				//attr.currentVal = val;
+				break;
+			//	image, may have a path
+			case VVISF::ISFValType_Image:
+				{
+					NSURL			*url = [NSURL fileURLWithPath: [NSString stringWithUTF8String:attr_cpp->description().c_str()] ];
+					MTKTextureLoader		*loader = [[MTKTextureLoader alloc] initWithDevice:self.device];
+					id<MTLTexture>			tex = [loader
+						newTextureWithContentsOfURL:url
+						options:@{
+							MTKTextureLoaderOptionSRGB:@NO
+						}
+						error:&nsErr];
+					id<VVMTLTextureImage>		img = [[VVMTLPool global] textureForExistingTexture:tex];
+					if (img == nil)	{
+						NSLog(@"ERR: couldn't make img from tex for attr %s, %s",attr_cpp->name().c_str(),__func__);
+						return;
+					}
+					
+					ISFImageRef		imgRef = std::make_shared<ISFImage>(img);
+					attr_cpp->setCurrentImageRef(imgRef);
+					//id<ISFMSLSceneVal>	val = [ISFMSLSceneVal createWithImg:img];
+					//attr.currentVal = val;
+				}
+				break;
+			//	image types...but never have paths (always audio)
+			case VVISF::ISFValType_Audio:
+			case VVISF::ISFValType_AudioFFT:
+				break;
 			}
-			break;
-		//	image types...but never have paths (always audio)
-		case VVISF::ISFValType_Audio:
-		case VVISF::ISFValType_AudioFFT:
-			break;
 		}
+		
+		
+		//	make the base time timestamp now that we've finished loading the doc- this "starts the clock" on the ISF "scene"...
+		if (r)
+			_baseTime = VVISF::Timestamp();
+		_renderFrameIndex = 0;
+		_renderTime = 0.0;
+		_renderTimeDelta = 0.0;
+		_passIndex = 0;
+		
 	}
-	
-	
-	//	make the base time timestamp now that we've finished loading the doc- this "starts the clock" on the ISF "scene"...
-	if (r)
-		_baseTime = VVISF::Timestamp();
-	_renderFrameIndex = 0;
-	_renderTime = 0.0;
-	_renderTimeDelta = 0.0;
-	_passIndex = 0;
 }
 - (NSURL *) url	{
 	if (doc == nullptr)
