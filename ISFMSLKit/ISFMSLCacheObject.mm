@@ -165,13 +165,13 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 		//	won't be able to link it in a lib with other functions), so we go with a filename-based function name for now
 		std::string		outMSLVtxString;
 		std::string		outMSLFrgString;
-		if (!ConvertVertSPIRVToMSL(outSPIRVVtxData, vertFuncName, outMSLVtxString))	{
-			NSLog(@"ERR: unable to convert SPIRV for file %s, bailing",std::filesystem::path(inURLPathCStr).stem().c_str());
+		if (outSPIRVVtxData.size()<1 || !ConvertVertSPIRVToMSL(outSPIRVVtxData, vertFuncName, outMSLVtxString))	{
+			NSLog(@"ERR: unable to convert SPIRV for file %s, bailing A",std::filesystem::path(inURLPathCStr).stem().c_str());
 			self = nil;
 			return self;
 		}
-		if (!ConvertFragSPIRVToMSL(outSPIRVFrgData, fragFuncName, outMSLFrgString))	{
-			NSLog(@"ERR: unable to convert SPIRV for file %s, bailing",std::filesystem::path(inURLPathCStr).stem().c_str());
+		if (outSPIRVFrgData.size()<1 || !ConvertFragSPIRVToMSL(outSPIRVFrgData, fragFuncName, outMSLFrgString))	{
+			NSLog(@"ERR: unable to convert SPIRV for file %s, bailing B",std::filesystem::path(inURLPathCStr).stem().c_str());
 			self = nil;
 			return self;
 		}
