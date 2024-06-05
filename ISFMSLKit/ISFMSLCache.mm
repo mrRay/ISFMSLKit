@@ -164,6 +164,55 @@ static ISFMSLCache		*primary = nil;
 	}
 }
 
+
+- (NSArray<NSURL*> *) clearCache	{
+	@synchronized (self)	{
+		return [self _clearCache];
+	}
+}
+- (NSArray<NSURL*> *) _clearCache	{
+	PINDiskCache		*dCache = _isfCache.diskCache;
+	PINMemoryCache		*mCache = _isfCache.memoryCache;
+	
+	NSMutableArray<NSString*>	*keys = [NSMutableArray arrayWithCapacity:0];
+	NSMutableArray<NSURL*>	*urls = [NSMutableArray arrayWithCapacity:0];
+	
+	[dCache enumerateObjectsWithBlock:^(NSString *key, NSURL *fileURL, BOOL *stop)	{
+		if (![keys containsObject:key])	{
+			[keys addObject:key];
+		}
+	}];
+	[mCache enumerateObjectsWithBlock:^(PINCache *cache, NSString *key, id _Nullable object, BOOL *stop)	{
+		if (![keys containsObject:key])	{
+			[keys addObject:key];
+		}
+	}];
+	
+	for (NSString *key in keys)	{
+		ISFMSLCacheObject	*cachedObj = [_isfCache objectForKey:key];
+		NSString		*cachedPath = cachedObj.path;
+		NSURL			*cachedURL = [NSURL fileURLWithPath:cachedPath];
+		if (cachedURL != nil)
+			[urls addObject:cachedURL];
+	}
+	
+	[_isfCache removeAllObjects];
+	
+	NSFileManager		*fm = [NSFileManager defaultManager];
+	NSURL		*binaryArchivesDir = self.binaryArchivesDirectory;
+	NSError		*nsErr = nil;
+	if (![fm trashItemAtURL:binaryArchivesDir resultingItemURL:nil error:&nsErr] || nsErr != nil)	{
+		NSLog(@"ERR: unable to trash binary archives directory (%@), (%@), %s",binaryArchivesDir.path,nsErr,__func__);
+	}
+	else	{
+		if (![fm createDirectoryAtURL:binaryArchivesDir withIntermediateDirectories:YES attributes:nil error:&nsErr] || nsErr != nil)	{
+			NSLog(@"ERR: unable to create binary archives directory (%@), (%@), %s",binaryArchivesDir.path,nsErr,__func__);
+		}
+	}
+	
+	return [NSArray arrayWithArray:urls];
+}
+
 /*
 - (ISFMSLBinCacheObject *) cacheISFAtURL:(NSURL *)inURL forDevice:(id<MTLDevice>)inDevice	{
 	ISFMSLCacheObject		*returnMe = [self cacheISFAtURL:inURL forDevice:inDevice hint:ISFMSLCacheHint_NoHint];

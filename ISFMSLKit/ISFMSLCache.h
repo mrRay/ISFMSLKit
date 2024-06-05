@@ -54,6 +54,8 @@ typedef NS_ENUM(NSInteger, ISFMSLCacheHint)	{
 - (instancetype) initWithDirectoryURL:(NSURL *)inURL;
 
 - (void) clearCachedISFAtURL:(NSURL *)n;
+//	clears the cache- returns an array of the URLs of the ISFs that were in the cache that have been cleared
+- (NSArray<NSURL*> *) clearCache;
 
 //	equivalent to passing the hint 'ISFMSLCacheHint_NoHint' (binary archive that exists will be used, and created and saved to disk if it doesn't)
 - (ISFMSLBinCacheObject *) getCachedISFAtURL:(NSURL *)n forDevice:(id<MTLDevice>)inDevice;
