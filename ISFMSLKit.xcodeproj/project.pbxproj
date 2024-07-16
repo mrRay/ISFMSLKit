@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A5E93392C46BD5400D611BF /* ISFMSLCache_priv.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A5E93382C46BD5400D611BF /* ISFMSLCache_priv.h */; };
 		1AB1181E2B32423100DDC139 /* VVMetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB1181D2B32423100DDC139 /* VVMetalKit.framework */; };
 		1AB118222B32423900DDC139 /* PINCache.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB118202B32423900DDC139 /* PINCache.framework */; };
 		1AB118242B32423900DDC139 /* PINOperation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB118212B32423900DDC139 /* PINOperation.framework */; };
@@ -74,6 +75,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1A5E93382C46BD5400D611BF /* ISFMSLCache_priv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISFMSLCache_priv.h; sourceTree = "<group>"; };
 		1AB1181D2B32423100DDC139 /* VVMetalKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = VVMetalKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AB118202B32423900DDC139 /* PINCache.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PINCache.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AB118212B32423900DDC139 /* PINOperation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PINOperation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -157,6 +159,7 @@
 				1AE830F02B3238100068889F /* ISFImage.h */,
 				1AE830F92B3238100068889F /* ISFMSLBinCacheObject.h */,
 				1AE831042B3238100068889F /* ISFMSLBinCacheObject.mm */,
+				1A5E93382C46BD5400D611BF /* ISFMSLCache_priv.h */,
 				1AE831022B3238100068889F /* ISFMSLCache.h */,
 				1AE830F42B3238100068889F /* ISFMSLCache.mm */,
 				1AE830EE2B3238100068889F /* ISFMSLCacheObject.h */,
@@ -207,6 +210,7 @@
 			files = (
 				1AE831132B3238100068889F /* ISFMSLScene.h in Headers */,
 				1AE8311B2B3238100068889F /* ISFMSLSceneVal.h in Headers */,
+				1A5E93392C46BD5400D611BF /* ISFMSLCache_priv.h in Headers */,
 				1AE831062B3238100068889F /* ISFMSLCacheObject.h in Headers */,
 				1AE8310F2B3238100068889F /* ISFMSLScenePassTarget.h in Headers */,
 				1AE830E32B3237770068889F /* ISFMSLKit.h in Headers */,

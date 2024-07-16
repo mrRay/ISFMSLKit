@@ -13,6 +13,7 @@
 #include "SPIRVCrossLib.hpp"
 
 #import "ISFMSLCache.h"
+#import "ISFMSLCache_priv.h"
 
 #include <string>
 #include <vector>
@@ -561,6 +562,11 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 		[_binCache addObject:returnMe];
 	
 	return returnMe;
+}
+
+
+- (void) updateInParentCache	{
+	[_parentCache _pushCacheObjectToCache:self];
 }
 
 

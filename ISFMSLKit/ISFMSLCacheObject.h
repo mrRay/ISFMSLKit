@@ -39,9 +39,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong) NSString * path;
 @property (strong) NSString * glslFragShaderHash;	//	checksum used to ensure that the cached values are an accurate reflection of the contents of the ISF currently found on disk
 @property (strong) NSDate * modDate;	//	checksum used to ensure that the cached values are an accurate reflection of the contents of the ISF currently found on disk
-@property (strong) NSString * mslVertShader;
+@property (strong,nullable) NSString * mslVertShader;
 @property (strong) NSString * vertFuncName;
-@property (strong) NSString * mslFragShader;
+@property (strong,nullable) NSString * mslFragShader;
 @property (strong) NSString * fragFuncName;
 @property (strong) NSDictionary<NSString*,NSNumber*> * vertBufferVarIndexDict;
 @property (strong) NSDictionary<NSString*,NSNumber*> * vertTextureVarIndexDict;
@@ -57,6 +57,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 //	this property is NOT cached, it's set by the cache that creates the receiver
 @property (weak,readwrite) ISFMSLCache * parentCache;
+
+//	re-caches the receiver in its parentCache, updating any properties that you want to persist
+- (void) updateInParentCache;
 
 //	these methods check the various checksums to determine if the receiver is an accurate representation of the ISF file on disk (YES) or not.
 - (BOOL) modDateChecksum;

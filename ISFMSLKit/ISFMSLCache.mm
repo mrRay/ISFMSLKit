@@ -41,10 +41,6 @@ static ISFMSLCache		*primary = nil;
 
 - (void) _clearCachedISFAtURL:(NSURL *)inURL;
 
-//	doesn't check anything- immediately begins ops necessary to transpile the ISF to MSL.  ALSO KILLS ANY BINARY ARCHIVES!
-- (ISFMSLCacheObject *) _cacheISFAtURL:(NSURL *)inURL;
-- (ISFMSLCacheObject *) _getCachedISFAtURL:(NSURL *)inURL;
-
 @property (strong) PINCache * isfCache;
 @property (strong,readwrite) NSURL * directory;
 
@@ -313,6 +309,16 @@ static ISFMSLCache		*primary = nil;
 	NSString		*fullPathHash = [fullPath isfMD5String];
 	ISFMSLCacheObject		*returnMe = [_isfCache objectForKey:fullPathHash];
 	return returnMe;
+}
+
+
+- (void) _pushCacheObjectToCache:(ISFMSLCacheObject *)n	{
+	if (n == nil)
+		return;
+	
+	NSString		*fullPath = [n.path stringByExpandingTildeInPath];
+	NSString		*fullPathHash = [fullPath isfMD5String];
+	[_isfCache setObject:n forKey:fullPathHash];
 }
 
 

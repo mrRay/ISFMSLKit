@@ -73,6 +73,8 @@ using namespace std;
 		_vtxLib = [_device newLibraryWithSource:_parentObj.mslVertShader options:nil error:&nsErr];
 		if (_vtxLib == nil)	{
 			NSLog(@"ERR: unable to make lib from vtx src %@, bailing (%@)",_parentObj,nsErr);
+			_parentObj.mslVertShader = nil;
+			[_parentObj updateInParentCache];
 			self = nil;
 			return self;
 		}
@@ -80,6 +82,8 @@ using namespace std;
 		_frgLib = [_device newLibraryWithSource:_parentObj.mslFragShader options:nil error:&nsErr];
 		if (_frgLib == nil)	{
 			NSLog(@"ERR: unable to make lib from frg src %@, bailing (%@)",_parentObj,nsErr);
+			_parentObj.mslFragShader = nil;
+			[_parentObj updateInParentCache];
 			self = nil;
 			return self;
 		}
@@ -87,6 +91,9 @@ using namespace std;
 		_vtxFunc = [_vtxLib newFunctionWithName:_parentObj.vertFuncName];
 		if (_vtxFunc == nil)	{
 			NSLog(@"ERR: unable to make func from vtx lib %@, bailing",_parentObj);
+			_parentObj.mslVertShader = nil;
+			_parentObj.mslFragShader = nil;
+			[_parentObj updateInParentCache];
 			self = nil;
 			return self;
 		}
@@ -94,6 +101,9 @@ using namespace std;
 		_frgFunc = [_frgLib newFunctionWithName:_parentObj.fragFuncName];
 		if (_frgFunc == nil)	{
 			NSLog(@"ERR: unable to make func from frg lib %@, bailing",_parentObj);
+			_parentObj.mslVertShader = nil;
+			_parentObj.mslFragShader = nil;
+			[_parentObj updateInParentCache];
 			self = nil;
 			return self;
 		}
