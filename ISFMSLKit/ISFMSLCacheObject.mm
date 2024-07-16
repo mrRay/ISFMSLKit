@@ -78,6 +78,8 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 		self = nil;
 	
 	if (self != nil)	{
+		self.parentCache = inParent;
+		
 		//	make sure there's a file at the path
 		NSString			*fullPath = [inURL.path stringByExpandingTildeInPath];
 		NSFileManager		*fm = [NSFileManager defaultManager];
@@ -86,6 +88,9 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 			self = nil;
 			return self;
 		}
+		
+		self.path = fullPath;
+		
 		//	get the mod date of the file at the path- if we can't, bail, because a cache is only useful if we can check for modifications
 		NSDictionary		*fileAttribs = [fm attributesOfItemAtPath:fullPath error:nil];
 		NSDate				*modDate = (fileAttribs == nil) ? nil : [fileAttribs objectForKey:NSFileModificationDate];
@@ -94,6 +99,8 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 			self = nil;
 			return self;
 		}
+		
+		self.modDate = modDate;
 		
 		//	local path string (uses "~" to abbreviate the home directory if possible)
 		//NSString		*fullPathHash = [fullPath isfMD5String];
@@ -109,6 +116,18 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 			self = nil;
 			return self;
 		}
+		
+		//NSString		*filename = [inURL URLByDeletingPathExtension].lastPathComponent;
+		std::string			raw_filename = std::filesystem::path(inURLPathCStr).stem().string();
+		std::string			filename { "" };
+		for (auto tmpchar : raw_filename)	{
+			if (isalnum(tmpchar))
+				filename += tmpchar;
+			else
+				filename += "_";
+		}
+		
+		self.name = [NSString stringWithUTF8String:raw_filename.c_str()];
 		
 		//NSDate			*isfDocDate = [NSDate date];
 		
@@ -137,32 +156,23 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 		std::vector<uint32_t>	outSPIRVFrgData;
 		if (!ConvertGLSLVertShaderToSPIRV(glslVertSrc, outSPIRVVtxData))	{
 			NSLog(@"ERR: unable to convert vert shader for file %s, bailing",std::filesystem::path(inURLPathCStr).stem().c_str());
-			self = nil;
+			//self = nil;
 			return self;
 		}
 		
 		if (!ConvertGLSLFragShaderToSPIRV(glslFragSrc, outSPIRVFrgData))	{
 			NSLog(@"ERR: unable to convert frag shader for file %s, bailing",std::filesystem::path(inURLPathCStr).stem().c_str());
-			self = nil;
+			//self = nil;
 			return self;
 		}
 		
 		//NSDate			*transpiledDate = [NSDate date];
 		
-		//NSString		*filename = [inURL URLByDeletingPathExtension].lastPathComponent;
-		std::string			raw_filename = std::filesystem::path(inURLPathCStr).stem().string();
-		std::string			filename { "" };
-		for (auto tmpchar : raw_filename)	{
-			if (isalnum(tmpchar))
-				filename += tmpchar;
-			else
-				filename += "_";
-		}
-		std::string			fragFuncName = filename+"FragFunc";
-		std::string			vertFuncName = filename+"VertFunc";
 		
 		//	we're giving the vertex function an explicit name (we have to, otherwise it's just called "main" and we 
 		//	won't be able to link it in a lib with other functions), so we go with a filename-based function name for now
+		std::string		fragFuncName = filename+"FragFunc";
+		std::string		vertFuncName = filename+"VertFunc";
 		std::string		outMSLVtxString;
 		std::string		outMSLFrgString;
 		if (outSPIRVVtxData.size()<1 || !ConvertVertSPIRVToMSL(outSPIRVVtxData, vertFuncName, outMSLVtxString))	{
@@ -379,10 +389,7 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 		//NSLog(@"vtx_func_max_buffer_index is %d",vtx_func_max_buffer_index);
 		
 		
-		self.name = [NSString stringWithUTF8String:raw_filename.c_str()];
-		self.path = fullPath;
 		self.glslFragShaderHash = fragSrcHash;
-		self.modDate = modDate;
 		self.mslVertShader = outMSLVtxSrc;
 		self.vertFuncName = [NSString stringWithUTF8String:vertFuncName.c_str()];
 		self.mslFragShader = outMSLFrgSrc;
@@ -399,7 +406,6 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 		self.maxUBOSize = (uint32_t)doc->getMaxUBOSize();
 		self.vtxFuncMaxBufferIndex = vtx_func_max_buffer_index;
 		
-		self.parentCache = inParent;
 	}
 	return self;
 }

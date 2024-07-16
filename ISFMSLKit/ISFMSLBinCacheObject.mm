@@ -64,6 +64,12 @@ using namespace std;
 		//NSLog(@"%@",_parentObj.mslFragShader);
 		//NSLog(@"*******************************************");
 		
+		if (_parentObj.mslVertShader == nil || _parentObj.mslFragShader == nil)	{
+			NSLog(@"ERR: shader doesn't exist- object (%@) is cached is compiler-error proxy state",_parentObj);
+			self = nil;
+			return self;
+		}
+		
 		_vtxLib = [_device newLibraryWithSource:_parentObj.mslVertShader options:nil error:&nsErr];
 		if (_vtxLib == nil)	{
 			NSLog(@"ERR: unable to make lib from vtx src %@, bailing (%@)",_parentObj,nsErr);
