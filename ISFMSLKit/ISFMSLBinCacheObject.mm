@@ -195,11 +195,17 @@ using namespace std;
 				
 				if (![_archive addRenderPipelineFunctionsWithDescriptor:passDesc_8bit error:&nsErr] || nsErr != nil)	{
 					NSLog(@"ERR: problem adding pipeline A to bin arch for %@ (%@), %s",_parentObj,nsErr,__func__);
+                    _parentObj.mslVertShader = nil;
+                    _parentObj.mslFragShader = nil;
+                    [_parentObj updateInParentCache];
 					self = nil;
 					return self;
 				}
 				if (![_archive addRenderPipelineFunctionsWithDescriptor:passDesc_float error:&nsErr] || nsErr != nil)	{
 					NSLog(@"ERR: problem adding pipeline B to bin arch for %@ (%@), %s",_parentObj,nsErr,__func__);
+                    _parentObj.mslVertShader = nil;
+                    _parentObj.mslFragShader = nil;
+                    [_parentObj updateInParentCache];
 					self = nil;
 					return self;
 				}
@@ -208,6 +214,9 @@ using namespace std;
 				[[NSFileManager defaultManager] trashItemAtURL:archiveURL resultingItemURL:nil error:nil];
 				if (![_archive serializeToURL:archiveURL error:&nsErr])	{
 					NSLog(@"ERR: problem serializing binary archive for %@ to disk (%@), %s",_parentObj,nsErr,__func__);
+                    _parentObj.mslVertShader = nil;
+                    _parentObj.mslFragShader = nil;
+                    [_parentObj updateInParentCache];
 					self = nil;
 					return self;
 				}
