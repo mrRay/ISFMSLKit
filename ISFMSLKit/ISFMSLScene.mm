@@ -529,7 +529,18 @@ using namespace std;
 		switch (attr.type())	{
 		case VVISF::ISFValType_None:
 			break;
-		case VVISF::ISFValType_Event:
+		case VVISF::ISFValType_Event:	{
+				uint		*wPtr = (uint*)(uboBaseAttrPtr + attr.offsetInBuffer());
+				if (val.isEventVal())	{
+					*wPtr = 1;
+				}
+				else	{
+					*wPtr = (val.getBoolVal()) ? 1 : 0;
+				}
+				//	events are one-frame-only, so immediately give the attr a null value...
+				attr.setCurrentVal(VVISF::CreateISFValNull());
+			}
+			break;
 		case VVISF::ISFValType_Bool:	{
 				uint		*wPtr = (uint*)(uboBaseAttrPtr + attr.offsetInBuffer());
 				*wPtr = (val.getBoolVal()) ? 1 : 0;
@@ -852,7 +863,7 @@ using namespace std;
 		passTarget->setImage(emptyImg);
 	}
 	
-	//	add the single frmae cache array to the completion handler, so we send all the textures we were hanging onto during rendering back to the pool
+	//	add the single frame cache array to the completion handler, so we send all the textures we were hanging onto during rendering back to the pool
 	[self.commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed)	{
 		//NSDate			*endDate = [NSDate date];
 		//NSLog(@"rendering took %0.4f seconds",[startDate timeIntervalSinceDate:endDate]);
