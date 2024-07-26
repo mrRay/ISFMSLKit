@@ -110,8 +110,11 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 		//	create an ISFDoc from the passed URL
 		const char		*inURLPathCStr = fullPath.UTF8String;
 		//std::string		inURLPathStr { inURLPathCStr };
+		#if DEBUG
 		VVISF::ISFDocRef		doc = VVISF::CreateISFDocRef(inURLPathCStr, true);
-		//doc = CreateISFDocRef(inURLPathStr, false);
+		#else
+		VVISF::ISFDocRef		doc = VVISF::CreateISFDocRef(inURLPathCStr, false);
+		#endif
 		if (doc == nullptr)	{
 			NSLog(@"ERR: unable to make doc from ISF %@ (%s)",fullPath,__func__);
 			self = nil;
@@ -592,7 +595,11 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 	NSString		*fullPath = [self.path stringByExpandingTildeInPath];
 	const char		*inURLPathCStr = fullPath.UTF8String;
 	//std::string		inURLPathStr { inURLPathCStr };
+	#if DEBUG
 	VVISF::ISFDocRef		doc = VVISF::CreateISFDocRef(inURLPathCStr, true);
+	#else
+	VVISF::ISFDocRef		doc = VVISF::CreateISFDocRef(inURLPathCStr, false);
+	#endif
 	if (doc == nullptr)	{
 		NSLog(@"ERR: unable to make doc from ISF %@ (%s)",fullPath,__func__);
 		return NO;
