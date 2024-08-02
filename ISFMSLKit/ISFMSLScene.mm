@@ -172,28 +172,10 @@ using namespace std;
 		//uboDataBufferSize = 96;
 		uboDataBuffer = malloc( uboDataBufferSize );
 		
-		
-		//	make a vertex descriptor that describes the vertex data we'll be passing to the shader
-		MTLVertexDescriptor		*vtxDesc = [MTLVertexDescriptor vertexDescriptor];
-		
-		vtxDesc.attributes[0].format = MTLVertexFormatFloat4;
-		vtxDesc.attributes[0].offset = 0;
-		vtxDesc.attributes[0].bufferIndex = cachedObj.vtxFuncMaxBufferIndex + 1;
-		vtxDesc.layouts[1].stride = sizeof(float) * 4;
-		vtxDesc.layouts[1].stepFunction = MTLVertexStepFunctionPerVertex;
-		vtxDesc.layouts[1].stepRate = 1;
-		
 		//	make pipeline descriptors for all possible states we need to describe (8bit & float)
-		MTLRenderPipelineDescriptor		*passDesc_8bit = [[MTLRenderPipelineDescriptor alloc] init];
-		MTLRenderPipelineDescriptor		*passDesc_float = [[MTLRenderPipelineDescriptor alloc] init];
-		for (MTLRenderPipelineDescriptor * passDesc in @[ passDesc_8bit, passDesc_float ])	{
-			passDesc.vertexFunction = cachedRenderObj.vtxFunc;
-			passDesc.fragmentFunction = cachedRenderObj.frgFunc;
-			passDesc.vertexDescriptor = vtxDesc;
-		}
-		passDesc_8bit.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+		MTLRenderPipelineDescriptor		*passDesc_8bit = [cachedRenderObj generate8BitPipelineDescriptor];
 		passDesc_8bit.binaryArchives = @[ cachedRenderObj.archive ];
-		passDesc_float.colorAttachments[0].pixelFormat = MTLPixelFormatRGBA32Float;
+		MTLRenderPipelineDescriptor		*passDesc_float = [cachedRenderObj generateFloatPipelineDescriptor];
 		passDesc_float.binaryArchives = @[ cachedRenderObj.archive ];
 		
 		//	we want to minimize the # of PSOs we create and work with, so try to avoid creating one for each pass and instead try to reuse them

@@ -65,6 +65,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL) modDateChecksum;
 - (BOOL) fragShaderHashChecksum;
 
+//	generate a MTLVertexDescriptor for the cached ISF
+- (MTLVertexDescriptor *) generateVertexDescriptor;
+
 @end
 
 

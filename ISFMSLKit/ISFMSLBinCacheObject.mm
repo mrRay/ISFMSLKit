@@ -58,9 +58,15 @@ using namespace std;
 		
 		//NSLog(@"*******************************************");
 		//NSLog(@"\t\tVERT:");
+		//NSLog(@"\t\tbuffer index dict: %@",_parentObj.vertBufferVarIndexDict);
+		//NSLog(@"\t\ttexture index dict: %@",_parentObj.vertTextureVarIndexDict);
+		//NSLog(@"\t\tsampler index dict: %@",_parentObj.vertSamplerVarIndexDict);
 		//NSLog(@"%@",_parentObj.mslVertShader);
 		//NSLog(@"*******************************************");
 		//NSLog(@"\t\tFRAG:");
+		//NSLog(@"\t\tbuffer index dict: %@",_parentObj.fragBufferVarIndexDict);
+		//NSLog(@"\t\ttexture index dict: %@",_parentObj.fragTextureVarIndexDict);
+		//NSLog(@"\t\tsampler index dict: %@",_parentObj.fragSamplerVarIndexDict);
 		//NSLog(@"%@",_parentObj.mslFragShader);
 		//NSLog(@"*******************************************");
 		
@@ -121,28 +127,9 @@ using namespace std;
 			NSURL		*archiveURL = [deviceDir URLByAppendingPathComponent:fullPathHash];
 			//NSLog(@"\t\tarchiveURL is %@",archiveURL.path);
 			
-			
-			//	make a vertex descriptor that describes the vertex data we'll be passing to the shader
-			MTLVertexDescriptor		*vtxDesc = [MTLVertexDescriptor vertexDescriptor];
-			
-			vtxDesc.attributes[0].format = MTLVertexFormatFloat4;
-			vtxDesc.attributes[0].offset = 0;
-			vtxDesc.attributes[0].bufferIndex = _parentObj.vtxFuncMaxBufferIndex + 1;
-			vtxDesc.layouts[1].stride = sizeof(float) * 4;
-			vtxDesc.layouts[1].stepFunction = MTLVertexStepFunctionPerVertex;
-			vtxDesc.layouts[1].stepRate = 1;
-			
 			//	make pipeline descriptors for all possible states we need to describe (8bit & float)
-			MTLRenderPipelineDescriptor		*passDesc_8bit = [[MTLRenderPipelineDescriptor alloc] init];
-			MTLRenderPipelineDescriptor		*passDesc_float = [[MTLRenderPipelineDescriptor alloc] init];
-			for (MTLRenderPipelineDescriptor * passDesc in @[ passDesc_8bit, passDesc_float ])	{
-				passDesc.vertexFunction = _vtxFunc;
-				passDesc.fragmentFunction = _frgFunc;
-				passDesc.vertexDescriptor = vtxDesc;
-			}
-			passDesc_8bit.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
-			passDesc_float.colorAttachments[0].pixelFormat = MTLPixelFormatRGBA32Float;
-			
+			MTLRenderPipelineDescriptor		*passDesc_8bit = [self generate8BitPipelineDescriptor];
+			MTLRenderPipelineDescriptor		*passDesc_float = [self generateFloatPipelineDescriptor];
 			
 			//	if there's a binary archive on disk, try loading it
 			BOOL		archiveExists = [[NSFileManager defaultManager] fileExistsAtPath:archiveURL.path];
@@ -161,7 +148,11 @@ using namespace std;
 				//	now check to see if we can pull the 8bit PSO we're going to need
 				MTLRenderPipelineDescriptor		*passDesc_8bit_binArch = [passDesc_8bit copy];
 				passDesc_8bit_binArch.binaryArchives = @[ _archive ];
-				id<MTLRenderPipelineState>		pso_8bit = [self.device newRenderPipelineStateWithDescriptor:passDesc_8bit_binArch options:MTLPipelineOptionFailOnBinaryArchiveMiss reflection:nil error:&nsErr];
+				id<MTLRenderPipelineState>		pso_8bit = [self.device
+					newRenderPipelineStateWithDescriptor:passDesc_8bit_binArch
+					options:MTLPipelineOptionFailOnBinaryArchiveMiss
+					reflection:nil
+					error:&nsErr];
 				if (pso_8bit == nil || nsErr != nil)	{
 					NSLog(@"ERR: (%@) extracing 8bit PSO from bin arch for device (%@) with parent (%@) in %s",nsErr,inDevice,inParent,__func__);
 					_archive = nil;
@@ -171,7 +162,11 @@ using namespace std;
 				//	check to see if we can pull the float PSO we're going to need
 				MTLRenderPipelineDescriptor		*passDesc_float_binArch = [passDesc_float copy];
 				passDesc_float_binArch.binaryArchives = @[ _archive ];
-				id<MTLRenderPipelineState>		pso_float = [self.device newRenderPipelineStateWithDescriptor:passDesc_float_binArch options:MTLPipelineOptionFailOnBinaryArchiveMiss reflection:nil error:&nsErr];
+				id<MTLRenderPipelineState>		pso_float = [self.device
+					newRenderPipelineStateWithDescriptor:passDesc_float_binArch
+					options:MTLPipelineOptionFailOnBinaryArchiveMiss
+					reflection:nil
+					error:&nsErr];
 				if (pso_float == nil || nsErr != nil)	{
 					NSLog(@"ERR: (%@) extracing float PSO from bin arch for device (%@) with parent (%@) in %s",nsErr,inDevice,inParent,__func__);
 					_archive = nil;
@@ -230,6 +225,34 @@ using namespace std;
 
 - (NSString *) description	{
 	return [NSString stringWithFormat:@"<ISFMSLBinCacheObject (%@) %@ %p>",_parentObj,_device.name,self];
+}
+
+
+- (MTLRenderPipelineDescriptor *) generate8BitPipelineDescriptor	{
+	if (_vtxFunc == nil || _frgFunc == nil)
+		return nil;
+	MTLVertexDescriptor		*vtxDesc = [_parentObj generateVertexDescriptor];
+	if (vtxDesc == nil)
+		return nil;
+	MTLRenderPipelineDescriptor		*passDesc_8bit = [[MTLRenderPipelineDescriptor alloc] init];
+	passDesc_8bit.vertexFunction = _vtxFunc;
+	passDesc_8bit.fragmentFunction = _frgFunc;
+	passDesc_8bit.vertexDescriptor = vtxDesc;
+	passDesc_8bit.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+	return passDesc_8bit;
+}
+- (MTLRenderPipelineDescriptor *) generateFloatPipelineDescriptor	{
+	if (_vtxFunc == nil || _frgFunc == nil)
+		return nil;
+	MTLVertexDescriptor		*vtxDesc = [_parentObj generateVertexDescriptor];
+	if (vtxDesc == nil)
+		return nil;
+	MTLRenderPipelineDescriptor		*passDesc_float = [[MTLRenderPipelineDescriptor alloc] init];
+	passDesc_float.vertexFunction = _vtxFunc;
+	passDesc_float.fragmentFunction = _frgFunc;
+	passDesc_float.vertexDescriptor = vtxDesc;
+	passDesc_float.colorAttachments[0].pixelFormat = MTLPixelFormatRGBA32Float;
+	return passDesc_float;
 }
 
 

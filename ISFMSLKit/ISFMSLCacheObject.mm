@@ -385,7 +385,9 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 		
 		//	now that we've assembled a collection of all of the args with the sampler attribute and their corresponding indexes, we can just look for the max index value and update the vertex function max buffer index ivar
 		uint32_t			vtx_func_max_buffer_index = 0;
-		for (auto iter = std::begin(fragBufferVarIndexMap); iter != std::end(fragBufferVarIndexMap); ++iter)	{
+		//for (auto iter = std::begin(fragBufferVarIndexMap); iter != std::end(fragBufferVarIndexMap); ++iter)
+		for (auto iter = std::begin(vertBufferVarIndexMap); iter != std::end(vertBufferVarIndexMap); ++iter)
+		{
 			if (iter->second > vtx_func_max_buffer_index)	{
 				vtx_func_max_buffer_index = iter->second;
 			}
@@ -620,6 +622,22 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 	}
 	
 	return YES;
+}
+
+
+- (MTLVertexDescriptor *) generateVertexDescriptor	{
+	
+	MTLVertexDescriptor		*vtxDesc = [MTLVertexDescriptor vertexDescriptor];
+	
+	vtxDesc.attributes[0].format = MTLVertexFormatFloat4;
+	vtxDesc.attributes[0].offset = 0;
+	vtxDesc.attributes[0].bufferIndex = self.vtxFuncMaxBufferIndex + 1;
+	vtxDesc.layouts[1].stride = sizeof(float) * 4;
+	vtxDesc.layouts[1].stepFunction = MTLVertexStepFunctionPerVertex;
+	vtxDesc.layouts[1].stepRate = 1;
+	
+	return vtxDesc;
+	
 }
 
 

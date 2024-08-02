@@ -45,6 +45,9 @@ NS_ASSUME_NONNULL_BEGIN
 //	this property isn't cached, it's set by the cache that creates the receiver
 @property (weak,readwrite) ISFMSLCacheObject * parentObj;
 
+- (MTLRenderPipelineDescriptor *) generate8BitPipelineDescriptor;
+- (MTLRenderPipelineDescriptor *) generateFloatPipelineDescriptor;
+
 @end
 
 
