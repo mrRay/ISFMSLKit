@@ -295,6 +295,7 @@ static ISFMSLCache		*primary = nil;
 		return nil;
 	
 	ISFMSLBinCacheObject		*returnMe = nil;
+	BOOL		hadToCacheTheISF = NO;
 	
 	@synchronized (self)	{
 		
@@ -323,13 +324,14 @@ static ISFMSLCache		*primary = nil;
 		}
 		
 		if (parentObj == nil)	{
+			hadToCacheTheISF = YES;
 			parentObj = [self _cacheISFAtURL:inURL];
 		}
 		
 		returnMe = [parentObj binCacheForDevice:inDevice];
 		
 		//	if we couldn't make a bin cache, and the caller requested that we log errors to disk...
-		if (returnMe == nil && inLog)	{
+		if (returnMe == nil && (inLog || hadToCacheTheISF))	{
 			[parentObj logTranspilerErrorForDevice:inDevice];
 		}
 	}
