@@ -79,6 +79,23 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 		self = nil;
 	
 	if (self != nil)	{
+		_name = @"";
+		_path = @"";
+		_glslFragShaderHash = @"";
+		//_modDate = nil;
+		_mslVertShader = nil;
+		_vertFuncName = @"";
+		_mslFragShader = nil;
+		_fragFuncName = @"";
+		_vertBufferVarIndexDict = @{};
+		_vertTextureVarIndexDict = @{};
+		_vertSamplerVarIndexDict = @{};
+		_fragBufferVarIndexDict = @{};
+		_fragTextureVarIndexDict = @{};
+		_fragSamplerVarIndexDict = @{};
+		_maxUBOSize = 0;
+		_vtxFuncMaxBufferIndex = 0;
+		
 		self.parentCache = inParent;
 		
 		//	make sure there's a file at the path
@@ -158,13 +175,15 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 		
 		std::vector<uint32_t>	outSPIRVVtxData;
 		std::vector<uint32_t>	outSPIRVFrgData;
-		if (!ConvertGLSLVertShaderToSPIRV(glslVertSrc, outSPIRVVtxData))	{
+		std::string		glslVertErrString;
+		std::string		glslFragErrString;
+		if (!ConvertGLSLVertShaderToSPIRV(glslVertSrc, outSPIRVVtxData, glslVertErrString))	{
 			NSLog(@"ERR: unable to convert vert shader for file %s, bailing",std::filesystem::path(inURLPathCStr).stem().c_str());
 			//self = nil;
 			return self;
 		}
 		
-		if (!ConvertGLSLFragShaderToSPIRV(glslFragSrc, outSPIRVFrgData))	{
+		if (!ConvertGLSLFragShaderToSPIRV(glslFragSrc, outSPIRVFrgData, glslFragErrString))	{
 			NSLog(@"ERR: unable to convert frag shader for file %s, bailing",std::filesystem::path(inURLPathCStr).stem().c_str());
 			//self = nil;
 			return self;
@@ -175,18 +194,20 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 		
 		//	we're giving the vertex function an explicit name (we have to, otherwise it's just called "main" and we 
 		//	won't be able to link it in a lib with other functions), so we go with a filename-based function name for now
-		std::string		fragFuncName = filename+"FragFunc";
-		std::string		vertFuncName = filename+"VertFunc";
+		std::string		fragFuncName = "VV"+filename+"FragFunc";
+		std::string		vertFuncName = "VV"+filename+"VertFunc";
 		std::string		outMSLVtxString;
 		std::string		outMSLFrgString;
-		if (outSPIRVVtxData.size()<1 || !ConvertVertSPIRVToMSL(outSPIRVVtxData, vertFuncName, outMSLVtxString))	{
+		std::string		outMSLVtxErrString;
+		std::string		outMSLFrgErrString;
+		if (outSPIRVVtxData.size()<1 || !ConvertVertSPIRVToMSL(outSPIRVVtxData, vertFuncName, outMSLVtxString, outMSLVtxErrString))	{
 			NSLog(@"ERR: unable to convert SPIRV for file %s, bailing A",std::filesystem::path(inURLPathCStr).stem().c_str());
-			self = nil;
+			//self = nil;
 			return self;
 		}
-		if (outSPIRVFrgData.size()<1 || !ConvertFragSPIRVToMSL(outSPIRVFrgData, fragFuncName, outMSLFrgString))	{
+		if (outSPIRVFrgData.size()<1 || !ConvertFragSPIRVToMSL(outSPIRVFrgData, fragFuncName, outMSLFrgString, outMSLFrgErrString))	{
 			NSLog(@"ERR: unable to convert SPIRV for file %s, bailing B",std::filesystem::path(inURLPathCStr).stem().c_str());
-			self = nil;
+			//self = nil;
 			return self;
 		}
 		
@@ -567,6 +588,39 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 		[_binCache addObject:returnMe];
 	
 	return returnMe;
+}
+- (void) logTranspilerErrorForDevice:(id<MTLDevice>)inDevice	{
+	if (inDevice == nil)
+		return;
+	
+	//	collect all the data we want to export: make the transpiler error, use that to generate the log string
+	ISFMSLTranspilerError	*transErr = [ISFMSLTranspilerError createWithURL:[NSURL fileURLWithPath:self.path] device:inDevice];
+	NSString		*exportString = (transErr==nil) ? nil : [transErr generateStringForLogFile];
+	if (exportString == nil)
+		return;
+	
+	//	make sure the error logs directory exists- create it if it doesn't yet
+	NSFileManager		*fm = [NSFileManager defaultManager];
+	NSError		*nsErr = nil;
+	NSURL		*localErrorLogsDir = self.parentCache.transpilerErrorLogsDirectory;
+	
+	if (![fm fileExistsAtPath:localErrorLogsDir.path])	{
+		if (![fm createDirectoryAtURL:localErrorLogsDir withIntermediateDirectories:YES attributes:nil error:&nsErr] || nsErr!=nil)	{
+			NSLog(@"ERR: %s, unable to make logs directory (%@) because (%@)",__func__,localErrorLogsDir.path,nsErr.localizedDescription);
+			return;
+		}
+	}
+	
+	//	craft the URL at which the error log will be saved
+	NSString	*dstFilename = [[self.path.lastPathComponent stringByDeletingPathExtension] stringByAppendingPathExtension:@"txt"];
+	NSURL		*dstURL = [localErrorLogsDir URLByAppendingPathComponent:dstFilename];
+	
+	//	save the error string at the target URL
+	if (![exportString writeToURL:dstURL atomically:YES encoding:NSUTF8StringEncoding error:&nsErr])	{
+		NSLog(@"ERR: %s, problem (%@) writing to URL (%@)",__func__,nsErr.localizedDescription,dstURL.path);
+		return;
+	}
+	
 }
 
 

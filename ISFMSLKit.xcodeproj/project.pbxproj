@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		1A5E93392C46BD5400D611BF /* ISFMSLCache_priv.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A5E93382C46BD5400D611BF /* ISFMSLCache_priv.h */; };
+		1AAEC4EE2C613916002BA584 /* ISFMSLTranspilerError.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AAEC4EC2C613916002BA584 /* ISFMSLTranspilerError.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AAEC4EF2C613916002BA584 /* ISFMSLTranspilerError.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AAEC4ED2C613916002BA584 /* ISFMSLTranspilerError.mm */; };
 		1AB1181E2B32423100DDC139 /* VVMetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB1181D2B32423100DDC139 /* VVMetalKit.framework */; };
 		1AB118222B32423900DDC139 /* PINCache.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB118202B32423900DDC139 /* PINCache.framework */; };
 		1AB118242B32423900DDC139 /* PINOperation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB118212B32423900DDC139 /* PINOperation.framework */; };
@@ -76,6 +78,8 @@
 
 /* Begin PBXFileReference section */
 		1A5E93382C46BD5400D611BF /* ISFMSLCache_priv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISFMSLCache_priv.h; sourceTree = "<group>"; };
+		1AAEC4EC2C613916002BA584 /* ISFMSLTranspilerError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISFMSLTranspilerError.h; sourceTree = "<group>"; };
+		1AAEC4ED2C613916002BA584 /* ISFMSLTranspilerError.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ISFMSLTranspilerError.mm; sourceTree = "<group>"; };
 		1AB1181D2B32423100DDC139 /* VVMetalKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = VVMetalKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AB118202B32423900DDC139 /* PINCache.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PINCache.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AB118212B32423900DDC139 /* PINOperation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PINOperation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -119,9 +123,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1AE831252B323CE60068889F /* Metal.framework in Frameworks */,
 				1AB118272B32428400DDC139 /* MetalKit.framework in Frameworks */,
 				1AE831272B323CEE0068889F /* CoreGraphics.framework in Frameworks */,
-				1AE831252B323CE60068889F /* Metal.framework in Frameworks */,
 				1AB118242B32423900DDC139 /* PINOperation.framework in Frameworks */,
 				1AE831292B323D0C0068889F /* libGLSLangValidatorLib.dylib in Frameworks */,
 				1AB1181E2B32423100DDC139 /* VVMetalKit.framework in Frameworks */,
@@ -181,6 +185,8 @@
 				1AE831012B3238100068889F /* ISFMSLSceneVal_priv.h */,
 				1AE830F22B3238100068889F /* ISFMSLSceneVal_priv.mm */,
 				1AE831032B3238100068889F /* ISFMSLSceneVal.h */,
+				1AAEC4EC2C613916002BA584 /* ISFMSLTranspilerError.h */,
+				1AAEC4ED2C613916002BA584 /* ISFMSLTranspilerError.mm */,
 			);
 			path = ISFMSLKit;
 			sourceTree = "<group>";
@@ -218,6 +224,7 @@
 				1AE831182B3238100068889F /* ISFMSLConstants.h in Headers */,
 				1AE831142B3238100068889F /* ISFMSLSceneAttrib.h in Headers */,
 				1AE831162B3238100068889F /* ISFMSLSceneImgRef.h in Headers */,
+				1AAEC4EE2C613916002BA584 /* ISFMSLTranspilerError.h in Headers */,
 				1AE8311A2B3238100068889F /* ISFMSLCache.h in Headers */,
 				1AE8310B2B3238100068889F /* ISFMSLNSStringAdditions.h in Headers */,
 				1AE831112B3238100068889F /* ISFMSLBinCacheObject.h in Headers */,
@@ -326,6 +333,7 @@
 				1AE831172B3238100068889F /* ISFMSLScenePassTarget_priv.mm in Sources */,
 				1AE8310C2B3238100068889F /* ISFMSLCache.mm in Sources */,
 				1AE831092B3238100068889F /* ISFMSLCacheObject.mm in Sources */,
+				1AAEC4EF2C613916002BA584 /* ISFMSLTranspilerError.mm in Sources */,
 				1AE8311C2B3238100068889F /* ISFMSLBinCacheObject.mm in Sources */,
 				1AE8310D2B3238100068889F /* ISFMSLSceneImgRef_priv.mm in Sources */,
 				1AE831122B3238100068889F /* ISFMSLNSStringAdditions.mm in Sources */,

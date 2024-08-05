@@ -153,7 +153,7 @@ using namespace std;
 		
 		NSError		*nsErr = nil;
 		
-		cachedRenderObj = [ISFMSLCache.primary getCachedISFAtURL:n forDevice:self.device hint:ISFMSLCacheHint_TranspileIfDateDelta];
+		cachedRenderObj = [ISFMSLCache.primary getCachedISFAtURL:n forDevice:self.device hint:ISFMSLCacheHint_TranspileIfDateDelta logErrorToDisk:NO];
 		if (cachedRenderObj == nil)	{
 			NSLog(@"ERR: unable to load file (%@), %s",n.lastPathComponent,__func__);
 			return;

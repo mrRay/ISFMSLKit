@@ -40,6 +40,7 @@ static ISFMSLCache		*primary = nil;
 - (void) generalInit;
 
 - (void) _clearCachedISFAtURL:(NSURL *)inURL;
+- (void) _generateErrorForCacheObject:(ISFMSLCacheObject *)n device:(id<MTLDevice>)d;
 
 @property (strong) PINCache * isfCache;
 @property (strong,readwrite) NSURL * directory;
@@ -89,7 +90,6 @@ static ISFMSLCache		*primary = nil;
 	
 	return self;
 }
-
 
 - (void) generalInit	{
 	//	first make sure the directory that will contain binary archives exists
@@ -157,6 +157,34 @@ static ISFMSLCache		*primary = nil;
 				NSLog(@"ERR: (%@) moving (%@) in %s",nsErr,binArchiveFile.path,__func__);
 			}
 		}
+	}
+}
+- (void) _generateErrorForCacheObject:(ISFMSLCacheObject *)n device:(id<MTLDevice>)d	{
+	if (n == nil)
+		return;
+	
+	NSFileManager		*fm = [NSFileManager defaultManager];
+	NSError		*nsErr = nil;
+	NSURL		*localErrorLogsDir = self.transpilerErrorLogsDirectory;
+	
+	//	make sure the error logs directory exists- create it if it doesn't yet
+	if (![fm fileExistsAtPath:localErrorLogsDir.path])	{
+		if (![fm createDirectoryAtURL:localErrorLogsDir withIntermediateDirectories:YES attributes:nil error:&nsErr] || nsErr!=nil)	{
+			NSLog(@"ERR: %s, unable to make logs directory (%@) because (%@)",__func__,localErrorLogsDir.path,nsErr.localizedDescription);
+			return;
+		}
+	}
+	
+	//	craft the URL at which the error log will be saved
+	NSString	*dstFilename = [[n.path.lastPathComponent stringByDeletingPathExtension] stringByAppendingPathExtension:@"txt"];
+	NSURL		*dstURL = [localErrorLogsDir URLByAppendingPathComponent:dstFilename];
+	
+	//	generate the transpiler error object, have it generate the string data to log to disk
+	ISFMSLTranspilerError		*transErr = [ISFMSLTranspilerError createWithURL:[NSURL fileURLWithPath:n.path] device:d];
+	NSString	*exportString = [transErr generateStringForLogFile];
+	if (![exportString writeToURL:dstURL atomically:YES encoding:NSUTF8StringEncoding error:&nsErr])	{
+		NSLog(@"ERR: %s, problem (%@) writing to URL (%@)",__func__,nsErr.localizedDescription,dstURL.path);
+		return;
 	}
 }
 
@@ -257,9 +285,12 @@ static ISFMSLCache		*primary = nil;
 */
 
 - (ISFMSLBinCacheObject *) getCachedISFAtURL:(NSURL *)inURL forDevice:(id<MTLDevice>)inDevice	{
-	return [self getCachedISFAtURL:inURL forDevice:inDevice hint:ISFMSLCacheHint_NoHint];
+	return [self getCachedISFAtURL:inURL forDevice:inDevice hint:ISFMSLCacheHint_NoHint logErrorToDisk:NO];
 }
-- (ISFMSLBinCacheObject *) getCachedISFAtURL:(NSURL *)inURL forDevice:(id<MTLDevice>)inDevice hint:(ISFMSLCacheHint)inHint	{
+//- (ISFMSLBinCacheObject *) getCachedISFAtURL:(NSURL *)inURL forDevice:(id<MTLDevice>)inDevice hint:(ISFMSLCacheHint)inHint	{
+//	return [self getCachedISFAtURL:inURL forDevice:inDevice hint:inHint logErrorToDisk:NO];
+//}
+- (ISFMSLBinCacheObject *) getCachedISFAtURL:(NSURL *)inURL forDevice:(id<MTLDevice>)inDevice hint:(ISFMSLCacheHint)inHint logErrorToDisk:(BOOL)inLog	{
 	if (inURL == nil || inDevice == nil)
 		return nil;
 	
@@ -296,6 +327,11 @@ static ISFMSLCache		*primary = nil;
 		}
 		
 		returnMe = [parentObj binCacheForDevice:inDevice];
+		
+		//	if we couldn't make a bin cache, and the caller requested that we log errors to disk...
+		if (returnMe == nil && inLog)	{
+			[parentObj logTranspilerErrorForDevice:inDevice];
+		}
 	}
 	
 	return returnMe;
@@ -349,6 +385,11 @@ static ISFMSLCache		*primary = nil;
 		options:NSDirectoryEnumerationSkipsHiddenFiles
 		error:&nsErr];
 	return returnMe;
+}
+
+
+- (NSURL *) transpilerErrorLogsDirectory	{
+	return [self.directory URLByAppendingPathComponent:@"ErrorLogs"];
 }
 
 

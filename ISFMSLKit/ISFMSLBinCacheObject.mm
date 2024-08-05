@@ -71,7 +71,7 @@ using namespace std;
 		//NSLog(@"*******************************************");
 		
 		if (_parentObj.mslVertShader == nil || _parentObj.mslFragShader == nil)	{
-			NSLog(@"ERR: shader doesn't exist- object (%@) is cached is compiler-error proxy state",_parentObj);
+			NSLog(@"ERR: shader doesn't exist- object (%@) is cached as compiler-error proxy state",_parentObj);
 			self = nil;
 			return self;
 		}

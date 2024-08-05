@@ -10,6 +10,7 @@
 #import <PINCache/PINCache.h>
 #import <ISFMSLKit/ISFMSLCacheObject.h>
 #import <ISFMSLKit/ISFMSLBinCacheObject.h>
+#import <ISFMSLKit/ISFMSLTranspilerError.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -59,7 +60,8 @@ typedef NS_ENUM(NSInteger, ISFMSLCacheHint)	{
 
 //	equivalent to passing the hint 'ISFMSLCacheHint_NoHint' (binary archive that exists will be used, and created and saved to disk if it doesn't)
 - (ISFMSLBinCacheObject *) getCachedISFAtURL:(NSURL *)n forDevice:(id<MTLDevice>)inDevice;
-- (ISFMSLBinCacheObject *) getCachedISFAtURL:(NSURL *)n forDevice:(id<MTLDevice>)inDevice hint:(ISFMSLCacheHint)inHint;;
+//- (ISFMSLBinCacheObject *) getCachedISFAtURL:(NSURL *)n forDevice:(id<MTLDevice>)inDevice hint:(ISFMSLCacheHint)inHint;
+- (ISFMSLBinCacheObject *) getCachedISFAtURL:(NSURL *)n forDevice:(id<MTLDevice>)inDevice hint:(ISFMSLCacheHint)inHint logErrorToDisk:(BOOL)inLog;
 
 @property (strong,readonly) NSURL * directory;
 
@@ -67,6 +69,9 @@ typedef NS_ENUM(NSInteger, ISFMSLCacheHint)	{
 @property (readonly) NSURL * binaryArchivesDirectory;
 //	each directory corresponds to a GPU types, and contains only binaries compiled for it
 @property (readonly) NSArray<NSURL*> * binaryArchiveDirectories;
+
+//	this directory contains text files that are logs of compiler errors. the text file names are the last path components of the source files (minus existing extension, plus ".txt")
+@property (readonly) NSURL * transpilerErrorLogsDirectory;
 
 @end
 

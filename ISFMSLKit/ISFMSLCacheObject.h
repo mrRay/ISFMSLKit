@@ -10,6 +10,7 @@
 #import <Metal/Metal.h>
 
 #import <ISFMSLKit/ISFMSLBinCacheObject.h>
+#import <ISFMSLKit/ISFMSLTranspilerError.h>
 
 @class ISFMSLCache;
 
@@ -54,6 +55,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 //	NOT cached by PINCache...but ISFMSLBinCacheObject instances serialize id<MTLBinaryCache> data to disk, so this is a form of caching, technically...
 - (ISFMSLBinCacheObject *) binCacheForDevice:(id<MTLDevice>)inDevice;
+
+//	slow- transpiles the shader, logging any error to a file in the parent cache's 'transpilerErrorLogsDirectory'
+- (void) logTranspilerErrorForDevice:(id<MTLDevice>)inDevice;
 
 //	this property is NOT cached, it's set by the cache that creates the receiver
 @property (weak,readwrite) ISFMSLCache * parentCache;
