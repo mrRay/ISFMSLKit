@@ -285,15 +285,17 @@
 			[mut appendString:@"Error Compiling GLSL Fragment Shader to SPIR-V:\n"];
 			[mut appendFormat:@"%@\n",_fragGLSLErrString];
 		}
+		
+		[mut appendString:div];
+		
+		//	add the GLSL source code to the string
+		[mut appendFormat:@"GLSL Vertex Shader:\n%@\n",_glslVertSrcWithLineNumbers];
+		[mut appendFormat:@"GLSL Fragment Shader:\n%@\n",_glslFragSrcWithLineNumbers];
 	}
-	//	add the GLSL source code to the string
-	[mut appendFormat:@"GLSL Vertex Shader:\n%@\n",_glslVertSrcWithLineNumbers];
-	[mut appendFormat:@"GLSL Fragment Shader:\n%@\n",_glslFragSrcWithLineNumbers];
 	//	if there's a GLSL error flag, we're done now and can return
 	if (_vertGLSLErrFlag || _fragGLSLErrFlag)	{
 		return [NSString stringWithString:mut];
 	}
-	
 	
 	//	if there's a SPIR-V error flag (an error converting SPIR-V to MSL), add it to the string
 	if (_vertSPIRVErrFlag || _fragSPIRVErrFlag)	{
@@ -321,10 +323,19 @@
 			[mut appendString:@"Error compiling MSL Fragment shader:\n"];
 			[mut appendFormat:@"%@\n",_fragMSLErrString];
 		}
+		
+		[mut appendString:div];
+		
+		//	add the MSL source code to the string
+		[mut appendFormat:@"MSL Vertex Shader:\n%@\n",_mslVertSrcWithLineNumbers];
+		[mut appendFormat:@"MSL Fragment Shader:\n%@\n",_mslFragSrcWithLineNumbers];
+		
+		[mut appendString:div];
+		
+		//	add the GLSL source code to the string
+		[mut appendFormat:@"GLSL Vertex Shader:\n%@\n",_glslVertSrcWithLineNumbers];
+		[mut appendFormat:@"GLSL Fragment Shader:\n%@\n",_glslFragSrcWithLineNumbers];
 	}
-	//	add the MSL source code to the string
-	[mut appendFormat:@"MSL Vertex Shader:\n%@\n",_mslVertSrcWithLineNumbers];
-	[mut appendFormat:@"MSL Fragment Shader:\n%@\n",_mslFragSrcWithLineNumbers];
 	
 	return [NSString stringWithString:mut];
 }
