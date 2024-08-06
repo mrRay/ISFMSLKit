@@ -235,10 +235,12 @@ using namespace std;
 			case VVISF::ISFValType_Cube:
 				{
 					NSLog(@"************** NOT IMPLEMENTED YET, %s",__func__);
+					#if DEBUG
 					[[NSException
 						exceptionWithName:@"not implemented yet"
 						reason:@"not implemented yet"
 						userInfo:nil] raise];
+					#endif
 				}
 				break;
 			//	image, may have a path
