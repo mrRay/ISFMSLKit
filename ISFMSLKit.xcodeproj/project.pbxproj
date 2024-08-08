@@ -48,6 +48,8 @@
 		1AE8312E2B323D440068889F /* libSPIRVCrossLib.dylib in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1AE8312A2B323D100068889F /* libSPIRVCrossLib.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		1AE831302B323DBB0068889F /* libISFGLSLGenerator.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AE8312F2B323DBB0068889F /* libISFGLSLGenerator.dylib */; };
 		1AE831312B323DE30068889F /* libISFGLSLGenerator.dylib in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1AE8312F2B323DBB0068889F /* libISFGLSLGenerator.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		1AEA26B52C629338002A978C /* ISFMSLDoc.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AEA26B32C629338002A978C /* ISFMSLDoc.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AEA26B62C629338002A978C /* ISFMSLDoc.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AEA26B42C629338002A978C /* ISFMSLDoc.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -116,6 +118,8 @@
 		1AE831282B323D0C0068889F /* libGLSLangValidatorLib.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLSLangValidatorLib.dylib; path = extern/GLSLangValidatorLib/bin/libGLSLangValidatorLib.dylib; sourceTree = "<group>"; };
 		1AE8312A2B323D100068889F /* libSPIRVCrossLib.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSPIRVCrossLib.dylib; path = extern/SPIRVCrossLib/bin/libSPIRVCrossLib.dylib; sourceTree = "<group>"; };
 		1AE8312F2B323DBB0068889F /* libISFGLSLGenerator.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libISFGLSLGenerator.dylib; path = submodules/ISFGLSLGenerator/build/install/lib/libISFGLSLGenerator.dylib; sourceTree = "<group>"; };
+		1AEA26B32C629338002A978C /* ISFMSLDoc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISFMSLDoc.h; sourceTree = "<group>"; };
+		1AEA26B42C629338002A978C /* ISFMSLDoc.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ISFMSLDoc.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,6 +191,8 @@
 				1AE831032B3238100068889F /* ISFMSLSceneVal.h */,
 				1AAEC4EC2C613916002BA584 /* ISFMSLTranspilerError.h */,
 				1AAEC4ED2C613916002BA584 /* ISFMSLTranspilerError.mm */,
+				1AEA26B32C629338002A978C /* ISFMSLDoc.h */,
+				1AEA26B42C629338002A978C /* ISFMSLDoc.mm */,
 			);
 			path = ISFMSLKit;
 			sourceTree = "<group>";
@@ -225,6 +231,7 @@
 				1AE831142B3238100068889F /* ISFMSLSceneAttrib.h in Headers */,
 				1AE831162B3238100068889F /* ISFMSLSceneImgRef.h in Headers */,
 				1AAEC4EE2C613916002BA584 /* ISFMSLTranspilerError.h in Headers */,
+				1AEA26B52C629338002A978C /* ISFMSLDoc.h in Headers */,
 				1AE8311A2B3238100068889F /* ISFMSLCache.h in Headers */,
 				1AE8310B2B3238100068889F /* ISFMSLNSStringAdditions.h in Headers */,
 				1AE831112B3238100068889F /* ISFMSLBinCacheObject.h in Headers */,
@@ -332,6 +339,7 @@
 				1AE830EC2B3237FD0068889F /* ISFMSLKit.mm in Sources */,
 				1AE831172B3238100068889F /* ISFMSLScenePassTarget_priv.mm in Sources */,
 				1AE8310C2B3238100068889F /* ISFMSLCache.mm in Sources */,
+				1AEA26B62C629338002A978C /* ISFMSLDoc.mm in Sources */,
 				1AE831092B3238100068889F /* ISFMSLCacheObject.mm in Sources */,
 				1AAEC4EF2C613916002BA584 /* ISFMSLTranspilerError.mm in Sources */,
 				1AE8311C2B3238100068889F /* ISFMSLBinCacheObject.mm in Sources */,

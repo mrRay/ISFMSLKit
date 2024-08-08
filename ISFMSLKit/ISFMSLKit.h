@@ -24,6 +24,7 @@ FOUNDATION_EXPORT const unsigned char ISFMSLKitVersionString[];
 #import <ISFMSLKit/ISFMSLCache.h>
 #import <ISFMSLKit/ISFMSLTranspilerError.h>
 #import <ISFMSLKit/ISFMSLNSStringAdditions.h>
+#import <ISFMSLKit/ISFMSLDoc.h>
 
 
 
