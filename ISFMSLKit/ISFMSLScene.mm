@@ -71,6 +71,7 @@ using namespace std;
 	
 	CopierMTLScene		*_copierScene;	//	used for backend copies only
 }
+@property (readwrite) BOOL compilerError;
 @end
 
 
@@ -109,6 +110,8 @@ using namespace std;
 	//NSLog(@"%s ... %@",__func__,n.path.lastPathComponent);
 	
 	@synchronized (self)	{
+		
+		self.compilerError = NO;
 		
 		//	if the URL we're being asked to load results in no change, bail
 		NSString		*tmpPath = (doc==nullptr) ? nil : [NSString stringWithUTF8String:doc->path().c_str()];
@@ -156,6 +159,7 @@ using namespace std;
 		cachedRenderObj = [ISFMSLCache.primary getCachedISFAtURL:n forDevice:self.device hint:ISFMSLCacheHint_TranspileIfDateDelta logErrorToDisk:NO];
 		if (cachedRenderObj == nil)	{
 			NSLog(@"ERR: unable to load file (%@), %s",n.lastPathComponent,__func__);
+			self.compilerError = YES;
 			return;
 		}
 		cachedObj = cachedRenderObj.parentObj;

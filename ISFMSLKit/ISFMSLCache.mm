@@ -40,7 +40,6 @@ static ISFMSLCache		*primary = nil;
 - (void) generalInit;
 
 - (void) _clearCachedISFAtURL:(NSURL *)inURL;
-- (void) _generateErrorForCacheObject:(ISFMSLCacheObject *)n device:(id<MTLDevice>)d;
 
 @property (strong) PINCache * isfCache;
 @property (strong,readwrite) NSURL * directory;
@@ -157,34 +156,6 @@ static ISFMSLCache		*primary = nil;
 				NSLog(@"ERR: (%@) moving (%@) in %s",nsErr,binArchiveFile.path,__func__);
 			}
 		}
-	}
-}
-- (void) _generateErrorForCacheObject:(ISFMSLCacheObject *)n device:(id<MTLDevice>)d	{
-	if (n == nil)
-		return;
-	
-	NSFileManager		*fm = [NSFileManager defaultManager];
-	NSError		*nsErr = nil;
-	NSURL		*localErrorLogsDir = self.transpilerErrorLogsDirectory;
-	
-	//	make sure the error logs directory exists- create it if it doesn't yet
-	if (![fm fileExistsAtPath:localErrorLogsDir.path])	{
-		if (![fm createDirectoryAtURL:localErrorLogsDir withIntermediateDirectories:YES attributes:nil error:&nsErr] || nsErr!=nil)	{
-			NSLog(@"ERR: %s, unable to make logs directory (%@) because (%@)",__func__,localErrorLogsDir.path,nsErr.localizedDescription);
-			return;
-		}
-	}
-	
-	//	craft the URL at which the error log will be saved
-	NSString	*dstFilename = [[n.path.lastPathComponent stringByDeletingPathExtension] stringByAppendingPathExtension:@"txt"];
-	NSURL		*dstURL = [localErrorLogsDir URLByAppendingPathComponent:dstFilename];
-	
-	//	generate the transpiler error object, have it generate the string data to log to disk
-	ISFMSLTranspilerError		*transErr = [ISFMSLTranspilerError createWithURL:[NSURL fileURLWithPath:n.path] device:d];
-	NSString	*exportString = [transErr generateStringForLogFile];
-	if (![exportString writeToURL:dstURL atomically:YES encoding:NSUTF8StringEncoding error:&nsErr])	{
-		NSLog(@"ERR: %s, problem (%@) writing to URL (%@)",__func__,nsErr.localizedDescription,dstURL.path);
-		return;
 	}
 }
 

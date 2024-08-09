@@ -24,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void) loadURL:(NSURL * _Nullable)n;
 - (void) loadURL:(NSURL * _Nullable)n resetTimer:(BOOL)r;
 @property (readonly) NSURL * url;
+@property (readonly) BOOL compilerError;
 @property (readonly) NSString * fileDescription;
 @property (readonly) NSString * credit;
 @property (readonly) NSString * vsn;
