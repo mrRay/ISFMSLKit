@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export PATH="/opt/homebrew/bin:$PATH"
+
 # this script needs to be run from xcode, which supplies the env vars used below.
 
 echo "Processing ISFGLSLGenerator external build script..."
@@ -13,8 +15,8 @@ LOCAL_BUILD_DIR="${PROJECT_TEMP_ROOT}/ISFGLSLGenerator.build"
 LOCAL_INSTALL_DIR="${LOCAL_SRC_DIR}/build/install"
 
 # make sure that cmake has created a build system in the build dir (if we don't, the 'clean' command may fail)
-/opt/homebrew/bin/cmake -S "${LOCAL_SRC_DIR}" -B "${LOCAL_BUILD_DIR}"
-#/opt/homebrew/bin/cmake -S "${LOCAL_SRC_DIR}" -B "${LOCAL_BUILD_DIR}" -G Xcode
+cmake -S "${LOCAL_SRC_DIR}" -B "${LOCAL_BUILD_DIR}"
+#cmake -S "${LOCAL_SRC_DIR}" -B "${LOCAL_BUILD_DIR}" -G Xcode
 
 # this is a "flag file"- its contents are irrelevant, the file's existence indicates state
 LOCAL_BUILD_FILE_FLAG="${TARGET_BUILD_DIR}/ISFGLSLGeneratorPreventCleanBuild"
@@ -22,7 +24,7 @@ LOCAL_BUILD_FILE_FLAG="${TARGET_BUILD_DIR}/ISFGLSLGeneratorPreventCleanBuild"
 if [ ! -f $LOCAL_BUILD_FILE_FLAG ] || [ "${ACTION}" = "clean" ]
 then
 	echo "performing a clean..."
-	/opt/homebrew/bin/cmake --build "${LOCAL_BUILD_DIR}" --target clean
+	cmake --build "${LOCAL_BUILD_DIR}" --target clean
 	echo "1">"${LOCAL_BUILD_FILE_FLAG}"
 fi
 
@@ -35,9 +37,9 @@ fi
 
 echo "buliding ISFGLSLGenerator..."
 
-/opt/homebrew/bin/cmake --build "${LOCAL_BUILD_DIR}" --config RelWithDebInfo
-#/opt/homebrew/bin/cmake --build "${LOCAL_BUILD_DIR}" --config ${CONFIGURATION}
+cmake --build "${LOCAL_BUILD_DIR}" --config RelWithDebInfo
+#cmake --build "${LOCAL_BUILD_DIR}" --config ${CONFIGURATION}
 
-/opt/homebrew/bin/cmake --install "${LOCAL_BUILD_DIR}" --prefix "${LOCAL_INSTALL_DIR}"
+cmake --install "${LOCAL_BUILD_DIR}" --prefix "${LOCAL_INSTALL_DIR}"
 
 codesign --timestamp --options runtime -f -s "Developer ID Application: Vidvox, LLC" "${LOCAL_INSTALL_DIR}/lib/liBISFGLSLGenerator.dylib"
