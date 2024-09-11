@@ -33,6 +33,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly) NSArray<id<ISFMSLScenePassTarget>> * passes;
 @property (readonly) NSArray<id<ISFMSLSceneAttrib>> * inputs;
 
+- (id<VVMTLTextureImage>) createAndRenderToTextureSized:(NSSize)inSize inCommandBuffer:(id<MTLCommandBuffer>)cb;
+- (id<VVMTLTextureImage>) createAndRenderToTextureSized:(NSSize)inSize atTime:(double)inTimeInSeconds inCommandBuffer:(id<MTLCommandBuffer>)cb;
+- (void) renderToTexture:(id<VVMTLTextureImage>)n inCommandBuffer:(id<MTLCommandBuffer>)cb;
+- (void) renderToTexture:(id<VVMTLTextureImage>)n atTime:(double)inTimeInSeconds inCommandBuffer:(id<MTLCommandBuffer>)cb;
+
 - (id<ISFMSLScenePassTarget>) passAtIndex:(NSUInteger)n;
 - (id<ISFMSLScenePassTarget>) passNamed:(NSString *)n;
 

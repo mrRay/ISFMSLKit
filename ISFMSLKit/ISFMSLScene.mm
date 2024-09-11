@@ -909,6 +909,17 @@ using namespace std;
 	//[self renderToBuffer:returnMe inCommandBuffer:cb];
 	//return returnMe;
 }
+- (id<VVMTLTextureImage>) createAndRenderToTextureSized:(NSSize)inSize atTime:(double)inTimeInSeconds inCommandBuffer:(id<MTLCommandBuffer>)cb	{
+	_baseTime = VVISF::Timestamp() - VVISF::Timestamp(inTimeInSeconds);
+	return [self createAndRenderToTextureSized:inSize inCommandBuffer:cb];
+}
+- (void) renderToTexture:(id<VVMTLTextureImage>)n inCommandBuffer:(id<MTLCommandBuffer>)cb	{
+	[super renderToTexture:n inCommandBuffer:cb];
+}
+- (void) renderToTexture:(id<VVMTLTextureImage>)n atTime:(double)inTimeInSeconds inCommandBuffer:(id<MTLCommandBuffer>)cb	{
+	_baseTime = VVISF::Timestamp() - VVISF::Timestamp(inTimeInSeconds);
+	[self renderToTexture:n inCommandBuffer:cb];
+}
 
 
 #pragma mark - accessors
