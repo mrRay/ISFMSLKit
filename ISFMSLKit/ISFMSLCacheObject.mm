@@ -72,7 +72,7 @@ NSString * const kISFMSLCacheObject_hasCustomVertShader = @"kISFMSLCacheObject_h
 	return [[ISFMSLCacheObject alloc] initWithCache:inParent url:inURL];
 }
 - (instancetype) initWithCache:(ISFMSLCache *)inParent url:(NSURL *)inURL	{
-	NSLog(@"%s ... %@",__func__,inURL.lastPathComponent);
+	//NSLog(@"%s ... %@",__func__,inURL.lastPathComponent);
 	self = [super init];
 	
 	if (inParent == nil)
