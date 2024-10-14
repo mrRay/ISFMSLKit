@@ -43,6 +43,7 @@ NSString * const kISFMSLCacheObject_fragTextureVarIndexDict = @"kISFMSLCacheObje
 NSString * const kISFMSLCacheObject_fragSamplerVarIndexDict = @"kISFMSLCacheObject_fragSamplerVarIndexDict";
 NSString * const kISFMSLCacheObject_maxUBOSize = @"kISFMSLCacheObject_maxUBOSize";
 NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject_vtxFuncMaxBufferIndex";
+NSString * const kISFMSLCacheObject_hasCustomVertShader = @"kISFMSLCacheObject_hasCustomVertShader";
 
 
 
@@ -71,6 +72,7 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 	return [[ISFMSLCacheObject alloc] initWithCache:inParent url:inURL];
 }
 - (instancetype) initWithCache:(ISFMSLCache *)inParent url:(NSURL *)inURL	{
+	NSLog(@"%s ... %@",__func__,inURL.lastPathComponent);
 	self = [super init];
 	
 	if (inParent == nil)
@@ -95,6 +97,7 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 		_fragSamplerVarIndexDict = @{};
 		_maxUBOSize = 0;
 		_vtxFuncMaxBufferIndex = 0;
+		_hasCustomVertShader = NO;
 		
 		self.parentCache = inParent;
 		
@@ -137,6 +140,8 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 			self = nil;
 			return self;
 		}
+		
+		_hasCustomVertShader = doc->hasCustomVertShader();
 		
 		//NSString		*filename = [inURL URLByDeletingPathExtension].lastPathComponent;
 		std::string			raw_filename = std::filesystem::path(inURLPathCStr).stem().string();
@@ -457,6 +462,7 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 		_fragSamplerVarIndexDict = nil;
 		_maxUBOSize = 0;
 		_vtxFuncMaxBufferIndex = 0;
+		_hasCustomVertShader = NO;
 		
 		_binCache = [[NSMutableArray alloc] init];
 	}
@@ -508,7 +514,14 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 		_maxUBOSize = tmpNum.intValue;
 		tmpNum = [n decodeObjectForKey:kISFMSLCacheObject_vtxFuncMaxBufferIndex];
 		_vtxFuncMaxBufferIndex = tmpNum.intValue;
-		
+		tmpNum = [n decodeObjectForKey:kISFMSLCacheObject_hasCustomVertShader];
+		if (tmpNum == nil)	{
+			//NSLog(@"************* ERR: hasCusomVertShader property not found, %s",__func__);
+			self = nil;
+			return self;
+			//tmpNum = @(NO);
+		}
+		_hasCustomVertShader = tmpNum.boolValue;
 		_binCache = [[NSMutableArray alloc] init];
 		
 		//_device = nil;
@@ -566,6 +579,7 @@ NSString * const kISFMSLCacheObject_vtxFuncMaxBufferIndex = @"kISFMSLCacheObject
 	
 	[coder encodeObject:@(_maxUBOSize) forKey:kISFMSLCacheObject_maxUBOSize];
 	[coder encodeObject:@(_vtxFuncMaxBufferIndex) forKey:kISFMSLCacheObject_vtxFuncMaxBufferIndex];
+	[coder encodeObject:@(_hasCustomVertShader) forKey:kISFMSLCacheObject_hasCustomVertShader];
 }
 
 

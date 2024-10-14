@@ -735,9 +735,9 @@ using namespace std;
 		//	make a render pass descriptor and then a command encoder, configure the viewport & attach the PSO
 		MTLRenderPassDescriptor			*passDesc = [MTLRenderPassDescriptor renderPassDescriptor];
 		MTLRenderPassColorAttachmentDescriptor		*attachDesc = passDesc.colorAttachments[0];
-		attachDesc.clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
+		attachDesc.clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 0.0);
 		attachDesc.texture = newTex.texture;
-		attachDesc.loadAction = MTLLoadActionDontCare;
+		attachDesc.loadAction = (localCachedObj.hasCustomVertShader) ? MTLLoadActionClear : MTLLoadActionDontCare;
 		
 		id<MTLRenderCommandEncoder>		renderEncoder = [self.commandBuffer renderCommandEncoderWithDescriptor:passDesc];
 		[renderEncoder setViewport:(MTLViewport){ 0.f, 0.f, (double)renderPassTargetInfo.width, (double)renderPassTargetInfo.height, -1.f, 1.f }];

@@ -52,6 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong) NSDictionary<NSString*,NSNumber*> * fragSamplerVarIndexDict;
 @property (readwrite) uint32_t maxUBOSize;
 @property (readwrite) uint32_t vtxFuncMaxBufferIndex;
+@property (readwrite) BOOL hasCustomVertShader;	//	only YES if the ISF had a custom vertex shader
 
 //	NOT cached by PINCache...but ISFMSLBinCacheObject instances serialize id<MTLBinaryCache> data to disk, so this is a form of caching, technically...
 - (ISFMSLBinCacheObject *) binCacheForDevice:(id<MTLDevice>)inDevice;
