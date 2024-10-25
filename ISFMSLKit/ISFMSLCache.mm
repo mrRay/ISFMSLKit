@@ -186,6 +186,8 @@ static ISFMSLCache		*primary = nil;
 	for (NSString *key in keys)	{
 		ISFMSLCacheObject	*cachedObj = [_isfCache objectForKey:key];
 		NSString		*cachedPath = cachedObj.path;
+		if (cachedPath == nil)
+			continue;
 		NSURL			*cachedURL = [NSURL fileURLWithPath:cachedPath];
 		if (cachedURL != nil)
 			[urls addObject:cachedURL];

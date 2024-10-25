@@ -608,7 +608,8 @@ NSString * const kISFMSLCacheObject_hasCustomVertShader = @"kISFMSLCacheObject_h
 		return;
 	
 	//	collect all the data we want to export: make the transpiler error, use that to generate the log string
-	ISFMSLTranspilerError	*transErr = [ISFMSLTranspilerError createWithURL:[NSURL fileURLWithPath:self.path] device:inDevice];
+	NSURL		*tmpURL = (self.path==nil) ? nil : [NSURL fileURLWithPath:self.path];
+	ISFMSLTranspilerError	*transErr = [ISFMSLTranspilerError createWithURL:tmpURL device:inDevice];
 	NSString		*exportString = (transErr==nil) ? nil : [transErr generateStringForLogFile];
 	if (exportString == nil)
 		return;
