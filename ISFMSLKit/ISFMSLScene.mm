@@ -351,6 +351,9 @@ using namespace std;
 	_renderTime = targetRenderTimeInSeconds;
 	_passIndex = 0;
 	
+	//	get a local copy of the passes we're working with
+	NSMutableArray<id<ISFMSLScenePassTarget>>		*localPasses = passes;
+	
 	//	have the doc evaluate its buffer dimensions with the passed render size- do this before we allocate any image resources
 	CGSize			localRenderSize = self.renderSize;
 	doc->evalBufferDimensionsWithRenderSize( round(localRenderSize.width), round(localRenderSize.height) );
@@ -707,14 +710,14 @@ using namespace std;
 	BOOL		sceneRenderTargetIsFloat = IsMTLPixelFormatFloatingPoint(self.renderTarget.texture.pixelFormat);
 	//	run through each pass, doing the actual rendering!
 	_passIndex = 0;
-	for (ISFMSLScenePassTarget *objCRenderPass in passes)	{
+	for (ISFMSLScenePassTarget *objCRenderPass in localPasses)	{
 		//	get the basic properties of the pass
 		VVISF::ISFPassTargetRef		&renderPassRef = objCRenderPass.passTargetRef;
 		VVISF::ISFImageInfo		renderPassTargetInfo = renderPassRef->targetImageInfo();
 		NSSize			renderPassSize = NSMakeSize(renderPassTargetInfo.width, renderPassTargetInfo.height);
 		//NSLog(@"\t\trendering pass %d",_passIndex);
 		
-		BOOL		lastPassFlag = (_passIndex == (passes.count - 1));
+		BOOL		lastPassFlag = (_passIndex == (localPasses.count - 1));
 		BOOL		sceneRenderTargetMatchesLastPassPSO = (sceneRenderTargetIsFloat == objCRenderPass.float32);
 		//	allocate a new texture for the render pass- this is what we're going to render into
 		id<VVMTLTextureImage>		newTex = nil;
