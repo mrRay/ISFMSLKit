@@ -4,3 +4,6 @@
 [submodule "submodules/PINCache-dev-binaries"]
 	path = submodules/PINCache-dev-binaries
 	url = git@github.com:mrRay/PINCache-dev-binaries.git
+[submodule "submodules/VVMetalKit"]
+	path = submodules/VVMetalKit
+	url = git@github.com:mrRay/VVMetalKit.git

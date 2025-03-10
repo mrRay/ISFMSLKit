@@ -2,15 +2,18 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:../VVMetalKit/VVMetalKit.xcodeproj">
+      location = "group:ISFMSLKit.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:ISFMSLKit.xcodeproj">
+      location = "group:submodules/VVMetalKit/VVMetalKit.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:submodules/PINCache-dev-binaries/src/PINCache.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:submodules/PINCache-dev-binaries/src/Carthage/Checkouts/PINOperation/PINOperation.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:ISFMSLKitTestApp/ISFMSLKitTestApp.xcodeproj">
    </FileRef>
 </Workspace>
