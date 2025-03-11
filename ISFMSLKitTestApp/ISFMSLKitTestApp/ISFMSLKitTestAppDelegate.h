@@ -16,7 +16,8 @@
 
 @property (strong) IBOutlet NSWindow *window;
 @property (strong) IBOutlet VVMTLTextureImageView * preview;
-@property (strong) IBOutlet NSPopUpButton * isfPUB;
+@property (strong) IBOutlet NSPopUpButton * srcISFPUB;
+@property (strong) IBOutlet NSPopUpButton * filterISFPUB;
 
 - (IBAction) pubUsed:(NSPopUpButton *)sender;
 

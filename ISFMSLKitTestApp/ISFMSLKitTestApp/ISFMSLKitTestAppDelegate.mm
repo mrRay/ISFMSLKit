@@ -6,12 +6,12 @@
 //
 
 #import "ISFMSLKitTestAppDelegate.h"
-#import <AVFoundation/AVFoundation.h>
+//#import <AVFoundation/AVFoundation.h>
 #import <Foundation/Foundation.h>
-#import <Dispatch/Dispatch.h>
-#import <CoreMedia/CoreMedia.h>
+//#import <Dispatch/Dispatch.h>
+//#import <CoreMedia/CoreMedia.h>
 #import <ISFMSLKit/ISFMSLKit.h>
-
+#import "VVModalProgressSheet.h"
 
 
 
@@ -54,6 +54,8 @@
 - (void) awakeFromNib	{
 	//	the preview needs to know which device to use to for drawing...
 	_preview.device = [RenderProperties global].device;
+}
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 	
 	//	get the paths to the embedded ISF files
 	NSBundle		*mb = NSBundle.mainBundle;
@@ -67,90 +69,126 @@
 	[_srcScene loadURL:srcURL];
 	[_filterScene loadURL:filterURL];
 	
-	//	we're going to make a menu and populate it with every ISF we can find
-	NSMenu			*tmpMenu = [[NSMenu alloc] init];
-	tmpMenu.autoenablesItems = NO;
-	uint32_t		failCount = 0;
-	uint32_t		totalCount = 0;
+	//	we have two PUBs- one for sources, and one for filters- so we need to fill out two menus
+	NSMenu		*srcMenu = [[NSMenu alloc] init];
+	srcMenu.autoenablesItems = NO;
+	NSMenu		*filterMenu = [[NSMenu alloc] init];
+	filterMenu.autoenablesItems = NO;
+	
 	NSMenuItem		*tmpItem = nil;
 	
-	//	add the ISFs that are embedded in the app to the menu...
+	//	add the default/embedded ISFs to the menus
 	tmpItem = [[NSMenuItem alloc] initWithTitle:@"Embedded ISFs:" action:nil keyEquivalent:@""];
 	tmpItem.enabled = NO;
-	[tmpMenu addItem:tmpItem];
+	[srcMenu addItem:[tmpItem copy]];
+	[filterMenu addItem:[tmpItem copy]];
 	
-	tmpItem = [[NSMenuItem alloc]
-		initWithTitle:[srcURL.lastPathComponent stringByDeletingPathExtension]
-		action:nil
-		keyEquivalent:@""];
+	tmpItem = [[NSMenuItem alloc] initWithTitle:[srcURL.lastPathComponent stringByDeletingPathExtension] action:nil keyEquivalent:@""];
 	tmpItem.representedObject = srcURL.path;
-	[tmpMenu addItem:tmpItem];
+	[srcMenu addItem:tmpItem];
 	
-	tmpItem = [[NSMenuItem alloc]
-		initWithTitle:[filterURL.lastPathComponent stringByDeletingPathExtension]
-		action:nil
-		keyEquivalent:@""];
+	tmpItem = [[NSMenuItem alloc] initWithTitle:[filterURL.lastPathComponent stringByDeletingPathExtension] action:nil keyEquivalent:@""];
 	tmpItem.representedObject = filterURL.path;
-	[tmpMenu addItem:tmpItem];
-	
-	tmpItem = [[NSMenuItem alloc] initWithTitle:@"Other ISFs:" action:nil keyEquivalent:@""];
-	tmpItem.enabled = NO;
-	[tmpMenu addItem:tmpItem];
+	[filterMenu addItem:tmpItem];
 	
 	//	get the array of all IFSs found on the system (in /Library/Graphics/ISF, ~/Library/Graphics/ISF)
 	NSArray<NSString*>		*defaultISFPaths = GetArrayOfDefaultISFs(ISFMSLProto_All);
 	
-	
-	//	cache all of these ISFs- this will compile them, and store the compiled shaders in the ISF cache on disk so you only have to do it once.
-	NSLog(@"beginning caching");
-	for (NSString * tmpPath in defaultISFPaths)	{
-		NSURL			*tmpURL = [NSURL fileURLWithPath:tmpPath];
-		if (tmpURL == nil)
-			continue;
+	if (defaultISFPaths.count > 0)	{
+		//	make a modal progress sheet to display caching progress
+		VVModalProgressSheet	*modalSheet = [VVModalProgressSheet create];
+		modalSheet.showTitle = YES;
+		modalSheet.titleLabel = @"Compiling Shaders";
+		modalSheet.showTopLabel = YES;
+		modalSheet.topLabel = @"";
+		modalSheet.showTopBar = YES;
+		modalSheet.topBarIndeterminate = NO;
+		modalSheet.topBarValue = 0.0;
+		[modalSheet beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode)	{
+		}];
 		
-		//	if this ISF isn't an src or a filter, skip it
-		ISFMSLDoc		*doc = [ISFMSLDoc createWithURL:tmpURL];
-		switch (doc.type)	{
-			case ISFMSLProto_None:
-			case ISFMSLProto_Transition:
-			case ISFMSLProto_All:
+		
+		//	add the ISFs discovered on the system to the menus
+		tmpItem = [[NSMenuItem alloc] initWithTitle:@"Other ISFs:" action:nil keyEquivalent:@""];
+		tmpItem.enabled = NO;
+		[srcMenu addItem:[tmpItem copy]];
+		[filterMenu addItem:[tmpItem copy]];
+		
+		//	cache all of these ISFs- this will compile them, and store the compiled shaders in the ISF cache on disk so you only have to do it once.
+		NSLog(@"beginning caching");
+		uint32_t		failCount = 0;
+		uint32_t		totalCount = 0;
+		uint32_t		i = 0;
+		double			totalNumISFs = (double)defaultISFPaths.count;
+		NSImage		*cautionImage = [NSImage imageNamed:NSImageNameCaution];
+		cautionImage.size = NSMakeSize(16,16);
+		for (NSString * tmpPath in defaultISFPaths)	{
+			NSURL			*tmpURL = [NSURL fileURLWithPath:tmpPath];
+			if (tmpURL == nil)	{
+				++i;
 				continue;
-			case ISFMSLProto_Source:
-			case ISFMSLProto_Filter:
-				//	intentionally blank
-				break;
+			}
+			
+			//	if this ISF isn't an src or a filter, skip it
+			ISFMSLDoc		*doc = [ISFMSLDoc createWithURL:tmpURL];
+			switch (doc.type)	{
+				case ISFMSLProto_None:
+				case ISFMSLProto_Transition:
+				case ISFMSLProto_All:
+					continue;
+				case ISFMSLProto_Source:
+				case ISFMSLProto_Filter:
+					//	intentionally blank
+					break;
+			}
+			
+			//	update the modal progress sheet
+			modalSheet.topLabel = tmpPath.lastPathComponent;
+			modalSheet.topBarValue = (double)i/totalNumISFs;
+			[NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.001]];
+			
+			//	caching an ISF is as easy as requesting the bin from the cache- if it doesn't exist, it gets cached synchronously
+			id<MTLDevice>		tmpDevice = [RenderProperties global].device;
+			ISFMSLBinCacheObject		*cachedObj = [ISFMSLCache.primary
+				getCachedISFAtURL:tmpURL
+				forDevice:tmpDevice
+				hint:ISFMSLCacheHint_TranspileIfDateDelta
+				logErrorToDisk:YES];	//	if an ISF can't be compiled, a nice, human-readable error log is generated and placed in the "Error Logs" folder in the ISF cache directory
+			if (cachedObj == nil)	{
+				++failCount;
+			}
+			
+			++totalCount;
+			
+			//	make a menu item for the ISF, stick it in the PUB so we can select different ISFs at runtime...
+			tmpItem = [[NSMenuItem alloc] initWithTitle:[tmpPath.lastPathComponent stringByDeletingPathExtension] action:nil keyEquivalent:@""];
+			tmpItem.representedObject = tmpPath;
+			
+			if (cachedObj == nil)
+				tmpItem.image = cautionImage;
+			
+			if (doc.type == ISFMSLProto_Source)	{
+				[srcMenu addItem:tmpItem];
+			}
+			else	{
+				[filterMenu addItem:tmpItem];
+			}
+			
+			++i;
 		}
-		
-		//	caching an ISF is as easy as requesting the bin from the cache- if it doesn't exist, it gets cached synchronously
-		id<MTLDevice>		tmpDevice = [RenderProperties global].device;
-		ISFMSLBinCacheObject		*cachedObj = [ISFMSLCache.primary
-			getCachedISFAtURL:tmpURL
-			forDevice:tmpDevice
-			hint:ISFMSLCacheHint_TranspileIfDateDelta
-			logErrorToDisk:YES];	//	if an ISF can't be compiled, a nice, human-readable error log is generated and placed in the "Error Logs" folder in the ISF cache directory
-		if (cachedObj == nil)	{
-			++failCount;
-		}
-		
-		++totalCount;
-		
-		//	make a menu item for the ISF, stick it in the PUB so we can select different ISFs at runtime...
-		tmpItem = [[NSMenuItem alloc]
-			initWithTitle:[tmpPath.lastPathComponent stringByDeletingPathExtension]
-			action:nil
-			keyEquivalent:@""];
-		tmpItem.representedObject = tmpPath;
-		
-		if (tmpItem != nil)
-			[tmpMenu addItem:tmpItem];
+		[modalSheet closeWithReturnCode:NSModalResponseContinue];
+		NSLog(@"done caching");
+		NSLog(@"**************** FAIL COUNT: %d",failCount);
+		NSLog(@"**************** TOTAL PROCESSED: %d",totalCount);
 	}
-	NSLog(@"done caching");
-	NSLog(@"**************** FAIL COUNT: %d",failCount);
-	NSLog(@"**************** TOTAL PROCESSED: %d",totalCount);
 	
-	self.isfPUB.menu = tmpMenu;
-}
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+	self.srcISFPUB.menu = srcMenu;
+	self.filterISFPUB.menu = filterMenu;
+	
+	[self.srcISFPUB selectItemAtIndex:1];
+	[self.filterISFPUB selectItemAtIndex:1];
+	
+	//	start rendering!
 	self.renderTimer = [NSTimer scheduledTimerWithTimeInterval:1./60. target:self selector:@selector(renderTimer:) userInfo:nil repeats:YES];
 }
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
@@ -159,14 +197,27 @@
 
 
 - (IBAction) pubUsed:(NSPopUpButton *)sender	{
-	NSLog(@"%s ... %@",__func__,sender);
+	//NSLog(@"%s ... %@",__func__,sender);
 	NSMenuItem		*item = sender.selectedItem;
 	if (!item.enabled)
 		return;
+	
 	//	get the path stored with the menu item
 	NSString		*path = item.representedObject;
 	NSURL		*url = [NSURL fileURLWithPath:path];
-	//	make a doc from the path- this is very fast, and doesn't deal with any rendering-related resources (basically just string ops)
+	
+	//	if the item has an image, we konw that the ISF couldn't be loaded on app launch- so we want to show the error log in the finder
+	if (item.image != nil)	{
+		NSURL		*dirURL = ISFMSLCache.primary.transpilerErrorLogsDirectory;
+		NSString		*fileName = [NSString stringWithFormat:@"%@.txt",path.lastPathComponent.stringByDeletingPathExtension];
+		NSURL		*fileURL = [dirURL URLByAppendingPathComponent:fileName];
+		[NSWorkspace.sharedWorkspace
+			selectFile:fileURL.path
+			inFileViewerRootedAtPath:dirURL.path];
+		return;
+	}
+	
+	//	make a doc from the path- this is very fast, and doesn't deal with any rendering-related resources (basically just string ops).
 	ISFMSLDoc		*doc = [ISFMSLDoc createWithURL:url];
 	//	if the doc's a src, tell the src scene to load it- if it's a filter, tell the filter scene to load it
 	switch (doc.type)	{
