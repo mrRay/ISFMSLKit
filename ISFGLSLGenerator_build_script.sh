@@ -19,7 +19,7 @@ cmake -S "${LOCAL_SRC_DIR}" -B "${LOCAL_BUILD_DIR}"
 #cmake -S "${LOCAL_SRC_DIR}" -B "${LOCAL_BUILD_DIR}" -G Xcode
 
 # this is a "flag file"- its contents are irrelevant, the file's existence indicates state
-LOCAL_BUILD_FILE_FLAG="${TARGET_BUILD_DIR}/ISFGLSLGeneratorPreventCleanBuild"
+LOCAL_BUILD_FILE_FLAG="${LOCAL_BUILD_DIR}/ISFGLSLGeneratorPreventCleanBuild"
 # if the file at this path does NOT exist, this is either a first-time build or the user chose to do a clean build (which deleted the file).  in either case, force a clean build immediately!
 if [ ! -f $LOCAL_BUILD_FILE_FLAG ] || [ "${ACTION}" = "clean" ]
 then
