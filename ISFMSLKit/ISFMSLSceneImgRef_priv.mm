@@ -155,16 +155,10 @@
 	
 	return nil;
 }
+- (id<MTLTexture>) texture	{
+	id<VVMTLTextureImage>		img = self.img;
+	return img.texture;
+}
 
 
 @end
-
-
-
-
-
-
-id<ISFMSLSceneImgRef> CreateISFMSLSceneImgRefWithVVMTLTextureImage(id<VVMTLTextureImage> n)	{
-	return [ISFMSLSceneImgRef createWithVVMTLTextureImage:n];
-}
-

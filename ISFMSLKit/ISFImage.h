@@ -17,14 +17,14 @@
 
 
 
-/*		this class exists to combine the VVISF GLSL generator lib (c++) with the VVMetalKit framework (obj-c).  
-the GLSL generator has c++ classes that describe an ISF document, as well as its passes, attributes, and their 
+/*		This class exists to combine the VVISF GLSL generator lib (c++) with the VVMetalKit framework (obj-c).  
+The GLSL generator has c++ classes that describe an ISF document, as well as its passes, attributes, and their 
 respective values (including image values).
 
-in particular, image values are described by VVISF::ISFImageInfoRef, which is really a 
+In particular, image values are described by VVISF::ISFImageInfoRef, which is really a 
 std::shared_ptr<VVISF::ISFImageInfo>.  ISFImageInfo describes an image's dimensions and some basic info about it, but 
-it doesn't contain any actual image data.  the goal of this subclass of ISFImageInfo is to make it to retain 
-an instance of id<VVMTLTextureImage>, making it contain image data.  the VVISF backend will then retain and handle the image
+it doesn't contain any actual image data.  The goal of this subclass of ISFImageInfo is to make it to retain 
+an instance of id<VVMTLTextureImage>, making it contain image data.  The VVISF backend will then retain and handle the image
 data transparently for use in your implementation.				*/
 
 

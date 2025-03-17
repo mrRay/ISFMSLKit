@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A37C3472D88B88E001562B0 /* ISFMSLKit.docc in Sources */ = {isa = PBXBuildFile; fileRef = 1A37C3462D88B88E001562B0 /* ISFMSLKit.docc */; };
 		1A5E93392C46BD5400D611BF /* ISFMSLCache_priv.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A5E93382C46BD5400D611BF /* ISFMSLCache_priv.h */; };
 		1AAEC4EE2C613916002BA584 /* ISFMSLTranspilerError.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AAEC4EC2C613916002BA584 /* ISFMSLTranspilerError.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AAEC4EF2C613916002BA584 /* ISFMSLTranspilerError.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AAEC4ED2C613916002BA584 /* ISFMSLTranspilerError.mm */; };
@@ -79,6 +80,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1A37C3462D88B88E001562B0 /* ISFMSLKit.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; name = ISFMSLKit.docc; path = ISFMSLKit/ISFMSLKit.docc; sourceTree = "<group>"; };
 		1A5E93382C46BD5400D611BF /* ISFMSLCache_priv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISFMSLCache_priv.h; sourceTree = "<group>"; };
 		1AAEC4EC2C613916002BA584 /* ISFMSLTranspilerError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISFMSLTranspilerError.h; sourceTree = "<group>"; };
 		1AAEC4ED2C613916002BA584 /* ISFMSLTranspilerError.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ISFMSLTranspilerError.mm; sourceTree = "<group>"; };
@@ -145,6 +147,7 @@
 		1AE830D52B3237770068889F = {
 			isa = PBXGroup;
 			children = (
+				1A37C3462D88B88E001562B0 /* ISFMSLKit.docc */,
 				1AE830E12B3237770068889F /* ISFMSLKit */,
 				1AE830E02B3237770068889F /* Products */,
 				1AE831232B323CE60068889F /* Frameworks */,
@@ -340,6 +343,7 @@
 				1AE831172B3238100068889F /* ISFMSLScenePassTarget_priv.mm in Sources */,
 				1AE8310C2B3238100068889F /* ISFMSLCache.mm in Sources */,
 				1AEA26B62C629338002A978C /* ISFMSLDoc.mm in Sources */,
+				1A37C3472D88B88E001562B0 /* ISFMSLKit.docc in Sources */,
 				1AE831092B3238100068889F /* ISFMSLCacheObject.mm in Sources */,
 				1AAEC4EF2C613916002BA584 /* ISFMSLTranspilerError.mm in Sources */,
 				1AE8311C2B3238100068889F /* ISFMSLBinCacheObject.mm in Sources */,
@@ -411,10 +415,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 12.4;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				RUN_DOCUMENTATION_COMPILER = YES;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -458,6 +463,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_MODULE_VERIFIER = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -468,9 +474,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 12.4;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				RUN_DOCUMENTATION_COMPILER = YES;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -516,7 +523,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.vidvox.ISFMSLKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
 			name = Debug;
 		};
@@ -558,7 +564,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.vidvox.ISFMSLKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
 			name = Release;
 		};

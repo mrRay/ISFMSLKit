@@ -269,6 +269,8 @@
 			self.preview.imgBuffer = texToDraw;
 	}];
 	[cmdBuffer commit];
+	
+	[VVMTLPool.global housekeeping];
 }
 
 

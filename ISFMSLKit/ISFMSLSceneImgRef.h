@@ -7,6 +7,7 @@
 
 #import <Foundation/Foundation.h>
 
+@protocol MTLTexture;
 @protocol VVMTLTextureImage;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -14,7 +15,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 
-//	under the hood, contains a std::shared_ptr<ISFImage>. ISFImage is a subclass of VVISF::ISFImageInfo that contains an id<VVMTLTextureImage>.
+/**	This class is used internally- you can interact with ``ISFMSLSceneVal`` and ``ISFMSLSceneAttrib`` by using `id<VVMTLTextureImage>` and `id<MTLTexture>` instead.  This protocol/class describes an "ISF image" as represented by a Metal texture vended by the `VVMetalKit` framework (specifically, as an instance of `VVMTLTextureImage`).
+- This protocol/class depends on VVMetalKit because I wanted a simple buffer/texture pool, and using an existing framework was easier than re-inventing the wheel and writing a custom buffer pool just for the ``ISFMSLKit`` framework.
+- Under the hood, this class is basically a thin objective-c wrapper around the c++ class `ISFImage`, which is in turn just a thin wrapper around `VVISF::ISFImageInfo` that exists solely to allow the c++ class `VVISF::ISFImageInfo` to retain an instance of `VVMTLTextureImage`.
+*/
 
 
 
@@ -32,13 +36,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (readonly) id<VVMTLTextureImage> img;
 
+@property (readonly) id<MTLTexture> texture;
+
 @end
-
-
-
-
-//	if you need to create an ISFMSLSceneImgRef from a id<VVMTLTextureImage>, do so via this function
-id<ISFMSLSceneImgRef> CreateISFMSLSceneImgRefWithVVMTLTextureImage(id<VVMTLTextureImage> n);
 
 
 

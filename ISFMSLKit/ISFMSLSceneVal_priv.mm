@@ -68,10 +68,19 @@
 	ISFMSLSceneVal		*returnMe = [[ISFMSLSceneVal alloc] initWithISFVal:tmpVal];
 	return returnMe;
 }
-+ (id<ISFMSLSceneVal>) createWithImg:(id<VVMTLTextureImage>)n	{
++ (id<ISFMSLSceneVal>) createWithTextureImage:(id<VVMTLTextureImage>)n	{
 	if (n == nil)
 		return nil;
 	ISFImageRef			tmpImgRef = std::make_shared<ISFImage>(n);
+	VVISF::ISFVal		tmpVal = VVISF::CreateISFValImage(tmpImgRef);
+	ISFMSLSceneVal		*returnMe = [[ISFMSLSceneVal alloc] initWithISFVal:tmpVal];
+	return returnMe;
+}
++ (id<ISFMSLSceneVal>) createWithTexture:(id<MTLTexture>)n	{
+	if (n == nil)
+		return nil;
+	id<VVMTLTextureImage>		poolImg = [VVMTLPool.global textureForExistingTexture:n];
+	ISFImageRef			tmpImgRef = std::make_shared<ISFImage>(poolImg);
 	VVISF::ISFVal		tmpVal = VVISF::CreateISFValImage(tmpImgRef);
 	ISFMSLSceneVal		*returnMe = [[ISFMSLSceneVal alloc] initWithISFVal:tmpVal];
 	return returnMe;
@@ -157,7 +166,7 @@
 - (double) colorValueByIndex:(int)n	{
 	return _localVal.getColorValByChannel(n);
 }
-- (id<ISFMSLSceneImgRef>) imgValue	{
+- (id<ISFMSLSceneImgRef>) isfImgValue	{
 	VVISF::ISFImageInfoRef		currentImageInfoRef = _localVal.getImageRef();
 	VVISF::ISFImageInfo			*currentImageInfoPtr = currentImageInfoRef.get();
 	if (currentImageInfoPtr == nullptr)
@@ -176,6 +185,16 @@
 	
 	
 	//return [ISFMSLSceneImgRef createWithImgRef:_localVal.getImageRef()];
+}
+- (id<VVMTLTextureImage>) imgValue	{
+	id<ISFMSLSceneImgRef>		isfImgValue = self.isfImgValue;
+	id<VVMTLTextureImage>		imgValue = isfImgValue.img;
+	return imgValue;
+}
+- (id<MTLTexture>) textureValue	{
+	id<ISFMSLSceneImgRef>		isfImgValue = self.isfImgValue;
+	id<VVMTLTextureImage>		imgValue = isfImgValue.img;
+	return imgValue.texture;
 }
 
 

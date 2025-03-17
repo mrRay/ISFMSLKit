@@ -7,6 +7,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import <ISFMSLKit/ISFMSLSceneImgRef.h>
+
 #import "ISFMSLSceneVal.h"
 #include "VVISF.hpp"
 
@@ -26,6 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype) initWithISFVal:(VVISF::ISFVal &)n;
 
 @property (readonly) VVISF::ISFVal isfValue;
+
+- (id<ISFMSLSceneImgRef>) isfImgValue;
 
 @end
 

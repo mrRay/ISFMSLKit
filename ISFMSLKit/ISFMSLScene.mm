@@ -266,7 +266,7 @@ using namespace std;
 					
 					ISFImageRef		imgRef = std::make_shared<ISFImage>(img);
 					attr_cpp->setCurrentImageRef(imgRef);
-					//id<ISFMSLSceneVal>	val = [ISFMSLSceneVal createWithImg:img];
+					//id<ISFMSLSceneVal>	val = [ISFMSLSceneVal createWithTextureImage:img];
 					//attr.currentVal = val;
 				}
 				break;

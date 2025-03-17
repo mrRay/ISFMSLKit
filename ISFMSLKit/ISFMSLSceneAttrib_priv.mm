@@ -139,7 +139,7 @@
 	
 	//	if i should have an img buffer 
 	if (self.shouldHaveImageBuffer)	{
-		self.currentImageRef = n.imgValue;
+		self.currentImageRef = n.isfImgValue;
 	}
 	*/
 }
@@ -225,6 +225,26 @@
 	/*
 	return [ISFMSLSceneImgRef createWithImgRef:_localAttr->getCurrentImageRef()];
 	*/
+}
+
+
+- (void) setCurrentTextureImageRef:(id<VVMTLTextureImage>)n	{
+	id<ISFMSLSceneImgRef>		isfImgRef = [ISFMSLSceneImgRef createWithVVMTLTextureImage:n];
+	[self setCurrentImageRef:isfImgRef];
+}
+- (id<VVMTLTextureImage>) currentTextureImageRef	{
+	id<ISFMSLSceneImgRef>		isfImgRef = self.currentImageRef;
+	return isfImgRef.img;
+}
+
+
+- (void) setCurrentTexture:(id<MTLTexture>)n	{
+	id<ISFMSLSceneImgRef>		isfImgRef = [ISFMSLSceneImgRef createWithVVMTLTextureImage:[VVMTLPool.global textureForExistingTexture:n]];
+	[self setCurrentImageRef:isfImgRef];
+}
+- (id<MTLTexture>) currentTexture	{
+	id<ISFMSLSceneImgRef>		isfImgRef = self.currentImageRef;
+	return isfImgRef.img.texture;
 }
 
 
