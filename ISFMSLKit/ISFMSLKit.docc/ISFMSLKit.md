@@ -11,7 +11,7 @@ ISFMSLKit provides an objective-c interface for rendering and working with ISF f
 These are the public-facing classes you'll be working with:
 
 - ``ISFValType`` enumerates the different types of values recognized by ISF.
-- ``ISFMSLSceneVal`` describes an ISF value.
+- ``ISFMSLSceneVal-protocol`` describes an ISF value.
 - ``ISFMSLDoc`` represents an "ISF file", created either from an ISF file on disk or with the contents of the ISF as a string.
 - ``ISFMSLSceneAttrib`` describes an ISF file's "inputs", including its range and current value.
 - ``ISFMSLScene`` renders ISF files to textures, and is the interface for updating the value of the ISF's inputs.

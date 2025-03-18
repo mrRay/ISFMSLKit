@@ -63,7 +63,7 @@ typedef NS_ENUM(NSInteger, ISFValType)	{
 
 ///	Returns the value of the receiver as an `id<VVMTLTextureImage>` instance.
 - (id<VVMTLTextureImage>) imgValue;
-///	Returns the value of the receiver as an ``id<MTLTexture>`` instance.
+///	Returns the value of the receiver as an `id<MTLTexture>` instance.
 - (id<MTLTexture>) textureValue;
 
 @end
