@@ -248,7 +248,7 @@
 	id<VVMTLTextureImage>		filterTex = nil;
 	if (srcTex != nil)	{
 		//	make an ISFMSLSceneVal from the texture, pass it to the filter scene
-		id<ISFMSLSceneVal>		inputImageVal = [ISFMSLSceneVal createWithImg:srcTex];
+		id<ISFMSLSceneVal>		inputImageVal = [ISFMSLSceneVal createWithTextureImage:srcTex];
 		[self.filterScene setValue:inputImageVal forInputNamed:@"inputImage"];
 		//	tell the filter scene to render to a texture
 		filterTex = [self.filterScene createAndRenderToTextureSized:renderSize inCommandBuffer:cmdBuffer];
