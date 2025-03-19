@@ -23,5 +23,52 @@ Generally speaking, you're going to want to mimic the configuration of ISFMSLKit
 	- "GLSLangValidatorLib" converts GLSL to SPIR-V, and is from the "GLSLangValidaborLib" branch of [https://github.com/mrRay/glslang](https://github.com/mrRay/glslang) (which is basically a private fork of [https://github.com/KhronosGroup/glslang](https://github.com/KhronosGroup/glslang)).  This is a very crude and simplistic fork of the glslang project- it compiles the CLI as a lib and provides two high-level functions (`ConvertGLSLVertShaderToSPIRV()` and `ConvertGLSLFragShaderToSPIRV()`) that pass values to the CLI's `main()` function.  If you're interested in porting this framework to another platform, you will with any luck be able to use this lib as-is.
 	- "SPIRVCrossLib" converts SPIR-V to MSL, and is from the "SPIRVCrossLib" branch of [https://github.com/mrRay/SPIRV-Cross/tree/SPIRVCrossLib](https://github.com/mrRay/SPIRV-Cross/tree/SPIRVCrossLib) (which is basically a private fork of [https://github.com/KhronosGroup/SPIRV-Cross](https://github.com/KhronosGroup/SPIRV-Cross)).  This is also a very basic fork of the SPIRV-Cross project that compiles the CLI as a lib and provides two high-level functions (`ConvertVertSPIRVToMSL()` and `ConvertFragSPIRVToMSL()`) that pass values to the CLI's `main()` function.  If you're interested in porting this framework to another platform, you'll want to modify this lib to transpile the SPIR-V to your language of choice- and given the crude nature of it, this will probably be very easy.
 
+### Quick examples (also see the included test app)
 
+Create the render properties, pool, and cache:
+```objc
+//	Create and initializes the global RenderProperties with default values
+RenderProperties.global;
+//	Create and initializes the global metal pool
+VVMTLPool.global = [[VVMTLPool alloc] initWithDevice:RenderProperties.global.device];
+//	Create the ISF cache
+ISFMSLCache.global = [[ISFMSLCache alloc] initWithDirectoryPath:[@"~/Library/Application Support/my_app_name" stringByExpandingTildeInPath]];
+```
+
+Examining and ISF file (without touching the render stack):
+```objc
+ISFMSLDoc *myDoc = [ISFMSLDoc createWithURL:url_of_my_doc];
+```
+
+Creating an ISF scene and using it to render a frame to a texture:
+```objc
+ISFMSLScene *myScene = [[ISFMSLScene alloc] initWithDevice:RenderProperties.global.device];
+[myScene loadURL:url_to_isf_file];
+id<MTLCommandBuffer> cmdBuffer = [RenderProperties.global.renderQueue commandBuffer];
+id<VVMTLTextureImage> newFrame = [myScene createAndRenderToTextureSized:NSMakeSize(1920,1080) inCommandBuffer:cmdBuffer];
+[cmdBuffer commit];
+[cmdBuffer waitUntilCompleted];
+id<MTLTexture> rawMetalTexture = newFrame.texture;
+```
+
+Passing images (textures) to the ISF scene:
+```objc
+id<MTLTexture> rawMetalTexture = populated_from_your_app;
+[myScene setValue:[ISFMSLSceneVal createWithTexture:rawMetalTexture] forInputNamed:@"myInputName"];
+
+id<VVMTLTextureImage> aDifferentTextureImage = also_populated_from_your_app;
+[myScene setValue:[ISFMSLSceneVal createWithTextureImage:aDifferentTextureImage] forInputNamed:@"anotherInputName"];
+```
+
+Compiling/caching ISF files before they're used:
+```objc
+for (NSString * isfPath in GetArrayOfDefaultISFs(ISFMSLProto_All))	{
+	//	This will compile the ISF file (or recompile it if it has changed since it was initially 
+	//	compiled) and store the compiled shader to disk for reuse:
+	[ISFMSLCache.global
+		getCachedISFAtURL:[NSURL fileURLWithPath:isfPath]
+		forDevice:RenderProperties.global.device
+		hint:ISFMSLCacheHint_TranspileIfDateDelta];
+}
+```
 
