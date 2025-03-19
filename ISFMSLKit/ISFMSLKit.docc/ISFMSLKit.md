@@ -51,7 +51,7 @@ id<MTLTexture> rawMetalTexture = newFrame.texture;
 
 ```objc
 id<MTLTexture> rawMetalTexture = populated_from_your_app;
-[myScene setValue:[ISFMSLSceneVal createWithTexture:rawMetalTextureInput] forInputNamed:@"myInputName"];
+[myScene setValue:[ISFMSLSceneVal createWithTexture:rawMetalTexture] forInputNamed:@"myInputName"];
 
 id<VVMTLTextureImage> aDifferentTextureImage = also_populated_from_your_app;
 [myScene setValue:[ISFMSLSceneVal createWithTextureImage:aDifferentTextureImage] forInputNamed:@"anotherInputName"];

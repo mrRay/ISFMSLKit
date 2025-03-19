@@ -87,9 +87,9 @@ typedef NS_ENUM(NSInteger, ISFValType)	{
 + (id<ISFMSLSceneVal>) createWithColorVals:(double*)n;
 ///	Creates an event-type value
 + (id<ISFMSLSceneVal>) createWithEvent;
-///	Creates an image-type value with an `id<VVMTLTextureImage>`
+///	Creates an image-type value with an `id<VVMTLTextureImage>`.  This retains the passed texture, but does not copy it.
 + (id<ISFMSLSceneVal>) createWithTextureImage:(id<VVMTLTextureImage>)n;
-///	Creates an image-type value with an `id<MTLTexture>`
+///	Creates an image-type value with an `id<MTLTexture>`.  This retains the passed texture, but does not copy it.
 + (id<ISFMSLSceneVal>) createWithTexture:(id<MTLTexture>)n;
 
 
