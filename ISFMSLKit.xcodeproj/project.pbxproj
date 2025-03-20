@@ -12,9 +12,9 @@
 		1AAEC4EE2C613916002BA584 /* ISFMSLTranspilerError.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AAEC4EC2C613916002BA584 /* ISFMSLTranspilerError.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AAEC4EF2C613916002BA584 /* ISFMSLTranspilerError.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AAEC4ED2C613916002BA584 /* ISFMSLTranspilerError.mm */; };
 		1AB1181E2B32423100DDC139 /* VVMetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB1181D2B32423100DDC139 /* VVMetalKit.framework */; };
-		1AB118222B32423900DDC139 /* PINCache.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB118202B32423900DDC139 /* PINCache.framework */; };
-		1AB118242B32423900DDC139 /* PINOperation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB118212B32423900DDC139 /* PINOperation.framework */; };
 		1AB118272B32428400DDC139 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB118262B32428400DDC139 /* MetalKit.framework */; };
+		1AE1F5EA2D8C860900432C1F /* PINCache.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB118202B32423900DDC139 /* PINCache.framework */; };
+		1AE1F5EC2D8C860900432C1F /* PINOperation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB118212B32423900DDC139 /* PINOperation.framework */; };
 		1AE830E32B3237770068889F /* ISFMSLKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE830E22B3237770068889F /* ISFMSLKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AE830EC2B3237FD0068889F /* ISFMSLKit.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AE830EB2B3237FD0068889F /* ISFMSLKit.mm */; };
 		1AE831052B3238100068889F /* ISFMSLSceneAttrib_priv.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE830ED2B3238100068889F /* ISFMSLSceneAttrib_priv.h */; };
@@ -130,13 +130,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				1AE831252B323CE60068889F /* Metal.framework in Frameworks */,
+				1AE1F5EA2D8C860900432C1F /* PINCache.framework in Frameworks */,
 				1AB118272B32428400DDC139 /* MetalKit.framework in Frameworks */,
 				1AE831272B323CEE0068889F /* CoreGraphics.framework in Frameworks */,
-				1AB118242B32423900DDC139 /* PINOperation.framework in Frameworks */,
+				1AE1F5EC2D8C860900432C1F /* PINOperation.framework in Frameworks */,
 				1AE831292B323D0C0068889F /* libGLSLangValidatorLib.dylib in Frameworks */,
 				1AB1181E2B32423100DDC139 /* VVMetalKit.framework in Frameworks */,
 				1AE831302B323DBB0068889F /* libISFGLSLGenerator.dylib in Frameworks */,
-				1AB118222B32423900DDC139 /* PINCache.framework in Frameworks */,
 				1AE8312B2B323D100068889F /* libSPIRVCrossLib.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

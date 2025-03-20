@@ -1,9 +1,9 @@
 [submodule "ISFGLSLGenerator"]
 	path = submodules/ISFGLSLGenerator
 	url = git@github.com:mrRay/ISFGLSLGenerator.git
-[submodule "submodules/PINCache-dev-binaries"]
-	path = submodules/PINCache-dev-binaries
-	url = git@github.com:mrRay/PINCache-dev-binaries.git
 [submodule "submodules/VVMetalKit"]
 	path = submodules/VVMetalKit
 	url = git@github.com:mrRay/VVMetalKit.git
+[submodule "submodules/PINCache"]
+	path = submodules/PINCache
+	url = git@github.com:mrRay/PINCache.git

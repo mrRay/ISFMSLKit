@@ -8,12 +8,12 @@
       location = "group:submodules/VVMetalKit/VVMetalKit.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:submodules/PINCache-dev-binaries/src/PINCache.xcodeproj">
-   </FileRef>
-   <FileRef
-      location = "group:submodules/PINCache-dev-binaries/src/Carthage/Checkouts/PINOperation/PINOperation.xcodeproj">
-   </FileRef>
-   <FileRef
       location = "group:ISFMSLKitTestApp/ISFMSLKitTestApp.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:submodules/PINCache/PINCache.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:submodules/PINCache/Carthage/Checkouts/PINOperation/PINOperation.xcodeproj">
    </FileRef>
 </Workspace>

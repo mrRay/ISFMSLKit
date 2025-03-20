@@ -1,4 +1,4 @@
-### Orientation
+# ISFMSLKit
 
 ISFMSLKit is a Mac framework for working with [ISF](https://github.com/mrRay/ISF_Spec/?tab=readme-ov-file) files (and the GLSL source code they contain) in a tech stack that uses Metal to render content.  At runtime, it transpiles GLSL to MSL, caches the compiled binaries to disk for rapid access, and uses Metal to render content to textures.
 
@@ -15,9 +15,9 @@ Generally speaking, you're going to want to mimic the configuration of ISFMSLKit
 ### Dependencies (included)
 
 - ISFMSLKit has a couple dependencies loaded as submodules- you won't have to work with these in any significant capacity while using ISFMSLKit, but if you start modifying or porting the project you'll bump into them in short order:
-	- "PINCache" is used to cache information about ISF files as well as precompiled Metal shaders that can be used at runtime to load ISF files rapidly.
-	- "VVMetalKit" is a framework that offers a number of basic Metal utilities- it's used by ISFMSLKit primarily to pool textures/buffers.
-	- "ISFGLSLGenerator" is a cross-platform c++ lib for loading and working with ISF files- it provides a programmatic interface for exploring the attributes and parameters of ISF files, and generates GLSL source code for them.  If you want to build something akin to ISFMSLKit for another platform you will want to use this lib to generate the GLSL to be transpiled.  If you're familiar with [VVISF-GL](https://github.com/mrRay/VVISF-GL) then this should be very familiar, as it's basically a subset of that lib.
+	- "[PINCache](https://github.com/pinterest/PINCache)" is used to cache information about ISF files as well as precompiled Metal shaders that can be used at runtime to load ISF files rapidly.
+	- "[VVMetalKit](https://github.com/mrRay/VVMetalKit)" is a framework that offers a number of basic Metal utilities- it's used by ISFMSLKit primarily to pool textures/buffers.
+	- "[ISFGLSLGenerator](https://github.com/mrRay/ISFGLSLGenerator)" is a cross-platform c++ lib for loading and working with ISF files- it provides a programmatic interface for exploring the attributes and parameters of ISF files, and generates GLSL source code for them.  If you want to build something akin to ISFMSLKit for another platform you will want to use this lib to generate the GLSL to be transpiled.  If you're familiar with [VVISF-GL](https://github.com/mrRay/VVISF-GL) then this should be very familiar, as it's basically a subset of that lib.
 
 - ISFMSLKit has a couple dependencies loaded as precompiled binaries, located in the "extern" subdirectory- you won't have to work with these directly while using ISFMSLKit, and they're provided as precompiled binaries only to reduce compilation times (source is also available if you'd rather build your own):
 	- "GLSLangValidatorLib" converts GLSL to SPIR-V, and is from the "GLSLangValidaborLib" branch of [https://github.com/mrRay/glslang](https://github.com/mrRay/glslang) (which is basically a private fork of [https://github.com/KhronosGroup/glslang](https://github.com/KhronosGroup/glslang)).  This is a very crude and simplistic fork of the glslang project- it compiles the CLI as a lib and provides two high-level functions (`ConvertGLSLVertShaderToSPIRV()` and `ConvertGLSLFragShaderToSPIRV()`) that pass values to the CLI's `main()` function.  If you're interested in porting this framework to another platform, you will with any luck be able to use this lib as-is.
@@ -72,3 +72,14 @@ for (NSString * isfPath in GetArrayOfDefaultISFs(ISFMSLProto_All))	{
 }
 ```
 
+### Documentation:
+
+Documentation is provided in Apple's "DocC" format- it's also documented heavily with traditional inline comments.
+
+### Licensing
+
+ISFMSLKit is published under the BSD license, and its dependencies are published under the MIT, BSD, and Apache licenses- you can do whatever you want with this and feel good about yourself!  If you have any ideas for improvements (or you find any bugs or problems), please open an issue and let me know.
+
+### Say hi!
+
+I love seeing what other people do with ISF- don't be a stranger, send an email with your project details to isf [at] vidvox [dot] net!
