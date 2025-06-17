@@ -1,8 +1,8 @@
 #ifndef GLSLANGVALIDATORLIB_H
 #define GLSLANGVALIDATORLIB_H
 
+#include <vector>
 #include <string>
-
 
 void GLSLangValidatorLibFunc();
 
