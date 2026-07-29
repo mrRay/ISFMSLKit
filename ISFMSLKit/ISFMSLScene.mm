@@ -289,43 +289,53 @@ using namespace std;
 	}
 }
 - (NSURL *) url	{
-	if (doc == nullptr)
-		return nil;
-	const auto			cppPath = doc->path();
-	NSString			*tmpString = [[NSString stringWithUTF8String:cppPath.c_str()] stringByExpandingTildeInPath];
-	return [NSURL fileURLWithPath:tmpString];
+	@synchronized (self)	{
+		if (doc == nullptr)
+			return nil;
+		const auto			cppPath = doc->path();
+		NSString			*tmpString = [[NSString stringWithUTF8String:cppPath.c_str()] stringByExpandingTildeInPath];
+		return [NSURL fileURLWithPath:tmpString];
+	}
 }
 - (NSString *) fileDescription	{
-	if (doc == nullptr)
-		return nil;
-	const auto			cppStr = doc->description();
-	NSString			*tmpStr = [[NSString stringWithUTF8String:cppStr.c_str()] stringByExpandingTildeInPath];
-	return tmpStr;
+	@synchronized (self)	{
+		if (doc == nullptr)
+			return nil;
+		const auto			cppStr = doc->description();
+		NSString			*tmpStr = [[NSString stringWithUTF8String:cppStr.c_str()] stringByExpandingTildeInPath];
+		return tmpStr;
+	}
 }
 - (NSString *) credit	{
-	if (doc == nullptr)
-		return nil;
-	const auto			cppStr = doc->credit();
-	NSString			*tmpStr = [[NSString stringWithUTF8String:cppStr.c_str()] stringByExpandingTildeInPath];
-	return tmpStr;
+	@synchronized (self)	{
+		if (doc == nullptr)
+			return nil;
+		const auto			cppStr = doc->credit();
+		NSString			*tmpStr = [[NSString stringWithUTF8String:cppStr.c_str()] stringByExpandingTildeInPath];
+		return tmpStr;
+	}
 }
 - (NSString *) vsn	{
-	if (doc == nullptr)
-		return nil;
-	const auto			cppStr = doc->vsn();
-	NSString			*tmpStr = [[NSString stringWithUTF8String:cppStr.c_str()] stringByExpandingTildeInPath];
-	return tmpStr;
+	@synchronized (self)	{
+		if (doc == nullptr)
+			return nil;
+		const auto			cppStr = doc->vsn();
+		NSString			*tmpStr = [[NSString stringWithUTF8String:cppStr.c_str()] stringByExpandingTildeInPath];
+		return tmpStr;
+	}
 }
 - (NSArray<NSString*> *) categoryNames	{
-	if (doc == nullptr)
-		return nil;
-	NSMutableArray		*returnMe = [[NSMutableArray alloc] init];
-	for (const auto & category : doc->categories())	{
-		NSString		*tmpStr = [NSString stringWithUTF8String:category.c_str()];
-		if (tmpStr != nil)
-			[returnMe addObject:tmpStr];
+	@synchronized (self)	{
+		if (doc == nullptr)
+			return nil;
+		NSMutableArray		*returnMe = [[NSMutableArray alloc] init];
+		for (const auto & category : doc->categories())	{
+			NSString		*tmpStr = [NSString stringWithUTF8String:category.c_str()];
+			if (tmpStr != nil)
+				[returnMe addObject:tmpStr];
+		}
+		return returnMe;
 	}
-	return returnMe;
 }
 
 
@@ -893,17 +903,20 @@ using namespace std;
 	if (pool == nil)
 		return nil;
 	
-	if (doc == nullptr)
-		return nil;
-	
 	id<VVMTLTextureImage>		returnMe = nil;
-	//	get the last pass, figure out whether we need a float texture or not
-	const auto &		passes = doc->renderPasses();
-	const auto &		pass = passes[passes.size()-1];
-	if (pass->floatFlag())
-		returnMe = [pool rgbaFloatTexSized:inSize];
-	else
-		returnMe = [pool bgra8TexSized:inSize];
+	@synchronized (self)	{
+		//	the doc check belongs INSIDE the monitor- loadURL: clears doc under this same lock, so a check
+		//	made outside it is stale by the time we acquire
+		if (doc == nullptr)
+			return nil;
+		//	get the last pass, figure out whether we need a float texture or not
+		const auto &		docPasses = doc->renderPasses();
+		const auto &		pass = docPasses[docPasses.size()-1];
+		if (pass->floatFlag())
+			returnMe = [pool rgbaFloatTexSized:inSize];
+		else
+			returnMe = [pool bgra8TexSized:inSize];
+	}
 	
 	if (returnMe == nil)
 		return returnMe;
@@ -937,10 +950,12 @@ using namespace std;
 - (id<ISFMSLScenePassTarget>) passAtIndex:(NSUInteger)n	{
 	if (n == NSNotFound)
 		return nil;
-	if (n <= passes.count)
-		return nil;
-	
-	return [passes objectAtIndex:n];
+	@synchronized (self)	{
+		if (n >= passes.count)
+			return nil;
+		
+		return [passes objectAtIndex:n];
+	}
 }
 - (id<ISFMSLScenePassTarget>) passNamed:(NSString *)n	{
 	if (n == nil)
@@ -948,10 +963,12 @@ using namespace std;
 	if (n.length < 1)
 		return nil;
 	
-	for (id<ISFMSLScenePassTarget> pass in passes)	{
-		NSString		*passName = pass.name;
-		if (passName != nil && [passName isEqualToString:n])
-			return pass;
+	@synchronized (self)	{
+		for (id<ISFMSLScenePassTarget> pass in passes)	{
+			NSString		*passName = pass.name;
+			if (passName != nil && [passName isEqualToString:n])
+				return pass;
+		}
 	}
 	
 	return nil;
@@ -964,29 +981,37 @@ using namespace std;
 	if (n.length < 1)
 		return nil;
 	
-	for (id<ISFMSLSceneAttrib> input in inputs)	{
-		NSString		*inputName = input.name;
-		if (inputName != nil && [inputName isEqualToString:n])
-			return input;
+	@synchronized (self)	{
+		for (id<ISFMSLSceneAttrib> input in inputs)	{
+			NSString		*inputName = input.name;
+			if (inputName != nil && [inputName isEqualToString:n])
+				return input;
+		}
 	}
 	
 	return nil;
 }
 - (NSArray<id<ISFMSLSceneAttrib>> *) inputsOfType:(ISFValType)n	{
 	NSMutableArray		*returnMe = [[NSMutableArray alloc] init];
-	for (id<ISFMSLSceneAttrib> input in inputs)	{
-		if (input.type == n)
-			[returnMe addObject:input];
+	@synchronized (self)	{
+		for (id<ISFMSLSceneAttrib> input in inputs)	{
+			if (input.type == n)
+				[returnMe addObject:input];
+		}
 	}
 	return returnMe;
 }
 
 
 - (NSArray<id<ISFMSLScenePassTarget>> *) passes	{
-	return [NSArray arrayWithArray:passes];
+	@synchronized (self)	{
+		return [NSArray arrayWithArray:passes];
+	}
 }
 - (NSArray<id<ISFMSLSceneAttrib>> *) inputs	{
-	return [NSArray arrayWithArray:inputs];
+	@synchronized (self)	{
+		return [NSArray arrayWithArray:inputs];
+	}
 }
 
 
@@ -994,11 +1019,15 @@ using namespace std;
 	if (n == nil)
 		return nil;
 	
-	std::string			tmpName { n.UTF8String };
-	VVISF::ISFAttrRef	tmpAttr = doc->input(tmpName);
-	VVISF::ISFVal		tmpVal = (tmpAttr==nullptr) ? VVISF::CreateISFValNull() : tmpAttr->currentVal();
-	//VVISF::ISFVal	tmpVal = doc->valueForInputNamed(tmpName);
-	return [ISFMSLSceneVal createWithISFVal:tmpVal];
+	@synchronized (self)	{
+		if (doc == nullptr)
+			return nil;
+		std::string			tmpName { n.UTF8String };
+		VVISF::ISFAttrRef	tmpAttr = doc->input(tmpName);
+		VVISF::ISFVal		tmpVal = (tmpAttr==nullptr) ? VVISF::CreateISFValNull() : tmpAttr->currentVal();
+		//VVISF::ISFVal	tmpVal = doc->valueForInputNamed(tmpName);
+		return [ISFMSLSceneVal createWithISFVal:tmpVal];
+	}
 }
 - (void) setValue:(id<ISFMSLSceneVal>)inVal forInputNamed:(NSString *)inName	{
 	if (inName == nil || inVal == nil)
