@@ -14,8 +14,14 @@ LOCAL_BUILD_DIR="${PROJECT_TEMP_ROOT}/ISFGLSLGenerator.build"
 
 LOCAL_INSTALL_DIR="${LOCAL_SRC_DIR}/build/install"
 
-# make sure that cmake has created a build system in the build dir (if we don't, the 'clean' command may fail)
-cmake -S "${LOCAL_SRC_DIR}" -B "${LOCAL_BUILD_DIR}"
+if [ "${CONFIGURATION}" = "Debug" ]
+then
+	LOCAL_CMAKE_BUILD_TYPE="Debug"
+else
+	LOCAL_CMAKE_BUILD_TYPE="RelWithDebInfo"
+fi
+
+cmake -S "${LOCAL_SRC_DIR}" -B "${LOCAL_BUILD_DIR}" -DCMAKE_BUILD_TYPE="${LOCAL_CMAKE_BUILD_TYPE}"
 #cmake -S "${LOCAL_SRC_DIR}" -B "${LOCAL_BUILD_DIR}" -G Xcode
 
 # this is a "flag file"- its contents are irrelevant, the file's existence indicates state
@@ -37,7 +43,7 @@ fi
 
 echo "buliding ISFGLSLGenerator..."
 
-cmake --build "${LOCAL_BUILD_DIR}" --config RelWithDebInfo
+cmake --build "${LOCAL_BUILD_DIR}" --config "${LOCAL_CMAKE_BUILD_TYPE}"
 #cmake --build "${LOCAL_BUILD_DIR}" --config ${CONFIGURATION}
 
 cmake --install "${LOCAL_BUILD_DIR}" --prefix "${LOCAL_INSTALL_DIR}"
