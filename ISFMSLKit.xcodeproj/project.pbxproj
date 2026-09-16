@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		1A37C3472D88B88E001562B0 /* ISFMSLKit.docc in Sources */ = {isa = PBXBuildFile; fileRef = 1A37C3462D88B88E001562B0 /* ISFMSLKit.docc */; };
 		1A5E93392C46BD5400D611BF /* ISFMSLCache_priv.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A5E93382C46BD5400D611BF /* ISFMSLCache_priv.h */; };
+		1A659AB3305ADFE1001F76E8 /* ISFMSLFuncSignature.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A659AB1305ADFE1001F76E8 /* ISFMSLFuncSignature.hpp */; };
+		1A659AB4305ADFE1001F76E8 /* ISFMSLFuncSignature.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A659AB2305ADFE1001F76E8 /* ISFMSLFuncSignature.mm */; };
 		1AAEC4EE2C613916002BA584 /* ISFMSLTranspilerError.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AAEC4EC2C613916002BA584 /* ISFMSLTranspilerError.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AAEC4EF2C613916002BA584 /* ISFMSLTranspilerError.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AAEC4ED2C613916002BA584 /* ISFMSLTranspilerError.mm */; };
 		1AB1181E2B32423100DDC139 /* VVMetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB1181D2B32423100DDC139 /* VVMetalKit.framework */; };
@@ -82,6 +84,8 @@
 /* Begin PBXFileReference section */
 		1A37C3462D88B88E001562B0 /* ISFMSLKit.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; name = ISFMSLKit.docc; path = ISFMSLKit/ISFMSLKit.docc; sourceTree = "<group>"; };
 		1A5E93382C46BD5400D611BF /* ISFMSLCache_priv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISFMSLCache_priv.h; sourceTree = "<group>"; };
+		1A659AB1305ADFE1001F76E8 /* ISFMSLFuncSignature.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ISFMSLFuncSignature.hpp; sourceTree = "<group>"; };
+		1A659AB2305ADFE1001F76E8 /* ISFMSLFuncSignature.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ISFMSLFuncSignature.mm; sourceTree = "<group>"; };
 		1AAEC4EC2C613916002BA584 /* ISFMSLTranspilerError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISFMSLTranspilerError.h; sourceTree = "<group>"; };
 		1AAEC4ED2C613916002BA584 /* ISFMSLTranspilerError.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ISFMSLTranspilerError.mm; sourceTree = "<group>"; };
 		1AB1181D2B32423100DDC139 /* VVMetalKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = VVMetalKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -176,6 +180,8 @@
 				1AE830EE2B3238100068889F /* ISFMSLCacheObject.h */,
 				1AE830F12B3238100068889F /* ISFMSLCacheObject.mm */,
 				1AE831002B3238100068889F /* ISFMSLConstants.h */,
+				1A659AB1305ADFE1001F76E8 /* ISFMSLFuncSignature.hpp */,
+				1A659AB2305ADFE1001F76E8 /* ISFMSLFuncSignature.mm */,
 				1AE830F32B3238100068889F /* ISFMSLNSStringAdditions.h */,
 				1AE830FA2B3238100068889F /* ISFMSLNSStringAdditions.mm */,
 				1AE830FB2B3238100068889F /* ISFMSLScene.h */,
@@ -242,6 +248,7 @@
 				1AE831082B3238100068889F /* ISFImage.h in Headers */,
 				1AE831052B3238100068889F /* ISFMSLSceneAttrib_priv.h in Headers */,
 				1AE831192B3238100068889F /* ISFMSLSceneVal_priv.h in Headers */,
+				1A659AB3305ADFE1001F76E8 /* ISFMSLFuncSignature.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -346,6 +353,7 @@
 				1A37C3472D88B88E001562B0 /* ISFMSLKit.docc in Sources */,
 				1AE831092B3238100068889F /* ISFMSLCacheObject.mm in Sources */,
 				1AAEC4EF2C613916002BA584 /* ISFMSLTranspilerError.mm in Sources */,
+				1A659AB4305ADFE1001F76E8 /* ISFMSLFuncSignature.mm in Sources */,
 				1AE8311C2B3238100068889F /* ISFMSLBinCacheObject.mm in Sources */,
 				1AE8310D2B3238100068889F /* ISFMSLSceneImgRef_priv.mm in Sources */,
 				1AE831122B3238100068889F /* ISFMSLNSStringAdditions.mm in Sources */,

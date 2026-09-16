@@ -8,6 +8,7 @@
 #import "ISFMSLTranspilerError.h"
 
 #import "ISFMSLCacheObject.h"
+#include "ISFMSLFuncSignature.hpp"
 
 #include "VVISF.hpp"
 
@@ -30,6 +31,9 @@
 @property (readwrite) BOOL vertSPIRVErrFlag;
 @property (strong) NSString * vertSPIRVErrString;
 
+@property (readwrite) BOOL vertBindingErrFlag;
+@property (strong) NSString * vertBindingErrString;
+
 @property (readwrite) BOOL vertMSLErrFlag;
 @property (strong) NSString * vertMSLErrString;
 
@@ -39,6 +43,9 @@
 
 @property (readwrite) BOOL fragSPIRVErrFlag;
 @property (strong) NSString * fragSPIRVErrString;
+
+@property (readwrite) BOOL fragBindingErrFlag;
+@property (strong) NSString * fragBindingErrString;
 
 @property (readwrite) BOOL fragMSLErrFlag;
 @property (strong) NSString * fragMSLErrString;
@@ -55,6 +62,29 @@
 @property (strong) NSString * mslFragSrcWithLineNumbers;
 
 @end
+
+
+
+
+//	one tab-indented line per offender, for the log file- the uniform block is ours, not something the ISF's author declared, so it gets a sentence instead of a line in the list
+static NSString * StringFromUnboundArgs(const std::vector<ISFMSLUnboundArg> & inArgs)	{
+	NSMutableArray<NSString*>		*lines = [[NSMutableArray alloc] init];
+	BOOL		uniformBlockDisplaced = NO;
+	int			uniformBlockBufferIndex = 0;
+	for (const ISFMSLUnboundArg & unboundArg : inArgs)	{
+		if (unboundArg.name == std::string("VVISF_UNIFORMS&"))	{
+			uniformBlockDisplaced = YES;
+			uniformBlockBufferIndex = unboundArg.index;
+			continue;
+		}
+		[lines addObject:[NSString stringWithFormat:@"\t%s (%s %d)",unboundArg.name.c_str(),unboundArg.kind.c_str(),unboundArg.index]];
+	}
+	if (uniformBlockDisplaced)	{
+		NSString		*declarationNoun = (lines.count == 1) ? @"the declaration listed above" : @"the declarations listed above";
+		[lines addObject:[NSString stringWithFormat:@"The ISF uniform block was displaced to buffer %d by %@.",uniformBlockBufferIndex,declarationNoun]];
+	}
+	return [lines componentsJoinedByString:@"\n"];
+}
 
 
 
@@ -80,6 +110,8 @@
 		_vertGLSLErrString = nil;
 		_vertSPIRVErrFlag = NO;
 		_vertSPIRVErrString = nil;
+		_vertBindingErrFlag = NO;
+		_vertBindingErrString = nil;
 		_vertMSLErrFlag = NO;
 		_vertMSLErrString = nil;
 		
@@ -87,6 +119,8 @@
 		_fragGLSLErrString = nil;
 		_fragSPIRVErrFlag = NO;
 		_fragSPIRVErrString = nil;
+		_fragBindingErrFlag = NO;
+		_fragBindingErrString = nil;
 		_fragMSLErrFlag = NO;
 		_fragMSLErrString = nil;
 		
@@ -102,11 +136,24 @@
 		
 		NSString		*fullPath = self.url.path;
 		const char		*inURLPathCStr = fullPath.UTF8String;
+		ISFMSLEntryPointNames		entryPointNames = ISFMSLEntryPointNamesForPath(std::string(inURLPathCStr));
 		#if DEBUG
-		VVISF::ISFDocRef		doc = VVISF::CreateISFDocRef(inURLPathCStr, true);
+		VVISF::ISFDocRef		doc;
+		try	{
+			doc = VVISF::CreateISFDocRef(inURLPathCStr, true);
+		}
+		catch (const VVISF::ISFErr & isfErr)	{
+			NSLog(@"ERR: unable to make doc from ISF %@ (%s) - %s",fullPath,__func__,isfErr.getTypeString().c_str());
+			doc = nullptr;
+		}
 		#else
 		VVISF::ISFDocRef		doc = VVISF::CreateISFDocRef(inURLPathCStr, false);
 		#endif
+		
+		if (doc == nullptr)	{
+			self = nil;
+			return self;
+		}
 		
 		NSError			*nsErr = nil;
 		std::string		tmpErrString = std::string("");
@@ -177,13 +224,13 @@
 			std::string		mslFragSrc;
 			
 			tmpErrString = std::string("");
-			self.vertSPIRVErrFlag = !ConvertVertSPIRVToMSL(spirvVtxData, std::string("main"), mslVertSrc, tmpErrString);
+			self.vertSPIRVErrFlag = !ConvertVertSPIRVToMSL(spirvVtxData, entryPointNames.vert, mslVertSrc, tmpErrString);
 			if (self.vertSPIRVErrFlag)	{
 				self.vertSPIRVErrString = [NSString stringWithUTF8String:tmpErrString.c_str()];
 			}
 			
 			tmpErrString = std::string("");
-			self.fragSPIRVErrFlag = !ConvertFragSPIRVToMSL(spirvFrgData, std::string("main"), mslFragSrc, tmpErrString);
+			self.fragSPIRVErrFlag = !ConvertFragSPIRVToMSL(spirvFrgData, entryPointNames.frag, mslFragSrc, tmpErrString);
 			if (self.fragSPIRVErrFlag)	{
 				self.fragSPIRVErrString = [NSString stringWithUTF8String:tmpErrString.c_str()];
 			}
@@ -218,30 +265,49 @@
 				}];
 				_mslFragSrcWithLineNumbers = [NSString stringWithString:tmpMutString];
 				
-				nsErr = nil;
-				id<MTLLibrary>		vertLib = [self.device newLibraryWithSource:_mslVertSrc options:nil error:&nsErr];
-				self.vertMSLErrFlag = (vertLib == nil || nsErr != nil);
-				if (self.vertMSLErrFlag)	{
-					self.vertMSLErrString = (nsErr==nil) ? @"" : nsErr.localizedDescription;
-				}
-				vertLib = nil;
+				//	a GLSL "uniform" declared in the ISF's shader body isn't part of the ISF spec, but survives to the MSL as its own entry-point arg that the render path has no value to bind
+				std::vector<ISFMSLUnboundArg>		vertUnboundArgs = ISFMSLFindUnboundArgs(ISFMSLParseFuncSignature(entryPointNames.vert, mslVertSrc), *doc);
+				std::vector<ISFMSLUnboundArg>		fragUnboundArgs = ISFMSLFindUnboundArgs(ISFMSLParseFuncSignature(entryPointNames.frag, mslFragSrc), *doc);
 				
-				nsErr = nil;
-				id<MTLLibrary>		fragLib = [self.device newLibraryWithSource:_mslFragSrc options:nil error:&nsErr];
-				self.fragMSLErrFlag = (fragLib == nil || nsErr != nil);
-				if (self.fragMSLErrFlag)	{
-					self.fragMSLErrString = (nsErr==nil) ? @"" : nsErr.localizedDescription;
+				self.vertBindingErrFlag = (vertUnboundArgs.size() > 0);
+				if (self.vertBindingErrFlag)	{
+					self.vertBindingErrString = StringFromUnboundArgs(vertUnboundArgs);
 				}
-				fragLib = nil;
+				
+				self.fragBindingErrFlag = (fragUnboundArgs.size() > 0);
+				if (self.fragBindingErrFlag)	{
+					self.fragBindingErrString = StringFromUnboundArgs(fragUnboundArgs);
+				}
+				
+				//	if the MSL doesn't declare anything we can't bind, proceed with compiling the MSL source code
+				if (!self.vertBindingErrFlag && !self.fragBindingErrFlag)	{
+					nsErr = nil;
+					id<MTLLibrary>		vertLib = [self.device newLibraryWithSource:_mslVertSrc options:nil error:&nsErr];
+					self.vertMSLErrFlag = (vertLib == nil || nsErr != nil);
+					if (self.vertMSLErrFlag)	{
+						self.vertMSLErrString = (nsErr==nil) ? @"" : nsErr.localizedDescription;
+					}
+					vertLib = nil;
+					
+					nsErr = nil;
+					id<MTLLibrary>		fragLib = [self.device newLibraryWithSource:_mslFragSrc options:nil error:&nsErr];
+					self.fragMSLErrFlag = (fragLib == nil || nsErr != nil);
+					if (self.fragMSLErrFlag)	{
+						self.fragMSLErrString = (nsErr==nil) ? @"" : nsErr.localizedDescription;
+					}
+					fragLib = nil;
+				}
 			}
 		}
 		
 		//	if there aren't any error flags, everything checked out: clear myself and return nil!
 		if (!_vertGLSLErrFlag
 		&& !_vertSPIRVErrFlag
+		&& !_vertBindingErrFlag
 		&& !_vertMSLErrFlag
 		&& !_fragGLSLErrFlag
 		&& !_fragSPIRVErrFlag
+		&& !_fragBindingErrFlag
 		&& !_fragMSLErrFlag)
 		{
 			self = nil;
@@ -254,7 +320,7 @@
 }
 
 - (NSString *) description	{
-	return [NSString stringWithFormat:@"<ISFMSLTranspilerError %@, %d/%d, %d/%d, %d/%d>",self.url.lastPathComponent,_vertGLSLErrFlag,_fragGLSLErrFlag,_vertSPIRVErrFlag,_fragSPIRVErrFlag,_vertMSLErrFlag,_fragMSLErrFlag];
+	return [NSString stringWithFormat:@"<ISFMSLTranspilerError %@, %d/%d, %d/%d, %d/%d, %d/%d>",self.url.lastPathComponent,_vertGLSLErrFlag,_fragGLSLErrFlag,_vertSPIRVErrFlag,_fragSPIRVErrFlag,_vertBindingErrFlag,_fragBindingErrFlag,_vertMSLErrFlag,_fragMSLErrFlag];
 }
 
 - (NSString *) generateStringForLogFile	{
@@ -269,6 +335,7 @@
 	//	if there aren't any error flags, log as such and return immediately
 	if (!_vertGLSLErrFlag && !_fragGLSLErrFlag
 	&& !_vertSPIRVErrFlag && !_fragSPIRVErrFlag
+	&& !_vertBindingErrFlag && !_fragBindingErrFlag
 	&& !_vertMSLErrFlag && !_fragMSLErrFlag)	{
 		[mut appendString:@"No errors detected\n"];
 		return [NSString stringWithString:mut];
@@ -308,6 +375,28 @@
 			[mut appendString:@"Error converting Fragment Shader SPIR-V to MSL:\n"];
 			[mut appendFormat:@"%@\n",_fragSPIRVErrString];
 		}
+		//	we're done now and can return
+		return [NSString stringWithString:mut];
+	}
+	
+	//	if there's a binding error flag (the MSL declares args the ISF host can't supply), add it to the string
+	if (_vertBindingErrFlag || _fragBindingErrFlag)	{
+		[mut appendString:div];
+		if (_vertBindingErrString != nil)	{
+			[mut appendString:@"Vertex Shader declares inputs that the ISF host cannot supply:\n"];
+			[mut appendFormat:@"%@\n",_vertBindingErrString];
+		}
+		if (_fragBindingErrString != nil)	{
+			[mut appendString:@"Fragment Shader declares inputs that the ISF host cannot supply:\n"];
+			[mut appendFormat:@"%@\n",_fragBindingErrString];
+		}
+		[mut appendString:@"ISF inputs must be declared in the JSON \"INPUTS\" block; GLSL \"uniform\" declarations in the shader body are not part of the ISF spec and have no value to bind on Metal.\n"];
+		
+		[mut appendString:div];
+		
+		//	add the GLSL source code to the string
+		[mut appendFormat:@"GLSL Vertex Shader:\n%@\n",_glslVertSrcWithLineNumbers];
+		[mut appendFormat:@"GLSL Fragment Shader:\n%@\n",_glslFragSrcWithLineNumbers];
 		//	we're done now and can return
 		return [NSString stringWithString:mut];
 	}

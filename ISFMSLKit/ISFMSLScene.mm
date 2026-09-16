@@ -145,7 +145,13 @@ using namespace std;
 		const char		*pathCStr = path.UTF8String;
 		//std::string		inURLPathStr { pathCStr };
 		#if DEBUG
-		doc = VVISF::CreateISFDocRef(pathCStr, true);
+		try	{
+			doc = VVISF::CreateISFDocRef(pathCStr, true);
+		}
+		catch (const VVISF::ISFErr & isfErr)	{
+			NSLog(@"ERR: unable to make doc from ISF %@ (%s) - %s",path,__func__,isfErr.getTypeString().c_str());
+			doc = nullptr;
+		}
 		#else
 		doc = VVISF::CreateISFDocRef(pathCStr, false);
 		#endif

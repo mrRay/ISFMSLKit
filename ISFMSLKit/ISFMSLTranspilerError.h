@@ -30,6 +30,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly) BOOL vertSPIRVErrFlag;	//	err with vert, SPIR-V -> MSL
 @property (readonly) NSString * vertSPIRVErrString;
 
+@property (readonly) BOOL vertBindingErrFlag;	//	err with vert, MSL declares args the ISF host can't bind
+@property (readonly) NSString * vertBindingErrString;
+
 @property (readonly) BOOL vertMSLErrFlag;	//	err with vert, compiling MSL
 @property (readonly) NSString * vertMSLErrString;
 
@@ -39,6 +42,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (readonly) BOOL fragSPIRVErrFlag;	//	err with frag, SPIR-V -> MSL
 @property (readonly) NSString * fragSPIRVErrString;
+
+@property (readonly) BOOL fragBindingErrFlag;	//	err with frag, MSL declares args the ISF host can't bind
+@property (readonly) NSString * fragBindingErrString;
 
 @property (readonly) BOOL fragMSLErrFlag;	//	err with frag, compiling MSL
 @property (readonly) NSString * fragMSLErrString;
